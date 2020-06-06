@@ -10,5 +10,9 @@ namespace PokemonSimulator
         {
             throw new NotImplementedException();
         }
+        public void RequestFieldChange(Pokemon proposedModel /*handle to conversation*/)
+        {
+            //notify server and opponent that your pokemon differs from the template.
+        }
     }
 }

@@ -10,7 +10,7 @@ namespace PokemonSimulator
     /// Do not call the default CTOR on this object, call GetPokemonBlueprint to get "".
     /// </summary>
     public struct APIPokemonBlueprint
-    {
+    {        
         #region Typedefs
         public struct NameURL
         {
