@@ -8,7 +8,7 @@ namespace PokemonSimulator
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello Pokemon World!");
+            Console.WriteLine(APIPokemonBlueprint.GetPokemonBlueprint("ditto").ToString());
         }
     }
 }

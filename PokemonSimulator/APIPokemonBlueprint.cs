@@ -12,102 +12,127 @@ namespace PokemonSimulator
     public struct APIPokemonBlueprint
     {
         #region Typedefs
+        public struct NameURL
+        {
+            /// <summary>
+            /// The name of this object.
+            /// </summary>
+            public string name;
+            /// <summary>
+            /// The URL resource of this object.
+            /// </summary>
+            public string url;
+        }
         public struct Ability
         {
             /// <summary>
             /// Contains the name and URL of the ability; (in that order).
             /// </summary>
-            public readonly ValueTuple<string, string> ability;
+            public NameURL ability;
             /// <summary>
             /// Whether or not the ability is publicly visible to the opponent.
             /// </summary>
-            public readonly bool isHidden;
+            public bool is_hidden;
             /// <summary>
             /// The slot that this ability occupies.
             /// </summary>
-            public readonly int slotNum;
+            public int slot;
         }        
         public struct GameOccurances
         {
             /// <summary>
             /// The game index.
             /// </summary>
-            public readonly int gameIndex;
+            public int game_index;
             /// <summary>
             /// Name and URL of the game version this pokemon appears in.
             /// </summary>
-            public readonly ValueTuple<string, string> version;
+            public NameURL version;
         }
         public struct Item
         {
-            
+            public struct VersionDetails
+            {
+                /// <summary>
+                /// The rarity of this item.
+                /// </summary>
+                public int rarity;
+                /// <summary>
+                /// The version associated with the above rarity.
+                /// </summary>
+                public NameURL version;
+            }
             /// <summary>
-            /// Name of the item.
+            /// The name/url of the item.
             /// </summary>
-            public readonly string name;
+            public NameURL item;
             /// <summary>
-            /// URL of the item.
+            /// List of the version details for this item.
             /// </summary>
-            public readonly string url;
+            public VersionDetails[] version_details;
         }
-        public struct ItemVersion
+        public struct SpritePack
+        {
+            public string back_default;
+            public string back_female;
+            public string back_shiny;
+            public string back_shiny_female;
+            public string front_default;
+            public string front_female;
+            public string front_shiny;
+            public string front_shiny_female;
+        }
+        public struct StatPack
         {
             /// <summary>
-            /// The rarity of the item in that version.
+            /// The base stat for this stat.
             /// </summary>
-            public readonly int rarity;
+            public int base_stat;
             /// <summary>
-            /// The game version; (name and version).
-            /// </summary>
-            public readonly ValueTuple<string, string> version;
-        }
-        public struct Move
-        {
+            /// Idk what this field means.
+            /// </summary>            
+            public int effort;
             /// <summary>
-            /// The name of the move.
+            /// The name/URL of this stat.
             /// </summary>
-            public readonly string name;
-            /// <summary>
-            /// The URL.
-            /// </summary>
-            public readonly string URL;
-        }
-        public struct MoveVersion
-        {
-            /// <summary>
-            /// The level that the move is able to be learned at.
-            /// </summary>
-            public readonly int levelLearnedAt;
-            /// <summary>
-            /// The method the move is learned, and URL.
-            /// </summary>
-            public readonly ValueTuple<string, string> moveLearnMethod;
-            /// <summary>
-            /// The name of the version and the URL.
-            /// </summary>
-            public readonly ValueTuple<string, string> version;
-        }
-        public struct Stat
-        {
-            /// <summary>
-            /// The name of the statistic.
-            /// </summary>
-            public readonly string name;
-            /// <summary>
-            /// The url of the statistic.
-            /// </summary>
-            public readonly string url;
+            public NameURL stat;
         }
         public struct Type
         {
             /// <summary>
-            /// The name of the type.
+            /// The slot this type takes up in the pokemon's definition.
             /// </summary>
-            public readonly string name;
+            public int slot;
             /// <summary>
-            /// The url of the type.
+            /// The name/URL of this type.
             /// </summary>
-            public readonly string url;
+            public NameURL type;
+        }
+        public struct Move
+        {
+            public struct MoveVersion
+            {
+                /// <summary>
+                /// The level that the move is able to be learned at.
+                /// </summary>
+                public int level_learned_at;
+                /// <summary>
+                /// The method the move is learned, and URL.
+                /// </summary>
+                public NameURL move_learn_method;
+                /// <summary>
+                /// The name of the version and the URL.
+                /// </summary>
+                public NameURL version_group;
+            }
+            /// <summary>
+            /// The name/URL of this move.
+            /// </summary>
+            public NameURL move;
+            /// <summary>
+            /// The version details for each version.
+            /// </summary>
+            public MoveVersion[] version_group_details;
         }
         #endregion
 
@@ -116,71 +141,71 @@ namespace PokemonSimulator
         /// <summary>
         /// The abilities that this pokemon has.
         /// </summary>
-        public readonly Ability[] abilities;
+        public Ability[] abilities;
         /// <summary>
         /// The base experience this pokemon has.
         /// </summary>
-        public readonly int baseExp;
+        public int base_experience;
         /// <summary>
         /// The forms that this pokemon can take; (name and URL).
         /// </summary>
-        public readonly ValueTuple<string, string>[] forms;
+        public NameURL[] forms;
         /// <summary>
         /// The games this pokemon appears in.
         /// </summary>
-        public readonly GameOccurances[] games;
+        public GameOccurances[] game_indices;
         /// <summary>
         /// The height of this pokemon.
         /// </summary>
-        public readonly int height;
+        public int height;
         /// <summary>
         /// The items held by this pokemon.
         /// </summary>
-        public readonly ValueTuple<Item, ItemVersion>[] heldItems;
+        public Item[] held_items;
         /// <summary>
         /// The ID of this pokemon.
         /// </summary>
-        public readonly int id;
+        public int id;
         /// <summary>
         /// Don't know what this field is honestly.
         /// </summary>
-        public readonly bool isDefault;
+        public bool is_default;
         /// <summary>
         /// The places you will encounter this pokemon.
         /// </summary>
-        public readonly string locationAreaEncounters;
+        public string location_area_encounters;
         /// <summary>
         /// The moves this pokemon has.
         /// </summary>
-        public readonly ValueTuple<Move, MoveVersion>[] moves;
+        public Move[] moves;
         /// <summary>
         /// This pokemon's name.
         /// </summary>
-        public readonly string name;
+        public string name;
         /// <summary>
         /// The value to order by this pokemon when sorting.
         /// </summary>
-        public readonly int order;
+        public int order;
         /// <summary>
         /// The name and URL of the species.
         /// </summary>
-        public readonly ValueTuple<string, string> species;
+        public NameURL species;
         /// <summary>
         /// Back default, back female, back shiny, back shiny female, front default, front female, front shiny, front shiny female.
         /// </summary>
-        public readonly string[] sprites;
+        public SpritePack sprites;
         /// <summary>
         /// Base stat, effort, and Stat.
         /// </summary>
-        public readonly ValueTuple<int, int, Stat> stats;
+        public StatPack[] stats;
         /// <summary>
         /// The slot of the type and the type.
         /// </summary>
-        public readonly ValueTuple<int, Type>[] types;
+        public Type[] types;
         /// <summary>
         /// The weight of the pokemon.
         /// </summary>
-        public readonly int weight;
+        public int weight;
         #endregion
 
         #region Ctors
@@ -200,6 +225,13 @@ namespace PokemonSimulator
 
             APIPokemonBlueprint pokemon = JsonConvert.DeserializeObject<APIPokemonBlueprint>(response.Content);            
             return pokemon;            
+        }
+        #endregion
+
+        #region Redefinitions/Overrides
+        public new string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
         #endregion
     }
