@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using MySql.Data.MySqlClient;
 using System.Linq;
+
 
 namespace PokemonSimulator
 {
@@ -8,7 +10,8 @@ namespace PokemonSimulator
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello Pokemon World!");
+            var authConnection = new DBconnect();
+
         }
     }
 }
