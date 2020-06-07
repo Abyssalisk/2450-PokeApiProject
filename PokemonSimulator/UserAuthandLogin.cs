@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using System.Web;
 using MySql.Data.MySqlClient;
+using RestSharp.Validation;
 
 namespace PokemonSimulator
 {
@@ -28,21 +29,19 @@ namespace PokemonSimulator
 
     public class DBconnect
     {
+        public MySqlConnection myConnection;
         public DBconnect()
         {
             Console.WriteLine("connecting.....");
-            var testQuery = "select * from sql3346222.userCredentials";
             var connectionString = Helpers.GetRDSConnectionString();
 
-            using (MySqlConnection myConnection = new MySqlConnection())
+            using (MySqlConnection connect = new MySqlConnection())
             {
-                myConnection.ConnectionString = connectionString;
-                myConnection.Open();
-                Console.WriteLine("Connected !!!!!!Version: " + myConnection.ServerVersion);
-                // execute queries, etc
-                var query = new MySqlCommand(testQuery, myConnection);
-
-                myConnection.Close();
+                connect.ConnectionString = connectionString;
+                connect.Open();
+                Console.WriteLine("Connected !!!!!!Version: " + connect.ServerVersion);
+                myConnection = connect;
+                connect.Close();
             }
         }
     }
@@ -53,8 +52,90 @@ namespace PokemonSimulator
         {
             Console.WriteLine("Welcome to Pokemon Battle Simulator Console Version!");
             var connection = new DBconnect();
+            string newUser;
 
-            Console.WriteLine("Please enter your username: ");
+            Console.WriteLine("Are you a new trainer? (y/n)");
+            newUser = Console.ReadLine();
+            if(newUser == "y"||newUser == "Y")
+            {
+                var createNewTrainer = new CreateNewUser(connection.myConnection);
+            }
+            Console.WriteLine("Please login! Trainer name: ");
+            var loginName = Console.ReadLine();
+
+            Console.WriteLine("enter your password: ");
+            var password = Console.ReadLine();
+
+            Validate(loginName, password, connection.myConnection);
         }
+        private void Validate(string userName, string pass, MySqlConnection con)
+        {
+            string lookupByName = "SELECT password FROM sql3346222.userCredentials WHERE(TrainerName = '"+userName+"');";
+            string correctPassword = "";
+
+            con.Open();
+            MySqlCommand query = new MySqlCommand(lookupByName, con);
+            MySqlDataReader rdr = query.ExecuteReader();
+
+            while (rdr.Read())
+            {
+                correctPassword=rdr[0].ToString();
+            }
+            rdr.Close();
+
+            string attemptedPassword;
+            var sendToHashPasswordAlg = new HashingAlg(pass);
+            attemptedPassword = sendToHashPasswordAlg.getHash();
+            if (correctPassword==attemptedPassword)
+            {
+                Console.WriteLine("Welcome "+userName);
+            }
+
+        }
+}
+
+    public class CreateNewUser
+    {
+        string TrainerName;
+        string password;
+
+        public CreateNewUser(MySqlConnection con)
+        {
+            Console.WriteLine("Enter new desired trainer name");
+            TrainerName = Console.ReadLine();
+
+            Console.WriteLine("Enter new password");
+            password = Console.ReadLine();
+            password = UserPasswordHash(password);
+
+            insertDBcredentials(TrainerName, password, con);
+        }
+
+        private string UserPasswordHash(string thePass)
+        {
+            string Hashedpass;
+            var sendToHashPasswordAlg = new HashingAlg(thePass);
+            Hashedpass = sendToHashPasswordAlg.getHash();
+            return Hashedpass;
+        }
+
+        private void insertDBcredentials(String name, String passAfterItHashed, MySqlConnection connection)
+        {
+            connection.Open();
+            string plainTextQuery = "INSERT INTO sql3346222.userCredentials(TrainerName, password) VALUES('" + name + "','" + passAfterItHashed + "');";
+            MySqlCommand query = new MySqlCommand(plainTextQuery, connection);
+            MySqlDataReader rdr = query.ExecuteReader();
+
+            while (rdr.Read())
+            {
+                Console.WriteLine(rdr[0] + " -- " + rdr[1]);
+            }
+            rdr.Close();
+            connection.Close();
+
+            Console.WriteLine("new trainer added!");
+
+        }
+
     }
 }

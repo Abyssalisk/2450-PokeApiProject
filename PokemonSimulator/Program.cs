@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using System.Linq;
-
+using System.Security.Policy;
 
 namespace PokemonSimulator
 {
@@ -10,7 +10,7 @@ namespace PokemonSimulator
     {
         static void Main(string[] args)
         {
-            var authConnection = new DBconnect();
+            var loginIntialize = new ConsoleOutputInput();
 
         }
     }
