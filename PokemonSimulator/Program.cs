@@ -9,7 +9,7 @@ namespace PokemonSimulator
         static void Main(string[] args)
         {            
             APIPokemonBlueprint apip = APIPokemonBlueprint.GetPokemonBlueprint("crobat");
-            Console.WriteLine(apip.ToString() + "\n\n\n");
+            Console.WriteLine(apip.ToString().Length + "\n\n\n");
             Pokemon p = new Pokemon(apip);
             Console.WriteLine(p.ToString() + "\n\n\n");
         }
