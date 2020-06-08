@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS USERS
 (
-	USER_ID int AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	GAMER_TAG char(20) NOT NULL,
-	USERNAME char(40) NOT NULL,
-	PASSHASH binary(32) NOT NULL,
-	EMAIL char(80) NOT NULL,
-	ACCOUNT_DATA char(2000) DEFAULT = NULL
+	USER_ID int AUTO_INCREMENT NOT NULL PRIMARY KEY, #internal use only
+	GAMER_TAG char(20) NOT NULL, #can be changed freely by the user at any time
+	USERNAME char(40) NOT NULL, #used to login only
+	PASSHASH binary(32) NOT NULL, #password hash
+	EMAIL char(80) NOT NULL, #email associated with the account.
+	ACCOUNT_DATA char(2000) DEFAULT = NULL #items, stats, and references to teams this user has
 );
 CREATE TABLE IF NOT EXISTS TEAMS
 (
