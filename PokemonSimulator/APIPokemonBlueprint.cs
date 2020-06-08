@@ -10,7 +10,7 @@ namespace PokemonSimulator
     /// Do not call the default CTOR on this object, call GetPokemonBlueprint to get "".
     /// </summary>
     public struct APIPokemonBlueprint
-    {        
+    {
         #region Typedefs
         public struct NameURL
         {
@@ -37,7 +37,7 @@ namespace PokemonSimulator
             /// The slot that this ability occupies.
             /// </summary>
             public int slot;
-        }        
+        }
         public struct GameOccurances
         {
             /// <summary>
@@ -223,8 +223,8 @@ namespace PokemonSimulator
             request.AddHeader("cache-control", "no-cache");
             IRestResponse response = client.Execute(request);
 
-            APIPokemonBlueprint pokemon = JsonConvert.DeserializeObject<APIPokemonBlueprint>(response.Content);            
-            return pokemon;            
+            APIPokemonBlueprint pokemon = JsonConvert.DeserializeObject<APIPokemonBlueprint>(response.Content);
+            return pokemon;
         }
         #endregion
 

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace PokemonSimulator
 {
+    [Flags]
     public enum PokemonType : int
     {
         Bug = 0b0000000000000000000000000000001,

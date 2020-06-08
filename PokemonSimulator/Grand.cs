@@ -9,9 +9,18 @@ namespace PokemonSimulator
 {
     public static class Grand
     {
-        public readonly static HashAlgorithm sha = new SHA1CryptoServiceProvider();
+        public readonly static HashAlgorithm sha;
+        static Grand()
+        {
+            sha = new SHA1CryptoServiceProvider();
+            AppDomain.CurrentDomain.ProcessExit += GrandDestructor;
+        }
+        static void GrandDestructor(object sender, EventArgs e)
+        {
+            sha.Dispose();
+        }
         public static bool VerifyPokemonLegitimacy(APIPokemonBlueprint mine, APIPokemonBlueprint theirs)
-        {        
+        {
             byte[] mh = sha.ComputeHash(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(mine, typeof(APIPokemonBlueprint), Formatting.None, null)));
             byte[] th = sha.ComputeHash(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(theirs, typeof(APIPokemonBlueprint), Formatting.None, null)));
             for (int i = 0; i < mh.Length; i++)
