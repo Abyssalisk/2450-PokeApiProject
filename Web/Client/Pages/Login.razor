@@ -1,0 +1,33 @@
+﻿@page "/"
+@inject NavigationManager navMan
+@inject HttpClient client
+
+<h1>Login</h1>
+
+<p>This is a page where login form should go for existing trainers to login or create a new account.</p>
+<!-- Create the form... -->
+<button class="btn btn-primary" @onclick="Authenticate">Login</button>
+<button class="btn btn-primary" @onclick="CreateAccount">Create Account</button>
+
+
+@code {
+    public string trainerHandle = string.Empty;
+    public string password = string.Empty;
+
+
+    private void Authenticate()
+    {
+        if (!string.IsNullOrEmpty(trainerHandle) && !string.IsNullOrEmpty(password))
+        {
+            // todo: authenticate 
+        }
+        Console.WriteLine("I'm trying to login...");
+        navMan.NavigateTo("team");
+    }
+
+    private void CreateAccount()
+    {
+        Console.WriteLine("Creating new account...");
+        navMan.NavigateTo("newTrainer");
+    }
+}

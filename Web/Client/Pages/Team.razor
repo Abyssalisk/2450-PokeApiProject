@@ -1,0 +1,30 @@
+﻿@page "/team"
+@inject NavigationManager navMan
+@inject HttpClient client
+
+<h1>Login</h1>
+
+<p>This is a page where login form should go for existing trainers to login or create a new account.</p>
+<!-- Create the form... -->
+<button class="btn btn-primary" @onclick="SelectPreviousTeam">Select</button>
+<button class="btn btn-primary" @onclick="CreateNewTeam">Create New Team</button>
+
+
+@code {
+    public string trainerHandle = string.Empty;
+    public string password = string.Empty;
+
+
+    private void SelectPreviousTeam()
+    {
+        // todo: get selection from existing teams indicated on UI through DDL, etc...
+        Console.WriteLine("Selecting team...");
+        navMan.NavigateTo("battle");
+    }
+
+    private void CreateNewTeam()
+    {
+        Console.WriteLine("Creating new team...");
+        navMan.NavigateTo("newTeam");
+    }
+}
