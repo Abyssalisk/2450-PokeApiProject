@@ -1,0 +1,20 @@
+﻿@page "/newTrainer"
+@inject NavigationManager navMan
+@inject HttpClient client
+
+<h1>Create New Trainer</h1>
+
+<p>Form here with some basic info so we can create a new trainer for the person...</p>
+<!-- Form stuffz here... -->
+<button class="btn btn-primary" @onclick="Save">Save</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void Save()
+    {
+        // TODO create new trainer, verify if handle already exists, form validation, etc...
+        Console.WriteLine("creating new trainer...");
+        navMan.NavigateTo("team");
+    }
+}
