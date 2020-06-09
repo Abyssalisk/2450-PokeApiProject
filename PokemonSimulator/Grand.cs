@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
+using Org.BouncyCastle.Asn1.Cms;
 
 namespace PokemonSimulator
 {
@@ -25,7 +26,8 @@ namespace PokemonSimulator
             private DualNode root;
             private List<DualNode> dangling = new List<DualNode>();
             //private List<DualNode> processed = new List<DualNode>();
-            private class DualNode : ISerializable //FIX THIS.
+#warning FIX THIS!!!
+            private class DualNode// : ISerializable //FIX THIS.
             {
                 internal DualNode Parent { get; set; } = null;
                 internal uint numerical = 0;
@@ -192,9 +194,11 @@ namespace PokemonSimulator
         }
         #endregion
         public readonly static HashAlgorithm sha;
+        public readonly static Random rand;
         static Grand()
         {
             sha = new SHA1CryptoServiceProvider();
+            rand = new Random(((DateTime.Now.Millisecond - 500) * 17) / 5);
             AppDomain.CurrentDomain.ProcessExit += GrandDestructor;
         }
         static void GrandDestructor(object sender, EventArgs e)

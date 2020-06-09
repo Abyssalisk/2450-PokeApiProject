@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace PokemonSimulator
@@ -21,10 +22,17 @@ namespace PokemonSimulator
         public int BaseDefense { get; private set; }
         public int BaseSpecialAttack { get; private set; }
         public int BaseSpecialDefense { get; private set; }
+        public int ActingHP { get; private set; }
+        public int ActingSpeed { get; private set; }
+        public int ActingAttack { get; private set; }
+        public int ActingDefense { get; private set; }
+        public int ActingSpecialAttack { get; private set; }
+        public int ActingSpecialDefense { get; private set; }
         public string FirstMove { get; private set; } = string.Empty;
         public string SecondMove { get; private set; } = string.Empty;
         public string ThirdMove { get; private set; } = string.Empty;
         public string FourthMove { get; private set; } = string.Empty;
+        public bool IsAlive { get => ActingHP > 0; }
         #endregion
 
         #region Ctors
@@ -40,12 +48,12 @@ namespace PokemonSimulator
             }
             Species = model.name;
             Nickname = Nickname ?? Species;
-            BaseHP = Array.Find(model.stats, x => x.stat.name == "hp").base_stat;
-            BaseSpeed = Array.Find(model.stats, x => x.stat.name == "speed").base_stat;
-            BaseAttack = Array.Find(model.stats, x => x.stat.name == "attack").base_stat;
-            BaseDefense = Array.Find(model.stats, x => x.stat.name == "defense").base_stat;
-            BaseSpecialAttack = Array.Find(model.stats, x => x.stat.name == "special-attack").base_stat;
-            BaseSpecialDefense = Array.Find(model.stats, x => x.stat.name == "special-defense").base_stat;
+            ActingHP = BaseHP = Array.Find(model.stats, x => x.stat.name == "hp").base_stat;
+            ActingSpeed = BaseSpeed = Array.Find(model.stats, x => x.stat.name == "speed").base_stat;
+            ActingAttack = BaseAttack = Array.Find(model.stats, x => x.stat.name == "attack").base_stat;
+            ActingDefense = BaseDefense = Array.Find(model.stats, x => x.stat.name == "defense").base_stat;
+            ActingSpecialAttack = BaseSpecialAttack = Array.Find(model.stats, x => x.stat.name == "special-attack").base_stat;
+            ActingSpecialDefense = BaseSpecialDefense = Array.Find(model.stats, x => x.stat.name == "special-defense").base_stat;
             if (model.moves.Length > 3)
             {
                 FirstMove = model.moves[0].move.name;
@@ -75,6 +83,20 @@ namespace PokemonSimulator
         public void RequestFieldChange(Pokemon proposedModel /*handle to conversation*/)
         {
             //notify server and opponent that your pokemon differs from the template.
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Modifies the health by adding the value provided to the pokemon's current health value.
+        /// </summary>
+        /// <param name="value">The value to add or subtract from the health value</param>
+        [Obsolete("For testing only.")]
+        public void ModifyHealth(int value)
+        {
+            ActingHP += value;
+            if (ActingHP < 0)
+            {
+                ActingHP = 0;
+            }
         }
         #endregion
 
