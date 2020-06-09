@@ -37,11 +37,23 @@ namespace PokemonSimulator
 
             using (MySqlConnection connect = new MySqlConnection())
             {
-                connect.ConnectionString = connectionString;
-                connect.Open();
-                Console.WriteLine("Connected !!!!!!Version: " + connect.ServerVersion);
-                myConnection = connect;
-                connect.Close();
+                try
+                {
+                    connect.ConnectionString = connectionString;
+                    connect.Open();
+                }
+                catch (MySqlException e)
+                {
+                    Console.WriteLine(e.ToString());
+                    Console.WriteLine("Failed to connect, check your internet connection!");
+                }
+
+                finally
+                {
+                    if (connect != null || connect.State == System.Data.ConnectionState.Open)
+                        myConnection = connect;
+                    connect.Close();
+                }
             }
         }
     }

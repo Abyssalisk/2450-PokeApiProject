@@ -10,7 +10,7 @@ namespace PokemonSimulator
     {
         static void Main(string[] args)
         {
-            var loginIntialize = new ConsoleOutputInput();
+            var loginintialize = new ConsoleOutputInput();
 
         }
     }

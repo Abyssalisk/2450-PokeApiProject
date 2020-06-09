@@ -12,12 +12,13 @@ namespace PokemonSimulator
 
     public class ConsoleOutputInput
     {
-        DBconnect connection = new DBconnect();
+        DBconnect connection;
         string loginName = "";
         string password = "";
         public ConsoleOutputInput()
         {
             Console.WriteLine("Welcome to Pokemon Battle Simulator Console Version!");
+            connection = new DBconnect();
 
             string newUser;
 
@@ -79,6 +80,7 @@ namespace PokemonSimulator
                 correctPassword=rdr[0].ToString();
             }
             rdr.Close();
+            con.Close();
 
             string attemptedPassword;
             var sendToHashPasswordAlg = new HashingAlg(pass);
@@ -88,6 +90,7 @@ namespace PokemonSimulator
             if (correctPassword==attemptedPassword)
             {
                 Console.WriteLine("Welcome "+userName);
+                Console.WriteLine("-------------------------------------------------------------------");
             }else //failed login attempt
             {
                 Console.WriteLine("Username or password incorrect! Please try again!");
@@ -98,7 +101,7 @@ namespace PokemonSimulator
                 {
                     if(resetPasswrodYorN=="y"|| resetPasswrodYorN=="Y")
                     {
-                        var reset = new ResetPassword();
+                        var reset = new ResetPassword(con);
                         Login();
                         break;
                     }
@@ -109,6 +112,7 @@ namespace PokemonSimulator
                     }
 
                     Console.WriteLine("Invalid choice, please eneter y to reset password or n to reattempt login!");
+                    break;
                 }
             }
 
