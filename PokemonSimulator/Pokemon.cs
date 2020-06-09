@@ -6,6 +6,9 @@ using System.Text;
 
 namespace PokemonSimulator
 {
+    /// <summary>
+    /// Author: Samuel Gardner
+    /// </summary>
     class Pokemon
     {
         #region Fields

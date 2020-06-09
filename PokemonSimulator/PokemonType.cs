@@ -4,6 +4,9 @@ using System.Text;
 
 namespace PokemonSimulator
 {
+    /// <summary>
+    /// Author: Samuel Gardner
+    /// </summary>
     [Flags]
     public enum PokemonType : int
     {

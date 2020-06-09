@@ -3,13 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace PokemonSimulator
 {
     /// <summary>
     /// Do not call the default CTOR on this object, call GetPokemonBlueprint to get "".
+    /// Author: Samuel Gardner
     /// </summary>
-    public struct APIPokemonBlueprint
+    public struct APIPokemonBlueprint : ISerializable
     {
         #region Typedefs
         public struct NameURL
@@ -232,6 +234,13 @@ namespace PokemonSimulator
         public new string ToString()
         {
             return JsonConvert.SerializeObject(this);
+        }
+        #endregion
+
+        #region Method Implements
+        public void GetObjectData(SerializationInfo sInfo, StreamingContext context)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }
