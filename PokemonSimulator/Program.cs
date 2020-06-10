@@ -9,6 +9,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Drawing;
 using System.Runtime.InteropServices.ComTypes;
+using System.Diagnostics;
 
 namespace PokemonSimulator
 {
@@ -19,10 +20,10 @@ namespace PokemonSimulator
     {
         static void Main(string[] args)
         {
-            /*const string huffTest = "Lorem ipsum dolor sit amet means roughly " +
+            const string huffTest = "Lorem ipsum dolor sit amet means roughly " +
                 "\'Lorem very pain let it be carrots\'. Interesting, Huh? []I[]Like[]Brackets[]" +
                 "Very[]Much[] and you can use them as the letter O, but boxy. H[]wdy there," +
-                "my []ctopus like fr[][]t l[][]ps.";*/
+                "my []ctopus like fr[][]t l[][]ps.";
             //const string connectionString = "";
             //MySqlConnection server = new MySqlConnection(connectionString);
             //server.Open();
@@ -47,25 +48,33 @@ namespace PokemonSimulator
             //Pokemon p = new Pokemon(apip);
             //Console.WriteLine(p.ToString() + "\n\n\n");
             //Grand.HuffmanSerialize("AAAAbbbCCd");
-            Regex yes = new Regex("^[y|Ye|Es|S]|[y|Y]");
-            Regex no = new Regex("^[n|No|O]|[n|N]");
+
             bool playing = true;
-            float runningCompressionEfficency = 0f;
+            float compressionAverageEffc = 0f;
+            float compressionAverageTime = 0f;
             int iterationCount = 0;
             while (playing)
             {
                 APIPokemonBlueprint enemyApi = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString());
                 APIPokemonBlueprint yoursApi = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString());
+                Console.WriteLine("Serialization Test Success: " + (Grand.HuffmanDeserialize(Grand.HuffmanSerialize(enemyApi.ToString())) == enemyApi.ToString()));
+                Console.WriteLine("Hufftest: " + (huffTest == Grand.HuffmanDeserialize(Grand.HuffmanSerialize(huffTest))));
                 int beforeCompression = enemyApi.ToString().Length;
+                Stopwatch sw = new Stopwatch();
+                sw.Restart();
                 string compressed = Grand.HuffmanSerialize(enemyApi.ToString());
+                sw.Stop();
                 int afterCompression = compressed.Length;
                 Console.WriteLine($"{enemyApi.name} before compression is " + beforeCompression + " characters long");
                 Console.WriteLine($"{enemyApi.name} after compression is " + afterCompression + " characters long");
-                runningCompressionEfficency *= iterationCount;
+                compressionAverageEffc *= iterationCount;
                 iterationCount++;
-                runningCompressionEfficency += (((float)beforeCompression - (float)afterCompression) / ((float)beforeCompression));
-                runningCompressionEfficency /= iterationCount;
-                Console.WriteLine($"Mean compression efficency is {runningCompressionEfficency * 100f}%.");
+                compressionAverageEffc += (((float)beforeCompression - (float)afterCompression) / ((float)beforeCompression));
+                compressionAverageEffc /= iterationCount;
+                compressionAverageTime += sw.ElapsedMilliseconds;
+                compressionAverageTime /= ((float)iterationCount);
+                Console.WriteLine($"Mean compression efficency is {compressionAverageEffc * 100f}%.");
+                Console.WriteLine($"Mean compression time is {compressionAverageTime}ms or {compressionAverageTime / 1000f} seconds.");
                 //Console.WriteLine("\n\n\n");
                 //Console.ForegroundColor = ConsoleColor.DarkGray;
                 //Console.WriteLine(compressed);
@@ -101,12 +110,12 @@ namespace PokemonSimulator
                 do
                 {
                     string input = Console.ReadLine().Trim();
-                    if (yes.IsMatch(input))
+                    if (Grand.yes.IsMatch(input))
                     {
                         validInput = true;
                         continue;
                     }
-                    else if (no.IsMatch(input))
+                    else if (Grand.no.IsMatch(input))
                     {
                         playing = false;
                         validInput = true;
