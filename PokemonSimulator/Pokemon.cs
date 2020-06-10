@@ -54,6 +54,7 @@ namespace PokemonSimulator
             ActingDefense = BaseDefense = Array.Find(model.stats, x => x.stat.name == "defense").base_stat;
             ActingSpecialAttack = BaseSpecialAttack = Array.Find(model.stats, x => x.stat.name == "special-attack").base_stat;
             ActingSpecialDefense = BaseSpecialDefense = Array.Find(model.stats, x => x.stat.name == "special-defense").base_stat;
+            //Temporary.
             if (model.moves.Length > 3)
             {
                 FirstMove = model.moves[0].move.name;

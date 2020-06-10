@@ -11,7 +11,7 @@ namespace PokemonSimulator
     /// Do not call the default CTOR on this object, call GetPokemonBlueprint to get "".
     /// Author: Samuel Gardner
     /// </summary>
-    public struct APIPokemonBlueprint : ISerializable
+    public struct APIPokemonBlueprint// : ISerializable
     {
         #region Typedefs
         public struct NameURL

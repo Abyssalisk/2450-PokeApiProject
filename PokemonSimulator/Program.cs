@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Drawing;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace PokemonSimulator
 {
@@ -49,10 +50,29 @@ namespace PokemonSimulator
             Regex yes = new Regex("^[y|Ye|Es|S]|[y|Y]");
             Regex no = new Regex("^[n|No|O]|[n|N]");
             bool playing = true;
+            float runningCompressionEfficency = 0f;
+            int iterationCount = 0;
             while (playing)
             {
                 APIPokemonBlueprint enemyApi = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString());
                 APIPokemonBlueprint yoursApi = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString());
+                int beforeCompression = enemyApi.ToString().Length;
+                string compressed = Grand.HuffmanSerialize(enemyApi.ToString());
+                int afterCompression = compressed.Length;
+                Console.WriteLine($"{enemyApi.name} before compression is " + beforeCompression + " characters long");
+                Console.WriteLine($"{enemyApi.name} after compression is " + afterCompression + " characters long");
+                runningCompressionEfficency *= iterationCount;
+                iterationCount++;
+                runningCompressionEfficency += (((float)beforeCompression - (float)afterCompression) / ((float)beforeCompression));
+                runningCompressionEfficency /= iterationCount;
+                Console.WriteLine($"Mean compression efficency is {runningCompressionEfficency * 100f}%.");
+                //Console.WriteLine("\n\n\n");
+                //Console.ForegroundColor = ConsoleColor.DarkGray;
+                //Console.WriteLine(compressed);
+                //Console.ForegroundColor = ConsoleColor.White;
+                //Console.WriteLine("\n\n\n");
+                //Console.WriteLine(Grand.VerifyPokemonLegitimacy(enemyApi, yoursApi) + "\n");
+                //Console.WriteLine(Grand.VerifyPokemonLegitimacy(enemyApi, enemyApi) + "\n");
                 Pokemon enemy = new Pokemon(enemyApi);
                 Pokemon yours = new Pokemon(yoursApi);
                 Console.WriteLine($"Welcome to the battle! Your pokemon is {yours.Nickname}, " +
@@ -73,7 +93,7 @@ namespace PokemonSimulator
                     }
                 } while (enemy.IsAlive && yours.IsAlive);
                 Console.Write($"Battle over! Winner is ");
-                Console.ForegroundColor = (yours.ActingHP > 0 ? ConsoleColor.Green : ConsoleColor.Red); 
+                Console.ForegroundColor = (yours.ActingHP > 0 ? ConsoleColor.Green : ConsoleColor.Red);
                 Console.Write($"{(yours.ActingHP > 0 ? "you" : "enemy")}\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("Would you like to play again? (Y/N)");

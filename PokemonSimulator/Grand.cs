@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
 using Org.BouncyCastle.Asn1.Cms;
+using Google.Protobuf;
 
 namespace PokemonSimulator
 {
@@ -26,8 +27,7 @@ namespace PokemonSimulator
             private DualNode root;
             private List<DualNode> dangling = new List<DualNode>();
             //private List<DualNode> processed = new List<DualNode>();
-#warning FIX THIS!!!
-            private class DualNode// : ISerializable //FIX THIS.
+            private class DualNode
             {
                 internal DualNode Parent { get; set; } = null;
                 internal uint numerical = 0;
@@ -66,13 +66,72 @@ namespace PokemonSimulator
                 {
 
                 }
-                //internal DualNode(DualNode parent)
-                //{
-                //    Parent = parent;
-                //}
+                /// <summary>
+                /// Creates a dualnode object (including its subtree) provided in the serialized information.
+                /// </summary>
+                /// <param name="serialized">The serialized data. This is assumed to be in proper form.</param>
+                internal DualNode(string serialized)
+                {
+                    uint num = 0;
+                    char? ch = null;
+                    if (serialized.Substring(0, 2) == "N:")
+                    {
+                        num = uint.Parse(serialized.Substring(2, serialized.IndexOf("C:") - 1));
+                    }
+                    if (serialized.Substring(serialized.IndexOf("C:") + 2, 4) == "NL")
+                    {
+                        ch = null;
+                    }
+                    else
+                    {
+                        ch = serialized.ElementAt(serialized.IndexOf("C:") + 2);
+                    }
+                    string trimmed = serialized.Substring(serialized.IndexOf("A:"), serialized.Length - serialized.IndexOf("A:"));
+                    int indexOfB = 0;
+                    int count = 0;
+                    int index = 2;
+                    do
+                    {
+                        if (trimmed[index] == '[')
+                        {
+                            count++;
+                        }
+                        else if (trimmed[index] == ']')
+                        {
+                            count--;
+                        }
+                        index++;
+                    } while (count > 0 && index < trimmed.Length);
+                    indexOfB = index;
+                    string sa = trimmed.Substring(2, indexOfB - 2);
+                    string sb = trimmed.Substring(indexOfB + 2, trimmed.Length - (indexOfB + 2));
+                    numerical = num;
+                    character = ch;
+                    A = sa == "NL" ? null : new DualNode(sa);
+                    B = sb == "NL" ? null : new DualNode(sb);
+                }
+                internal string Serialize()
+                {
+                    return $"[N:{this.numerical}C:" +
+                        $"{((this.character == null) ? "NL" : this.character.Value.ToString())}" +
+                        $"A:{(this.A == null ? "NL" : A.Serialize())}" +
+                        $"B:{(this.B == null ? "NL" : B.Serialize())}]";
+                }
+                internal static DualNode Deserialize(string serialized)
+                {
+                    if (serialized[0] == '[' && serialized[serialized.Length - 1] == ']')
+                    {
+                        return new DualNode(serialized.Substring(1, serialized.Length - 2));
+                    }
+                    else
+                    {
+                        throw new ArgumentException("The provided string does not appear to be in the proper form.");
+                    }
+                }
             }
             internal string Encode(string text)
             {
+                StringBuilder result = new StringBuilder(string.Empty);
                 {
                     IOrderedEnumerable<KeyValuePair<char, uint>> orderedCommonality;
                     {
@@ -120,7 +179,51 @@ namespace PokemonSimulator
                     dangling.RemoveAt(dangling.Count - 2);
                     dangling = dangling.OrderByDescending(x => x.numerical).ToList();
                 } while (true);
-                throw new NotImplementedException();
+                result.Append(root.Serialize() + "$D");
+                Dictionary<char, string> encodingDictionary = new Dictionary<char, string>();
+                void Tree(DualNode r, string soFar)
+                {
+                    if (r.IsLeaf)
+                    {
+                        encodingDictionary.Add(r.character.Value, soFar);
+                    }
+                    else
+                    {
+                        Tree(r.A, (soFar ?? string.Empty) + "0");
+                        Tree(r.B, (soFar ?? string.Empty) + "1");
+                    }
+                }
+                Tree(root, string.Empty);
+                Queue<string> encodeds = new Queue<string>();
+                foreach (char c in text)
+                {
+                    encodeds.Enqueue(encodingDictionary[c]);
+                }
+                StringBuilder working = new StringBuilder(string.Empty);
+                List<char> charsToAdd = new List<char>();
+                while (encodeds.Count > 0)
+                {
+                    while (working.Length < 16)
+                    {
+                        if (encodeds.Count > 0)
+                        {
+                            working.Append(encodeds.Dequeue());
+                        }
+                        else
+                        {
+                            result.Append((16 - working.Length) + "$D");
+                            working.Append(Enumerable.Repeat('0', 16 - working.Length).ToArray());
+                        }
+                    }
+                    string toChar = working.ToString().Substring(0, 16);
+                    working.Remove(0, 16);
+                    charsToAdd.Add((char)Convert.ToInt32(toChar, 2));
+                }
+                foreach (char c in charsToAdd)
+                {
+                    result.Append(c);
+                }
+                return result.ToString();
                 //while (dangling.Count > 0)
                 //{
                 //    if (dangling.Count == 1)
@@ -152,49 +255,58 @@ namespace PokemonSimulator
                 //}
                 //processed = processed.OrderBy(x => x.numerical).ToList();
             }
-            private void AddBranch(DualNode node)
-            {
-                //dangling.Enqueue(node);
-                //while (dangling.Count > 0)
-                //{
-                //    if (root == null)
-                //    {
-                //        root = dangling.Dequeue();
-                //    }
-                //    else
-                //    {
-                //        root = new DualNode()
-                //        {
-                //            A = root,
-                //            B = dangling.Peek(),
-                //            numerical = root.numerical + dangling.Dequeue().numerical
-                //        };
-                //    }
-                //}
-                //dangling.Enqueue(new DualNode()
-                //{
-                //    A = new DualNode()
-                //    {
-                //        character = a.Key,
-                //        numerical = a.Value,
-                //        A = null,
-                //        B = null
-                //    },
-                //    B = new DualNode()
-                //    {
-                //        character = b.Key,
-                //        numerical = b.Value,
-                //        A = null,
-                //        B = null
-                //    },
-                //    character = null,
-                //    numerical = a.Value + b.Value
-                //});
-            }
+            //private void AddBranch(DualNode node)
+            //{
+            //    //dangling.Enqueue(node);
+            //    //while (dangling.Count > 0)
+            //    //{
+            //    //    if (root == null)
+            //    //    {
+            //    //        root = dangling.Dequeue();
+            //    //    }
+            //    //    else
+            //    //    {
+            //    //        root = new DualNode()
+            //    //        {
+            //    //            A = root,
+            //    //            B = dangling.Peek(),
+            //    //            numerical = root.numerical + dangling.Dequeue().numerical
+            //    //        };
+            //    //    }
+            //    //}
+            //    //dangling.Enqueue(new DualNode()
+            //    //{
+            //    //    A = new DualNode()
+            //    //    {
+            //    //        character = a.Key,
+            //    //        numerical = a.Value,
+            //    //        A = null,
+            //    //        B = null
+            //    //    },
+            //    //    B = new DualNode()
+            //    //    {
+            //    //        character = b.Key,
+            //    //        numerical = b.Value,
+            //    //        A = null,
+            //    //        B = null
+            //    //    },
+            //    //    character = null,
+            //    //    numerical = a.Value + b.Value
+            //    //});
+            //}
         }
         #endregion
+
+        #region Fields
+        #region Consts
+        #endregion
+
+        #region Class Fields
         public readonly static HashAlgorithm sha;
         public readonly static Random rand;
+        #endregion
+        #endregion
+
         static Grand()
         {
             sha = new SHA1CryptoServiceProvider();
