@@ -1,6 +1,7 @@
 ﻿@page "/scoreboard"
 @inject NavigationManager navMan
 @inject HttpClient client
+@using Web.Shared.Models
 
 <h1>Scoreboard</h1>
 
@@ -47,21 +48,10 @@
 
     int score = 0;
 
-
     List<Trainer> topTenTrainers = new List<Trainer>();
 
-    private class Trainer
-    {
-        public string Handle { get; set; }
-        public int Score { get; set; }
-        public List<Pokemon> Team { get; set; }
-    }
-    private class Pokemon
-    {
-        public string Name { get; set; }
-    }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         topTenTrainers.Add(new Trainer()
         {
@@ -88,6 +78,32 @@
             new Pokemon() { Name = "Kakuna" },
             new Pokemon() { Name = "Magikarp" } }
         });
+
+        var testpokemon1 = new Pokemon();
+        var testpokemon2 = new Pokemon();
+        var testpokemon3 = new Pokemon();
+
+
+        // Test Web.Server.Controllers
+        try
+        {
+            var url = client.BaseAddress + "api/Pokemon/1";
+            Console.WriteLine(url);
+            testpokemon1 = await client.GetFromJsonAsync<Pokemon>("api/Pokemon/1");
+            testpokemon2 = await client.GetFromJsonAsync<Pokemon>("api/Pokemon/2");
+            testpokemon3 = await client.GetFromJsonAsync<Pokemon>("api/Pokemon/3");
+
+            topTenTrainers.Add(new Trainer()
+            {
+                Handle = "Trainer Controller",
+                Score = 1576,
+                Team = new List<Pokemon>() { testpokemon1, testpokemon2, testpokemon3 }
+            });
+        }
+        catch // Non success
+        {
+            Console.WriteLine("An error occurred.");
+        }
     }
 
     private void PlayAgain()
