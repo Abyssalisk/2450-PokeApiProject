@@ -80,6 +80,7 @@ namespace PokemonSimulator
         #endregion
 
         #region Methods
+        #region Member Methods
         public void RequestFieldChange(Pokemon proposedModel /*handle to conversation*/)
         {
             //notify server and opponent that your pokemon differs from the template.
@@ -112,6 +113,18 @@ namespace PokemonSimulator
                 $" {((ThirdMove == string.Empty) ? "No move in this slot" : ThirdMove)};" +
                 $" {((FourthMove == string.Empty) ? "No move in this slot" : FourthMove)}.";
         }
+        #endregion
+
+        #region Class Methods
+        //public static VunerabilityLevel GetVunerability(PokemonType attack, PokemonType defense)
+        //{
+        //    switch (attack)
+        //    {
+
+        //    }
+        //    throw new NotImplementedException();
+        //}
+        #endregion
         #endregion
     }
 }

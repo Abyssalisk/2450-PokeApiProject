@@ -29,4 +29,17 @@ namespace PokemonSimulator
         Dark = 0b0000000000000010000000000000000,
         Steel = 0b0000000000000100000000000000000
     }
+    /// <summary>
+    /// Author: Samuel Gardner
+    /// </summary>
+    [Obsolete("Don't know enoguh about pokemon to know if this is all the " +
+        "kinds of vunerability levels associated between types.")]
+    public enum VunerabilityLevel : int
+    {
+        Invunerable = 1,
+        Strong = 2,
+        Nuetral = 4,
+        Weak = 8,
+        Vunerable = 16
+    }
 }
