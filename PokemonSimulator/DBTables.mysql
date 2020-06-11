@@ -1,28 +1,25 @@
-CREATE TABLE IF NOT EXISTS USERS
-(
-	USER_ID int AUTO_INCREMENT NOT NULL PRIMARY KEY, #internal use only
-	GAMER_TAG char(20) NOT NULL, #can be changed freely by the user at any time
-	USERNAME char(40) NOT NULL, #used to login only
-	PASSHASH binary(32) NOT NULL, #password hash
-	EMAIL char(80) NOT NULL, #email associated with the account.
-	ACCOUNT_DATA char(2000) DEFAULT = NULL #items, stats, and references to teams this user has
-);
-CREATE TABLE IF NOT EXISTS TEAMS
-(
-	TEAM_ID int AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	USER_ID int NOT NULL,
-	POKE0_ID int DEFAULT = NULL,
-	POKE1_ID int DEFAULT = NULL,
-	POKE2_ID int DEFAULT = NULL,
-	POKE3_ID int DEFAULT = NULL,
-	POKE4_ID int DEFAULT = NULL,
-	POKE5_ID int DEFAULT = NULL
-);
-CREATE TABLE IF NOT EXISTS POKEMON
-(
-	POKE_ID int AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	TEMPLATE_ID int NOT NULL,
-	DIFF text NOT NULL
-);
-#--Example of fetching a users team.
-#SELECT * FROM `USERS` WHERE `USERS`.`USER_ID` = $"{param}" #<- From CS.
+[N:21C:NL
+	A:[N:9C:NL
+		A:[N:4C:nA:NLB:NL]
+		B:[N:5C:NL
+			A:[N:2C:bA:NLB:NL]
+			B:[N:3C:[A:NLB:NL]]]
+	B:[N:12C:NL
+		A:[N:6C:aA:NLB:NL]
+		B:[N:6C:NL
+			A:[N:3C:'A:NLB:NL]
+			B:[N:3C:]A:NLB:NL]]]]
+[ = 011 | ABB 3
+' = 110 | BBA 3
+] = 111 | BBB 3
+b = 010 | ABA 2
+a = 10  | BA  6
+n = 00  | AA  4
+01111011101010001000100111101111010100000010011110111
+01111011101010001000100111101111010100000010011110111
+01111011101010001000100111101111 101000000100111
+								 101000000100111
+ 
+
+
+[']banana[']aaannb[']

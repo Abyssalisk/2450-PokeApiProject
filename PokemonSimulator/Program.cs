@@ -22,7 +22,7 @@ namespace PokemonSimulator
         {
             const string huffTest1 = "Lorem ipsum dolor sit amet means roughly " +
                 "\'Lorem very pain let it be carrots\'. Interesting, Huh? []I[]Like[]Brackets[]" +
-                "Very[]Much[] and you can use them as the letter O, but boxy. H[]wdy there," +
+                "Very[]Much[] and you can use them as the letter O, but boxy. H[]wdy there, " +
                 "my []ctopus like fr[][]t l[][]ps.";
             const string huffTest2 = "abcabcabcaaaaabbbbb";
             const string huffTest3 = "[\']banana[\']aaannb[\']";
@@ -59,13 +59,13 @@ namespace PokemonSimulator
             {
                 APIPokemonBlueprint enemyApi = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString());
                 APIPokemonBlueprint yoursApi = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString());
-                string result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(huffTest2));
+                string result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(huffTest1));
+                Console.WriteLine("Hufftest1: " + (huffTest1 == result));
+                result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(huffTest2));
                 Console.WriteLine("Hufftest2: " + (huffTest2 == result));
                 result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(huffTest3));
                 Console.WriteLine("Hufftest3: " + (huffTest3 == result));
-                result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(huffTest1));
-                Console.WriteLine("Hufftest1: " + (huffTest1 == result));
-                //Console.WriteLine("Serialization Test Success: " + (Grand.HuffmanDeserialize(Grand.HuffmanSerialize(enemyApi.ToString())) == enemyApi.ToString()));
+                Console.WriteLine("Serialization Test Success: " + (Grand.HuffmanDeserialize(Grand.HuffmanSerialize(enemyApi.ToString())) == enemyApi.ToString()));
                 int beforeCompression = enemyApi.ToString().Length;
                 Stopwatch sw = new Stopwatch();
                 sw.Restart();

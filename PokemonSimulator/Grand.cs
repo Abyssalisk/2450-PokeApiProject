@@ -303,7 +303,7 @@ namespace PokemonSimulator
                 //working = "010 0000000000000"
                 //result.Append((the number of zeroes we added) + "$D")
                 int spares = 0;
-                while (encodeds.Count > 1)
+                while (encodeds.Count > 0)
                 {
                     while (working.Length < 16)
                     {
