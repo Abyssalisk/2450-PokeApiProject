@@ -12,12 +12,12 @@ namespace PokemonSimulator
 
     public class ConsoleOutputInput
     {
-        DBconnect connection;
+        public DBconnect connection;
         string loginName = "";
         string password = "";
 
-        String TrainerName;
-        int userID = 0;
+        public String TrainerName;
+        public int userID = 0;
 
         public ConsoleOutputInput()
         {
