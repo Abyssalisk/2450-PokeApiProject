@@ -21,8 +21,4 @@
     <ProjectReference Include="..\Web\Shared\Web.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ConsoleApp\" />
-  </ItemGroup>
-
 </Project>

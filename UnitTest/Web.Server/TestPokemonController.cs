@@ -4,7 +4,7 @@ using Xunit;
 using FluentAssertions.Common;
 using Nancy.Json;
 
-namespace UnitTest
+namespace UnitTest.Web.Server
 {
     public class TestPokemonController
     {
