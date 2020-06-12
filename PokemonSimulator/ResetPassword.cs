@@ -8,25 +8,24 @@ namespace PokemonSimulator
 {
     public class ResetPassword
     {
-        string verificationString;
-        string trainerName;
-        string enteredEmail;
-        MySqlConnection connection;
+        public string TrainerName { get; set; }
+        public string EnteredEmail { get; set; }
+        public MySqlConnection Connection { get; set; }
 
         public ResetPassword(MySqlConnection con)
         {
             while (true)
             {
-                connection = con;
+                Connection = con;
 
                 Console.WriteLine("lets reset your password\nFirst enter your trainer name: ");
-                trainerName = Console.ReadLine();
+                TrainerName = Console.ReadLine();
 
-                string lookupEmailByName = "SELECT email FROM sql3346222.userCredentials WHERE(TrainerName = '" + trainerName + "');";
+                string lookupEmailByName = "SELECT email FROM sql3346222.userCredentials WHERE(TrainerName = '" + TrainerName + "');";
                 string returnedEmail = "0";
 
                 Console.WriteLine("Enter the email attached to your account: ");
-                enteredEmail = Console.ReadLine();
+                EnteredEmail = Console.ReadLine();
 
                 con.Open();
                 MySqlCommand query = new MySqlCommand(lookupEmailByName, con);
@@ -71,10 +70,10 @@ namespace PokemonSimulator
 
                 while (true)
                 {
-                    if (returnedEmail == enteredEmail)
+                    if (returnedEmail == EnteredEmail)
                     {
                         var emailVerificationForReset = new EmailValidation(returnedEmail);
-                        if(emailVerificationForReset.emailIsValid==true)
+                        if(emailVerificationForReset.EmailIsValid==true)
                         {
                             Console.WriteLine("Lets reset your password...");
                             makeNewPassword();
@@ -104,12 +103,12 @@ namespace PokemonSimulator
             Hashedpass = sendToHashPasswordAlg.getHash();
             Hashedpass = sendToHashPasswordAlg.addSecret(Hashedpass);
 
-            connection.Open();
+            Connection.Open();
             //INSERT query
             string plainTextQuery = "UPDATE sql3346222.userCredentials SET Password=('"+Hashedpass+"')" +
-                " WHERE TrainerName = ('"+trainerName+"');";
+                " WHERE TrainerName = ('"+TrainerName+"');";
             //execute the query
-            MySqlCommand query = new MySqlCommand(plainTextQuery, connection);
+            MySqlCommand query = new MySqlCommand(plainTextQuery, Connection);
             MySqlDataReader rdr = query.ExecuteReader();
 
             while (rdr.Read())
@@ -117,7 +116,7 @@ namespace PokemonSimulator
                 Console.WriteLine(rdr[0] + " -- " + rdr[1]);
             }
             rdr.Close();
-            connection.Close();
+            Connection.Close();
 
             Console.WriteLine("Password reset!");
         }

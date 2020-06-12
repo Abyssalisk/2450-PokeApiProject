@@ -13,16 +13,22 @@ namespace PokemonSimulator
     public class CreateNewUser
     {
         //Class fields
-        string TrainerName;
-        string password;
-        string email;
+        public string TrainerName { get; set; }
+        public string Password { get; set; }
+        public string Email { get; set; }
 
-        public CreateNewUser()
+
+        public CreateNewUser(bool test)
         {
             //testing constructor that doesn't utilize console
         }
 
         public CreateNewUser(MySqlConnection con)
+        {
+            DoUserCreation(con);
+        }
+
+        private void DoUserCreation(MySqlConnection con)
         {
             //Database only take VARCHAR(100) to save on space, user inputs need to be less than 100 chars
             while (true)
@@ -31,9 +37,10 @@ namespace PokemonSimulator
                 Console.WriteLine("Enter new desired trainer name");
                 TrainerName = Console.ReadLine();
                 if (TrainerName.Length > 50)
-                { 
+                {
                     Console.WriteLine("Trainer name is to long, enter a shorter one!");
-                }else
+                }
+                else
                 {
                     if (userNameValidation(TrainerName, con) == false)
                     {
@@ -47,14 +54,15 @@ namespace PokemonSimulator
             }
 
             while (true)
-            { 
+            {
                 //Makes sure new user name is less than 100 chars
-                Console.WriteLine("Enter new password");
-                password = Console.ReadLine();
-                if(password.Length>50)
+                Console.WriteLine("Enter new Password");
+                Password = Console.ReadLine();
+                if (Password.Length > 50)
                 {
                     Console.WriteLine("Password is to long, enter a shorter one!");
-                }else
+                }
+                else
                 {
                     break;
                 }
@@ -62,34 +70,36 @@ namespace PokemonSimulator
 
             while (true)
             {
-                //Makes sure new email is less than 100 chars
-                Console.WriteLine("Enter email address");
-                email = Console.ReadLine();
-                if (password.Length > 99)
+                //Makes sure new Email is less than 100 chars
+                Console.WriteLine("Enter Email address");
+                Email = Console.ReadLine();
+                if (Password.Length > 99)
                 {
                     Console.WriteLine("Email is to long, choose a different one!");
                 }
                 else
                 {
-                    var emailSetup = new EmailValidation(email);
-                    //validates if the entered email is in supported format
-                    if (emailSetup.emailIsInCorrectForm == false)
+                    var EmailSetup = new EmailValidation(Email);
+                    //validates if the entered Email is in supported format
+                    if (EmailSetup.EmailIsInCorrectForm == false)
                     {
                         Console.WriteLine("Email is in invalid form!Try again");
                     }
-                    if (emailSetup.emailIsValid == false)
+                    if (EmailSetup.EmailIsValid == false)
                     {
                         Console.WriteLine("Email could not be validated! Try again");
-                    }else
+                    }
+                    else
                     {
                         break;
                     }
                 }
             }
-            password = UserPasswordHash(password);
-            insertDBcredentials(TrainerName, password, email, con);
+            Password = UserPasswordHash(Password);
+            insertDBcredentials(TrainerName, Password, Email, con);
         }
-        //This is a private helper method that uses hashing alg to hash the nwe password
+
+        //This is a private helper method that uses hashing alg to hash the nwe Password
         public string UserPasswordHash(string thePass)
         {
             string Hashedpass;
@@ -99,7 +109,7 @@ namespace PokemonSimulator
             return Hashedpass;
         }
 
-        //Private method to verify email is in the correct form
+        //Private method to verify Email is in the correct form
 
         //checks to see if username is already taken
         public Boolean userNameValidation(string userName, MySqlConnection con)
@@ -127,13 +137,13 @@ namespace PokemonSimulator
             return true;
         }
         //This method inserts the user login credentials into the DB
-        public void insertDBcredentials(String name, String passAfterItHashed,  String email, MySqlConnection connection)
+        public void insertDBcredentials(String name, String passAfterItHashed,  String Email, MySqlConnection connection)
         {
             //Opens a new connection to MySql DB
             connection.Open();
             //INSERT query
             string plainTextQuery = "INSERT INTO sql3346222.userCredentials(TrainerName, Password, Email) VALUES('" + name + 
-                "','" + passAfterItHashed + "','"+ email+ "');";
+                "','" + passAfterItHashed + "','"+ Email+ "');";
             //execute the query
             MySqlCommand query = new MySqlCommand(plainTextQuery, connection);
             MySqlDataReader rdr = query.ExecuteReader();

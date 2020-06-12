@@ -12,7 +12,7 @@ namespace UnitTest.ConsoleApp
     {
         ConsoleOutputInput c = new ConsoleOutputInput("blah");
         DBconnect connection = new DBconnect();
-        CreateNewUser user = new CreateNewUser();
+        CreateNewUser user = new CreateNewUser(true);
 
         [Fact]
         public void ValidateFalse()

@@ -6,18 +6,18 @@ using System.Linq;
 using System.Web;
 using MySql.Data.MySqlClient;
 using RestSharp.Validation;
+using System.Dynamic;
 
 namespace PokemonSimulator
 {
 
     public class ConsoleOutputInput
     {
-        public DBconnect connection;
-        string loginName = "";
-        string password = "";
-
-        public String TrainerName;
-        public int userID = 0;
+        public DBconnect Connection { get; set; }
+        public string LoginName { get; set; }
+        public string Password { get; set; }
+        public string TrainerName { get; set; }
+        public int UserID { get; set; }
 
         public ConsoleOutputInput(string blah)
         {
@@ -26,21 +26,26 @@ namespace PokemonSimulator
 
         public ConsoleOutputInput()
         {
-            Console.WriteLine("Welcome to Pokemon Battle Simulator Console Version!");
-            connection = new DBconnect();
+            UserID = 0;
+            LoginName = string.Empty;
+            Password = string.Empty;
+            TrainerName = string.Empty;
+            Connection = new DBconnect();
 
-            string newUser;
+            // Begin Console Program
+            Console.WriteLine("Welcome to Pokemon Battle Simulator Console Version!");
+            Connection = new DBconnect();
 
             Console.WriteLine("Are you a new trainer? (y/n)");
-            newUser = Console.ReadLine();
+            var newUser = Console.ReadLine();
 
             while (true)
             {
                 //Choice if user is new, takes them to create user
                 if (newUser.ToLower().Equals("y"))
                 {
-                    var createNewTrainer = new CreateNewUser(connection.myConnection);
-                    Login();//once new user is made pompts for login
+                    var createNewTrainer = new CreateNewUser(Connection.myConnection);
+                    Login(); //once new user is made prompts for login
                     break;
                 }
 
@@ -58,94 +63,88 @@ namespace PokemonSimulator
             }
         }
 
-        //Method to log user in, validates by looking up hashed password
-        private void Login()
+        //Logs user in, validates by looking up hashed Password
+        public void Login()
         {
             Console.WriteLine("Please login! Trainer name: ");
-            loginName = Console.ReadLine();
+            LoginName = Console.ReadLine();
 
-            Console.WriteLine("enter your password: ");
-            password = Console.ReadLine();
+            Console.WriteLine("enter your Password: ");
+            Password = Console.ReadLine();
 
-            //validates password
-            Boolean accountIsAuth = Validate(loginName, password, connection.myConnection);
-            if(accountIsAuth==false)
+            //validates Password
+            var accountIsAuthorized = Validate(LoginName, Password, Connection.myConnection);
+            if (accountIsAuthorized == false)
             {
                 Login();
-            }else
+            }
+            else
             {
                 return;
             }
         }
 
-        //Private method to validate password, if password is false gives option to reset password
+        //Validates Password, if Password is false gives option to reset Password
         public Boolean Validate(string userName, string pass, MySqlConnection con)
         {
-            string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + userName+"');";
-            string correctPassword = "";
-            string resetPasswrodYorN = "";
+            var lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + userName + "');";
+            var correctPassword = string.Empty;
+            var resetPasswrodYorN = string.Empty;
 
-            //opens new DB connection with MySql and pulls hashed password from userCredentials table
+            //opens new DB Connection with MySql and pulls hashed Password from userCredentials table
             con.Open();
-            MySqlCommand query = new MySqlCommand(lookupByName, con);
-            MySqlDataReader rdr = query.ExecuteReader();
-
-            //reading returned query
-            while (rdr.Read())
+            var cmd = new MySqlCommand(lookupByName, con);
+            using (var rdr = cmd.ExecuteReader())
             {
-                userID = Convert.ToInt32(rdr[0].ToString());
-                correctPassword =rdr[1].ToString();
+                while (rdr.Read())
+                {
+                    UserID = Convert.ToInt32(rdr[0].ToString());
+                    correctPassword = rdr[1].ToString();
+                }
             }
-            rdr.Close();
             con.Close();
-            if(userID==0)
+
+            if (UserID == 0)
             {
                 Console.WriteLine("account not found!");
                 return false;
             }
 
-            string attemptedPassword;
             var sendToHashPasswordAlg = new HashingAlg(pass);
-            attemptedPassword = sendToHashPasswordAlg.getHash();
-
+            var attemptedPassword = sendToHashPasswordAlg.getHash();
             correctPassword = sendToHashPasswordAlg.reomveSecret(correctPassword);
 
-            //checks the hashed password the user entered agaisnt the hashedpass from DB
-            if (correctPassword==attemptedPassword)
+            //checks the hashed Password the user entered agaisnt the hashedpass from DB
+            if (correctPassword == attemptedPassword)
             {
                 TrainerName = userName;
-                Console.WriteLine("Welcome "+userName);
+                Console.WriteLine("Welcome " + userName);
                 Console.WriteLine("-------------------------------------------------------------------");
                 return true;
-            }else //failed login attempt
+            }
+            else //failed login attempt
             {
-                Console.WriteLine("Username or password incorrect! Please try again!");
-                Console.WriteLine("Do you need to reset your password? (y/n)");
+                Console.WriteLine("Username or Password incorrect! Please try again!");
+                Console.WriteLine("Do you need to reset your Password? (y/n)");
                 resetPasswrodYorN = Console.ReadLine();
 
-                while(true)
+                while (true)
                 {
                     if (resetPasswrodYorN.ToLower().Equals("y"))
                     {
                         var reset = new ResetPassword(con);
                         return true;
-                        break;
                     }
-                    if(resetPasswrodYorN.ToLower().Equals("n"))
+                    if (resetPasswrodYorN.ToLower().Equals("n"))
                     {
-                        break;
+                        return false;
                     }
 
-                    Console.WriteLine("Invalid choice, please eneter y to reset password or n to reattempt login!");
-                    Console.WriteLine("Do you need to reset your password? (y/n)");
+                    Console.WriteLine("Invalid choice, please eneter y to reset Password or n to reattempt login!");
+                    Console.WriteLine("Do you need to reset your Password? (y/n)");
                     resetPasswrodYorN = Console.ReadLine();
                 }
-                return false;
             }
-
         }
-
     }
-
-
 }
