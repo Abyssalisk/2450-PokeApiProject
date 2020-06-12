@@ -76,7 +76,7 @@ namespace PokemonSimulator
                         if(emailVerificationForReset.EmailIsValid==true)
                         {
                             Console.WriteLine("Lets reset your password...");
-                            makeNewPassword();
+                            MakeNewPassword();
                             var backToLogin = new UserAuthAndLogin();
                             break;
                         }
@@ -91,7 +91,7 @@ namespace PokemonSimulator
             }
         }
 
-        private void makeNewPassword()
+        private void MakeNewPassword()
         {
             string newPass;
 

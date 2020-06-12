@@ -89,7 +89,6 @@ namespace PokemonSimulator
         {
             var lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + userName + "');";
             var correctPassword = string.Empty;
-            var resetPasswrodYorN = string.Empty;
 
             //opens new DB Connection with MySql and pulls hashed Password from userCredentials table
             con.Open();
@@ -126,7 +125,7 @@ namespace PokemonSimulator
             {
                 Console.WriteLine("Username or Password incorrect! Please try again!");
                 Console.WriteLine("Do you need to reset your Password? (y/n)");
-                resetPasswrodYorN = Console.ReadLine();
+                var resetPasswrodYorN = Console.ReadLine();
 
                 while (true)
                 {

@@ -42,7 +42,7 @@ namespace PokemonSimulator
                 }
                 else
                 {
-                    if (userNameValidation(TrainerName, con) == false)
+                    if (UserNameValidation(TrainerName, con) == false)
                     {
                         Console.WriteLine("Trainer name is already taken!Try again");
                     }
@@ -96,7 +96,7 @@ namespace PokemonSimulator
                 }
             }
             Password = UserPasswordHash(Password);
-            insertDBcredentials(TrainerName, Password, Email, con);
+            InsertDBcredentials(TrainerName, Password, Email, con);
         }
 
         //This is a private helper method that uses hashing alg to hash the nwe Password
@@ -112,7 +112,7 @@ namespace PokemonSimulator
         //Private method to verify Email is in the correct form
 
         //checks to see if username is already taken
-        public Boolean userNameValidation(string userName, MySqlConnection con)
+        public Boolean UserNameValidation(string userName, MySqlConnection con)
         {
             con.Open();
             //INSERT query
@@ -137,7 +137,7 @@ namespace PokemonSimulator
             return true;
         }
         //This method inserts the user login credentials into the DB
-        public void insertDBcredentials(String name, String passAfterItHashed,  String Email, MySqlConnection connection)
+        public void InsertDBcredentials(String name, String passAfterItHashed,  String Email, MySqlConnection connection)
         {
             //Opens a new connection to MySql DB
             connection.Open();

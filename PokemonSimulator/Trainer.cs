@@ -9,6 +9,6 @@ namespace PokemonSimulator
     {
         public int UserId { get; set; }
         public string TrainerName { get; set; }
-        public List<string> Pokemon { get; set; }
+        public List<Pokemon> Pokemon { get; set; }
     }
 }

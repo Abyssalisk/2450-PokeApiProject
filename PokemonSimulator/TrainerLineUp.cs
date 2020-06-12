@@ -18,7 +18,7 @@ namespace PokemonSimulator
             UserID = userID;
             TrainerName = trainerName;
             Con = con;
-            GhostTrainer = new Trainer() { UserId = UserID, TrainerName = trainerName, Pokemon = new List<string>() };
+            GhostTrainer = new Trainer() { UserId = UserID, TrainerName = trainerName, Pokemon = new List<Pokemon>() };
 
             if (CheckForLineUp() == true)
             {
@@ -58,7 +58,7 @@ namespace PokemonSimulator
 
         private void LoadLineup()
         {
-            var tempLineUp = new List<string>();
+            var tempLineUp = new List<Pokemon>();
             var getPokemonQuery = "SELECT `Pokemon1`,`Pokemon2`,`Pokemon3`,`Pokemon4`,`Pokemon5`,`Pokemon6`" +
                 " FROM sql3346222.TrainerLineup WHERE(UserID = " + UserID + ");";
 
@@ -70,14 +70,14 @@ namespace PokemonSimulator
                 var index = 0;
                 while (reader.Read())
                 {
-                    tempLineUp.Add(reader[index].ToString());
+                    tempLineUp.Add(new Pokemon() { Name = reader[index].ToString() });
                     index++;
                 }
             }
             Con.Close();
 
             //Print Pokemon
-            tempLineUp.ForEach(p => { Console.WriteLine(p); });
+            tempLineUp.ForEach(p => { Console.WriteLine(p.Name); });
 
             Console.WriteLine("Use this lineup? (y/n)");
             var choice = Console.ReadLine();
