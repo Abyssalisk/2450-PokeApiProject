@@ -19,6 +19,11 @@ namespace PokemonSimulator
         String TrainerName;
         int userID = 0;
 
+        public ConsoleOutputInput(string blah)
+        {
+            // placeholder constructor to access methods for testing
+        }
+
         public ConsoleOutputInput()
         {
             Console.WriteLine("Welcome to Pokemon Battle Simulator Console Version!");
@@ -74,7 +79,7 @@ namespace PokemonSimulator
         }
 
         //Private method to validate password, if password is false gives option to reset password
-        private Boolean Validate(string userName, string pass, MySqlConnection con)
+        public Boolean Validate(string userName, string pass, MySqlConnection con)
         {
             string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + userName+"');";
             string correctPassword = "";
