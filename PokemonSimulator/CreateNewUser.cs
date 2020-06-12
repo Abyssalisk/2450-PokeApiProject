@@ -17,6 +17,11 @@ namespace PokemonSimulator
         string password;
         string email;
 
+        public CreateNewUser()
+        {
+            //testing constructor that doesn't utilize console
+        }
+
         public CreateNewUser(MySqlConnection con)
         {
             //Database only take VARCHAR(100) to save on space, user inputs need to be less than 100 chars
@@ -30,7 +35,7 @@ namespace PokemonSimulator
                     Console.WriteLine("Trainer name is to long, enter a shorter one!");
                 }else
                 {
-                    if (userNameValidation(TrainerName,con) == false)
+                    if (userNameValidation(TrainerName, con) == false)
                     {
                         Console.WriteLine("Trainer name is already taken!Try again");
                     }
@@ -85,7 +90,7 @@ namespace PokemonSimulator
             insertDBcredentials(TrainerName, password, email, con);
         }
         //This is a private helper method that uses hashing alg to hash the nwe password
-        private string UserPasswordHash(string thePass)
+        public string UserPasswordHash(string thePass)
         {
             string Hashedpass;
             var sendToHashPasswordAlg = new HashingAlg(thePass);
@@ -97,7 +102,7 @@ namespace PokemonSimulator
         //Private method to verify email is in the correct form
 
         //checks to see if username is already taken
-        private Boolean userNameValidation(string userName, MySqlConnection con)
+        public Boolean userNameValidation(string userName, MySqlConnection con)
         {
             con.Open();
             //INSERT query
@@ -122,7 +127,7 @@ namespace PokemonSimulator
             return true;
         }
         //This method inserts the user login credentials into the DB
-        private void insertDBcredentials(String name, String passAfterItHashed,  String email, MySqlConnection connection)
+        public void insertDBcredentials(String name, String passAfterItHashed,  String email, MySqlConnection connection)
         {
             //Opens a new connection to MySql DB
             connection.Open();
