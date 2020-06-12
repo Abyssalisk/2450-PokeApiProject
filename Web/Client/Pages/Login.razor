@@ -1,30 +1,50 @@
-﻿@page "/"
+﻿@page "/login"
+@using Web.Shared.Models
+
 @inject NavigationManager navMan
 @inject HttpClient client
 
-<h1>Login</h1>
+<div class="container-fluid" style="max-width: 50%;">
+    <h1 class="text-center">Login</h1>
+    <p class="text-center">Login or Create a New Account</p>
 
-<p>This is a page where login form should go for existing trainers to login or create a new account.</p>
-<!-- Create the form... -->
-<button class="btn btn-primary" @onclick="Authenticate">Login</button>
-<button class="btn btn-primary" @onclick="CreateAccount">Create Account</button>
+    <!-- LoginForm -->
+
+    <EditForm Context="formContext" Model="Model" OnValidSubmit="Authenticate">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <form>
+            <div class="form-group">
+                <label for="TrainerHandle">Username: </label>
+                <InputText id="Username" class="form-control" placeholder="username" @bind-Value="Model.Username" />
+            </div>
+            <div class="form-group">
+                <label for="Password">Password: </label>
+                <InputText type="password" id="Password" class="form-control" placeholder="password" @bind-Value="Model.Password" />
+            </div>
+            <br />
+            <div class="text-center">
+                <button class="btn btn-primary" @onclick="Authenticate">Login</button>
+                <a href="#" @onclick="CreateAccount">Create New Account</a>
+            </div>
+        </form>
+    </EditForm>
+</div>
 
 
 @code {
-    public string trainerHandle = string.Empty;
-    public string password = string.Empty;
-
+    private Web.Shared.Models.Login Model = new Web.Shared.Models.Login();
 
     private void Authenticate()
     {
-        if (!string.IsNullOrEmpty(trainerHandle) && !string.IsNullOrEmpty(password))
+        if (!string.IsNullOrEmpty(Model.Username) && !string.IsNullOrEmpty(Model.Password))
         {
-            // todo: authenticate 
+            // todo: authenticate
             //http://pokemanz.live/api/login?username=srosy&password=kja;lsdkfjalksjhfjal;bdlf;aju
 
             //if (result == ok)
         }
-        Console.WriteLine("I'm trying to login...");
+        //Console.WriteLine($"{Model.Username} {Model.Password}");
         navMan.NavigateTo("team");
     }
 
