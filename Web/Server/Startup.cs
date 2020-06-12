@@ -50,9 +50,11 @@ namespace Web.Server
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapDefaultControllerRoute(); // may not need
+
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapFallbackToFile("index.html");
+                endpoints.MapFallbackToFile("index.html"); 
             });
         }
     }
