@@ -5,116 +5,105 @@ using System.Text;
 
 namespace PokemonSimulator
 {
-    class TrainerLineUp
+    public class TrainerLineUp
     {
-        int userID;
-        string TrainerName;
-        MySqlConnection con;
-        public PokemonTrainer ghostTrainer;
-        public Boolean loopStuck=false;
+        public int UserID { get; set; }
+        public string TrainerName { get; set; }
+        public MySqlConnection Con { get; set; }
+        public PokemonTrainer GhostTrainer { get; set; }
+        public Boolean LoopStuck = false;
 
         public TrainerLineUp(int userID, string trainerName, MySqlConnection con)
         {
-            this.userID = userID;
-            this.TrainerName = trainerName;
-            this.con = con;
-            this.ghostTrainer = new PokemonTrainer() { UserId = userID, TrainerName = trainerName };
+            UserID = userID;
+            TrainerName = trainerName;
+            Con = con;
+            GhostTrainer = new PokemonTrainer() { UserId = UserID, TrainerName = trainerName, Pokemon = new List<string>() };
 
-            if(CheckForLineUp()==true)
+            if (CheckForLineUp() == true)
             {
                 Console.WriteLine("A Lineup has been found!");
-                loadLineup();
-            }else
+                LoadLineup();
+            }
+            else
             {
                 Console.WriteLine("No lineup found!");
-                newLineupChoice();
+                NewLineupChoice();
             }
         }
 
-        private Boolean CheckForLineUp()
+        public bool CheckForLineUp()
         {
-            string lookupLineup = "SELECT `UserID` FROM sql3346222.TrainerLineup WHERE(UserID = " + userID + ");";
+            string lookupLineup = "SELECT `UserID` FROM sql3346222.TrainerLineup WHERE(UserID = " + UserID + ");";
             string returnedQuery = "";
 
-            //opens new DB connection with MySql and pulls hashed password from userCredentials table
-            con.Open();
-            MySqlCommand query = new MySqlCommand(lookupLineup, con);
-            MySqlDataReader rdr = query.ExecuteReader();
+            //opens new DB Connection with MySql and pulls hashed password from userCredentials table
+            Con.Open();
+            MySqlCommand query = new MySqlCommand(lookupLineup, Con);
+            MySqlDataReader reader = query.ExecuteReader();
 
             //reading returned query
-            while (rdr.Read())
+            while (reader.Read())
             {
-                returnedQuery = rdr[0].ToString();
+                returnedQuery = reader[0].ToString();
             }
-            rdr.Close();
-            con.Close();
+            reader.Close();
+            Con.Close();
 
-            if (returnedQuery == userID.ToString())
+            if (returnedQuery == UserID.ToString())
                 return true;
             else
                 return false;
         }
 
-        private void loadLineup()
+        private void LoadLineup()
         {
-            string getPokemon = "SELECT `Pokemon1`,`Pokemon2`,`Pokemon3`,`Pokemon4`,`Pokemon5`,`Pokemon6`" +
-                " FROM sql3346222.TrainerLineup WHERE(UserID = " + userID + ");";
-            string pokemon1 = "";
-            string pokemon2 = "";
-            string pokemon3 = "";
-            string pokemon4 = "";
-            string pokemon5 = "";
-            string pokemon6 = "";
+            var tempLineUp = new List<string>();
+            var getPokemonQuery = "SELECT `Pokemon1`,`Pokemon2`,`Pokemon3`,`Pokemon4`,`Pokemon5`,`Pokemon6`" +
+                " FROM sql3346222.TrainerLineup WHERE(UserID = " + UserID + ");";
 
-            //opens new DB connection with MySql and pulls hashed password from userCredentials table
-            con.Open();
-            MySqlCommand query = new MySqlCommand(getPokemon, con);
-            MySqlDataReader rdr = query.ExecuteReader();
-
-            //reading returned query
-            while (rdr.Read())
+            //Get pokemon from DB
+            Con.Open();
+            MySqlCommand cmd = new MySqlCommand(getPokemonQuery, Con);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
             {
-                pokemon1 = rdr[0].ToString();
-                pokemon2 = rdr[1].ToString();
-                pokemon3 = rdr[2].ToString();
-                pokemon4 = rdr[3].ToString();
-                pokemon5 = rdr[4].ToString();
-                pokemon6 = rdr[5].ToString();
+                var index = 0;
+                while (reader.Read())
+                {
+                    tempLineUp.Add(reader[index].ToString());
+                    index++;
+                }
             }
-            rdr.Close();
-            con.Close();
-            Console.WriteLine(pokemon1+" \n"+pokemon2+" \n"+pokemon3+" \n"+pokemon4+" \n"+pokemon5+" \n"+pokemon6);
+            Con.Close();
+
+            //Print Pokemon
+            tempLineUp.ForEach(p => { Console.WriteLine(p); });
 
             Console.WriteLine("Use this lineup? (y/n)");
-            string choice = Console.ReadLine();
-            
-            if(choice.ToLower().Equals("y"))
+            var choice = Console.ReadLine();
+
+            if (choice.ToLower().Equals("y"))
             {
-                ghostTrainer.Pokemon.Add("pokemon1");
-                ghostTrainer.Pokemon.Add("pokemon2");
-                ghostTrainer.Pokemon.Add("pokemon3");
-                ghostTrainer.Pokemon.Add("pokemon4");
-                ghostTrainer.Pokemon.Add("pokemon5");
-                ghostTrainer.Pokemon.Add("pokemon6");
+                GhostTrainer.Pokemon = tempLineUp;
             }
             if (choice.ToLower().Equals("n"))
             {
-                newLineupChoice();
+                NewLineupChoice();
             }
         }
 
-        private void newLineupChoice()
+        private void NewLineupChoice()
         {
             Console.WriteLine("Make a new lineup? (y/n)");
-            string choice = Console.ReadLine();
+            var choice = Console.ReadLine();
             if (choice.ToLower().Equals("y"))
             {
-                loopStuck = false;
-                var makeAlineup = new CreateLineUp(ghostTrainer,con);
+                LoopStuck = false;
+                var makeAlineup = new CreateLineUp(GhostTrainer, Con);
             }
             if (choice.ToLower().Equals("n"))
             {
-                loopStuck = true;
+                LoopStuck = true;
                 return;
             }
         }

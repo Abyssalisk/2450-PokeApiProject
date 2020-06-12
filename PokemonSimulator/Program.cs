@@ -16,7 +16,7 @@ namespace PokemonSimulator
             var CurrentTrainer = new PokemonTrainer() { TrainerName = "Misty", UserId = 10 };
             var lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, con.myConnection);
 
-            while(lineup.loopStuck == true)
+            while(lineup.LoopStuck == true)
             {
                 Console.WriteLine("Would you like to leave? type 'exit'\nOr press any key to continue");
                 string exitChoice = Console.ReadLine();
@@ -34,7 +34,7 @@ namespace PokemonSimulator
                 }
             }
 
-            CurrentTrainer = lineup.ghostTrainer;
+            CurrentTrainer = lineup.GhostTrainer;
             System.GC.Collect();
         }
     }
