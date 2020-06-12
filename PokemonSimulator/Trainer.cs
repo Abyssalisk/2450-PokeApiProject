@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PokemonSimulator
 {
-    public class PokemonTrainer
+    public class Trainer
     {
         public int UserId { get; set; }
         public string TrainerName { get; set; }

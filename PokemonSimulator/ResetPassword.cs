@@ -51,7 +51,7 @@ namespace PokemonSimulator
                         //Choice if user is new, takes them to create user
                         if (newUser.ToLower().Equals("y"))
                         {
-                            var backToMakeNewAccount = new ConsoleOutputInput();
+                            var backToMakeNewAccount = new UserAuthAndLogin();
                             break;
                         }
 
@@ -77,7 +77,7 @@ namespace PokemonSimulator
                         {
                             Console.WriteLine("Lets reset your password...");
                             makeNewPassword();
-                            var backToLogin = new ConsoleOutputInput();
+                            var backToLogin = new UserAuthAndLogin();
                             break;
                         }
                     }

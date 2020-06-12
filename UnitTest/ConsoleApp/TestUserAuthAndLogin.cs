@@ -10,7 +10,7 @@ namespace UnitTest.ConsoleApp
 {
     public class TestUserAuthAndLogin
     {
-        ConsoleOutputInput c = new ConsoleOutputInput("blah");
+        UserAuthAndLogin c = new UserAuthAndLogin(true);
         DBconnect connection = new DBconnect();
         CreateNewUser user = new CreateNewUser(true);
 

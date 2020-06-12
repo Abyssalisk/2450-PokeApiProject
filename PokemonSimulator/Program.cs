@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace PokemonSimulator
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -13,7 +13,7 @@ namespace PokemonSimulator
             //var CurrentTrainer = new PokemonTrainer(loginStart.userID,loginStart.TrainerName);
             //var lineup = new TrainerLineUp(CurrentTrainer.userID,CurrentTrainer.TrainerName, loginStart.connection.myConnection);
             DBconnect con = new DBconnect();
-            var CurrentTrainer = new PokemonTrainer() { TrainerName = "Misty", UserId = 10 };
+            var CurrentTrainer = new Trainer() { TrainerName = "Misty", UserId = 10 };
             var lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, con.myConnection);
 
             while(lineup.LoopStuck == true)

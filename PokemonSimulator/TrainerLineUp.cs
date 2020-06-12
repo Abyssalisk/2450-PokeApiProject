@@ -10,7 +10,7 @@ namespace PokemonSimulator
         public int UserID { get; set; }
         public string TrainerName { get; set; }
         public MySqlConnection Con { get; set; }
-        public PokemonTrainer GhostTrainer { get; set; }
+        public Trainer GhostTrainer { get; set; }
         public Boolean LoopStuck = false;
 
         public TrainerLineUp(int userID, string trainerName, MySqlConnection con)
@@ -18,7 +18,7 @@ namespace PokemonSimulator
             UserID = userID;
             TrainerName = trainerName;
             Con = con;
-            GhostTrainer = new PokemonTrainer() { UserId = UserID, TrainerName = trainerName, Pokemon = new List<string>() };
+            GhostTrainer = new Trainer() { UserId = UserID, TrainerName = trainerName, Pokemon = new List<string>() };
 
             if (CheckForLineUp() == true)
             {

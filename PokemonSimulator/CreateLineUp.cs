@@ -7,10 +7,10 @@ namespace PokemonSimulator
 {
     public class CreateLineUp
     {
-        public PokemonTrainer GhostTrainer { get; set; }
+        public Trainer GhostTrainer { get; set; }
         MySqlConnection Con { get; set; }
 
-        public CreateLineUp(PokemonTrainer ghostTrainer, MySqlConnection con)
+        public CreateLineUp(Trainer ghostTrainer, MySqlConnection con)
         {
             GhostTrainer = ghostTrainer;
             Con = con;

@@ -11,7 +11,7 @@ using System.Dynamic;
 namespace PokemonSimulator
 {
 
-    public class ConsoleOutputInput
+    public class UserAuthAndLogin
     {
         public DBconnect Connection { get; set; }
         public string LoginName { get; set; }
@@ -19,12 +19,12 @@ namespace PokemonSimulator
         public string TrainerName { get; set; }
         public int UserID { get; set; }
 
-        public ConsoleOutputInput(string blah)
+        public UserAuthAndLogin(bool test)
         {
             // placeholder constructor to access methods for testing
         }
 
-        public ConsoleOutputInput()
+        public UserAuthAndLogin()
         {
             UserID = 0;
             LoginName = string.Empty;
