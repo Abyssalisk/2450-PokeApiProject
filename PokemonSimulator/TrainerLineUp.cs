@@ -18,7 +18,7 @@ namespace PokemonSimulator
             this.userID = userID;
             this.TrainerName = trainerName;
             this.con = con;
-            this.ghostTrainer = new PokemonTrainer(userID,TrainerName);
+            this.ghostTrainer = new PokemonTrainer() { UserId = userID, TrainerName = trainerName };
 
             if(CheckForLineUp()==true)
             {
@@ -90,12 +90,12 @@ namespace PokemonSimulator
             
             if(choice.ToLower().Equals("y"))
             {
-                ghostTrainer.setPokemon1(pokemon1);
-                ghostTrainer.setPokemon1(pokemon2);
-                ghostTrainer.setPokemon1(pokemon3);
-                ghostTrainer.setPokemon1(pokemon4);
-                ghostTrainer.setPokemon1(pokemon5);
-                ghostTrainer.setPokemon1(pokemon6);
+                ghostTrainer.Pokemon.Add("pokemon1");
+                ghostTrainer.Pokemon.Add("pokemon2");
+                ghostTrainer.Pokemon.Add("pokemon3");
+                ghostTrainer.Pokemon.Add("pokemon4");
+                ghostTrainer.Pokemon.Add("pokemon5");
+                ghostTrainer.Pokemon.Add("pokemon6");
             }
             if (choice.ToLower().Equals("n"))
             {

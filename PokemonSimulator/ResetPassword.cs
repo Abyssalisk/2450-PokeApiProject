@@ -6,7 +6,7 @@ using System.Text;
 
 namespace PokemonSimulator
 {
-    class ResetPassword
+    public class ResetPassword
     {
         string verificationString;
         string trainerName;

@@ -13,8 +13,8 @@ namespace PokemonSimulator
             //var CurrentTrainer = new PokemonTrainer(loginStart.userID,loginStart.TrainerName);
             //var lineup = new TrainerLineUp(CurrentTrainer.userID,CurrentTrainer.TrainerName, loginStart.connection.myConnection);
             DBconnect con = new DBconnect();
-            var CurrentTrainer = new PokemonTrainer(10,"Misty");
-            var lineup = new TrainerLineUp(CurrentTrainer.userID,CurrentTrainer.TrainerName,con.myConnection);
+            var CurrentTrainer = new PokemonTrainer() { TrainerName = "Misty", UserId = 10 };
+            var lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, con.myConnection);
 
             while(lineup.loopStuck == true)
             {

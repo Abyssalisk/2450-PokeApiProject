@@ -5,15 +5,15 @@ using System.Text;
 
 namespace PokemonSimulator
 {
-    class CreateLineUp
+    public class CreateLineUp
     {
-        PokemonTrainer ghostTrainer;
-        MySqlConnection con;
+        public PokemonTrainer GhostTrainer { get; set; }
+        MySqlConnection Con { get; set; }
 
         public CreateLineUp(PokemonTrainer ghostTrainer, MySqlConnection con)
         {
-            this.ghostTrainer = ghostTrainer;
-            this.con = con;
+            GhostTrainer = ghostTrainer;
+            Con = con;
         }
     }
 }

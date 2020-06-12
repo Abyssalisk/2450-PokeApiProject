@@ -7,7 +7,7 @@ using MailKit.Security;
 
 namespace PokemonSimulator
 {
-    class EmailValidation
+    public class EmailValidation
     {
         public Boolean emailIsInCorrectForm;
         public Boolean emailIsValid;
