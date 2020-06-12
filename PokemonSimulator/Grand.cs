@@ -249,6 +249,10 @@ namespace PokemonSimulator
                     });
                     dangling = new Queue<DualNode>(dangling.OrderBy(x => x.numerical));
                 } while (true);
+                if (root?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A != null)
+                {
+                    throw new Exception("Error: One or more characters could be encoded as a \'\\0\'.");
+                }
                 result.Append(root.Serialize() + "$D");
                 Dictionary<char, string> encodingDictionary = new Dictionary<char, string>();
                 void Tree(DualNode r, string soFar)
@@ -270,38 +274,9 @@ namespace PokemonSimulator
                     encodeds.Enqueue(encodingDictionary[c]);
                 }
 
-
                 StringBuilder working = new StringBuilder(string.Empty);
                 Queue<char> charsToAdd = new Queue<char>();
 
-
-                //encodeds is a queue of variable length 1/0 strings
-                //we need to dequeue these strings off into working until working has at
-                //least 16 bits. When that happens, we need to strip off the first 16 bits,
-                //cast it as a char, and then enqueue it to "charsToAdd",
-                //repeat this process until encodeds is empty.
-                //if when encodeds is empty, working doesn't have 16 bits, pad it with 0's
-                //until it has 16, and then append that number with "$D" to result.
-
-                //if (working.Length < 16)
-                //{
-                //    working.Append()
-                //}
-
-                //encodeds[0] = "1000101"
-                //encodeds[1] = "100010101010"
-                //working will take the 0 index.
-                //does working have 16?
-                //working will take the 1 index.
-                //does working have 16?
-                //working = "1000101100010101010"
-                //string character = 1000101100010101;
-                //working = "010"
-                //turn character into (char)
-                //working only has 3
-                //add 13 zeros of workking.
-                //working = "010 0000000000000"
-                //result.Append((the number of zeroes we added) + "$D")
                 int spares = 0;
                 while (encodeds.Count > 0)
                 {
@@ -339,61 +314,14 @@ namespace PokemonSimulator
                     }
                 }
                 result.Append((char)(spares + 60) + "$D");
-                //working has some number less than 16 left
-                //there is one left in encodeds
-                //if (working.Length > 0)
-                //{
-                //    result.Append((16 - working.Length) + "$D");
-                //    working.Append(Enumerable.Repeat('0', 16 - working.Length).ToArray());
-                //    string toChar = working.ToString().Substring(0, 16);
-                //    charsToAdd.Enqueue((char)Convert.ToInt32(toChar, 2));
-                //}
-                //else
-                //{
-                //    result.Append("0$D");
-                //}
-                //else if (encodeds.Count == 0 && working.Length == 16)
-                //{
-                //    result.Append("0$D");
-                //}
-                //AT THIS POINT, ONE OF THE TWO RED LINES MUST BE HIT
 
-
-
-
-
-
-
-
-
+                int expectedLength = charsToAdd.Count + 5 + root.Serialize().Length;
                 foreach (char c in charsToAdd)
                 {
                     result.Append(c);
                 }
                 //result looks like : "[serialized tree]$D[number of whitespace zeros]$D[data]"
                 return result.ToString();
-                //do //Something is wrong here in this where loop. sometimes the second $D isn't appended.
-                //{
-                //    while (working.Length < 16)
-                //    {
-                //        if (encodeds.Count > 0)
-                //        {
-                //            working.Append(encodeds.Dequeue());
-                //        }
-                //        else
-                //        {
-                //            result.Append((16 - working.Length) + "$D");
-                //            working.Append(Enumerable.Repeat('0', 16 - working.Length).ToArray());
-                //        }
-                //    }
-                //    string toChar = working.ToString().Substring(0, 16);//chop off the first 16 bits of the working.
-                //    working.Remove(0, 16); //in conjunction with line above.
-                //    charsToAdd.Add((char)Convert.ToInt32(toChar, 2)); //takes the new char and adds it to chars to add.
-                //} while (encodeds.Count > 0);
-                //foreach (char c in charsToAdd)
-                //{
-                //    result.Append(c);
-                //}
             }
             internal string Decode(string encoded)
             {
@@ -409,6 +337,7 @@ namespace PokemonSimulator
                 {
                     if (i == data.Length - 1)
                     {
+#warning I think something is wrong here.
                         string s = Convert.ToString(((short)data[i]), 2);
                         s.PadLeft(16, '0');
                         s = s.Substring(0, ((int)s.Length - (int)whitespace));
@@ -422,10 +351,7 @@ namespace PokemonSimulator
                         process.Enqueue(temp);
                     }
                 }
-                //foreach (char c in data) // change this to for and when i = length - 1 chop off the trailing zeroes equal to whitespace.
-                //{
-
-                //}
+                int expectedLength = process.Count + 5 + root.Serialize().Length;
                 StringBuilder working = new StringBuilder(string.Empty);
                 DualNode localRoot = root;
                 do

@@ -65,7 +65,8 @@ namespace PokemonSimulator
                 Console.WriteLine("Hufftest2: " + (huffTest2 == result));
                 result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(huffTest3));
                 Console.WriteLine("Hufftest3: " + (huffTest3 == result));
-                Console.WriteLine("Serialization Test Success: " + (Grand.HuffmanDeserialize(Grand.HuffmanSerialize(enemyApi.ToString())) == enemyApi.ToString()));
+                result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(enemyApi.ToString()));
+                Console.WriteLine("Serialization Test Success: " + (result == enemyApi.ToString()));
                 int beforeCompression = enemyApi.ToString().Length;
                 Stopwatch sw = new Stopwatch();
                 sw.Restart();
