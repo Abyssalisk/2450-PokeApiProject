@@ -27,19 +27,46 @@ namespace Testing
             Assert.AreEqual(Grand.HuffmanDeserialize(Grand.HuffmanSerialize(testString)), testString);
         }
         [TestMethod]
+        public void SampleHuffFour()
+        {
+            const string testString = "aaaaaaaaaaaaaaaa0000000000000000";
+            Assert.AreEqual(Grand.HuffmanDeserialize(Grand.HuffmanSerialize(testString)), testString);
+        }
+        [TestMethod]
         public void BigHuffTest()
         {
-            string s = string.Empty;
-            s = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            Assert.AreEqual(Grand.HuffmanDeserialize(Grand.HuffmanSerialize(s)), s);
-            s = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            Assert.AreEqual(Grand.HuffmanDeserialize(Grand.HuffmanSerialize(s)), s);
-            s = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            Assert.AreEqual(Grand.HuffmanDeserialize(Grand.HuffmanSerialize(s)), s);
-            s = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            Assert.AreEqual(Grand.HuffmanDeserialize(Grand.HuffmanSerialize(s)), s);
-            s = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            Assert.AreEqual(Grand.HuffmanDeserialize(Grand.HuffmanSerialize(s)), s);
+            string api = string.Empty;
+            string result = string.Empty;
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
+            api = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            result = Grand.HuffmanDeserialize(Grand.HuffmanSerialize(api));
+            Assert.AreEqual(result, api);
         }
     }
 }

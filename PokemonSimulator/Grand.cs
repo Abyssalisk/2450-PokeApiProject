@@ -194,6 +194,55 @@ namespace PokemonSimulator
                         throw new ArgumentException("The provided string does not appear to be in the proper form.");
                     }
                 }
+                internal static string FormatSerializedTree(string serialized)
+                {
+                    //throw new NotImplementedException();
+                    StringBuilder result = new StringBuilder(serialized);
+                    //Regex endBrace = new Regex("[]]{1}[^]]");
+                    Regex beginBrace = new Regex("(?<=\\n{0})(A|B):\\[");
+                    //int matcherIndex = 0;
+                    Match m = beginBrace.Match(serialized);
+                    //matcherIndex = m.Success ? m.Index + 1 : 0;
+                    int indentCount = 0;
+                    int delta = 0;
+                    int previousIndex = m.Index;
+                    while (m.Success)
+                    {
+                        if (result[m.Index - 1] != ']' || (result[m.Index - 1] == ']' && result[m.Index - 2] == ':'))
+                        {
+                            indentCount++;
+                            delta = result.Length;
+                            result.Insert(m.Index, Enumerable.Repeat('\t', indentCount).ToArray());
+                            result.Insert(m.Index, System.Environment.NewLine);
+                            delta = result.Length - delta;
+                        }
+                        else
+                        {
+                            int counter = -1;
+                            int index = 1;
+                            do
+                            {
+                                if (result[m.Index - index] == ']')
+                                {
+                                    counter++;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                                index++;
+                            } while (true);
+                            indentCount -= counter;
+                            delta = result.Length;
+                            result.Insert(m.Index, Enumerable.Repeat('\t', indentCount).ToArray());
+                            result.Insert(m.Index, System.Environment.NewLine);
+                            delta = result.Length - delta;
+                        }
+                        m = beginBrace.Match(result.ToString(), delta + previousIndex + 1);
+                        previousIndex = m.Index;
+                    }
+                    return result.ToString();
+                }
                 #endregion
                 #endregion
             }
@@ -205,6 +254,9 @@ namespace PokemonSimulator
             internal string Encode(string text)
             {
                 StringBuilder result = new StringBuilder(string.Empty);
+                #region Equivalency Block
+                #region Old
+                //Known to be working.
                 {
                     IOrderedEnumerable<KeyValuePair<char, uint>> orderedCommonality;
                     {
@@ -233,6 +285,29 @@ namespace PokemonSimulator
                         });
                     }
                 }
+                #endregion
+                #region New
+                //{
+                //    IOrderedEnumerable<KeyValuePair<char, uint>> orderedCommonality;
+                //    {
+                //        Dictionary<char, uint> commonalityDict = new Dictionary<char, uint>();
+                //        foreach (char c in text)
+                //        {
+                //            if (commonalityDict.ContainsKey(c))
+                //            {
+                //                commonalityDict[c]++;
+                //            }
+                //            else
+                //            {
+                //                commonalityDict.Add(c, 1);
+                //            }
+                //        }
+                //        orderedCommonality = commonalityDict.OrderBy((x) => x.Value);
+                //    }
+                //    dangling = new Queue<DualNode>(orderedCommonality.Select(x => new DualNode() { A = null, B = null, character = x.Key, numerical = x.Value }));
+                //}
+                #endregion
+                #endregion
                 do
                 {
                     if (dangling.Count == 1)
@@ -249,6 +324,9 @@ namespace PokemonSimulator
                     });
                     dangling = new Queue<DualNode>(dangling.OrderBy(x => x.numerical));
                 } while (true);
+
+                string s = Grand.HuffmanCoder.DualNode.FormatSerializedTree(root.Serialize());
+
                 if (root?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A?.A != null)
                 {
                     throw new Exception("Error: One or more characters could be encoded as a \'\\0\'.");
@@ -306,16 +384,16 @@ namespace PokemonSimulator
                         if (working.Length > 0)
                         {
                             spares = (16 - working.Length);
-                            working.Append(Enumerable.Repeat('0', 16 - working.Length).ToArray());
+                            working.Append(Enumerable.Repeat('0', spares).ToArray());
                             string toChar = working.ToString().Substring(0, 16);//chop off the first 16 bits of the working.
                             working.Remove(0, 16); //in conjunction with line above.
                             charsToAdd.Enqueue((char)Convert.ToInt32(toChar, 2)); //takes the new char and adds it to chars to add.
                         }
                     }
                 }
-                result.Append((char)(spares + 60) + "$D");
+                result.Append(((char)(spares + 60)) + "$D");
 
-                int expectedLength = charsToAdd.Count + 5 + root.Serialize().Length;
+                //int expectedLength = charsToAdd.Count + 5 + root.Serialize().Length;
                 foreach (char c in charsToAdd)
                 {
                     result.Append(c);
@@ -330,14 +408,13 @@ namespace PokemonSimulator
                 root = new DualNode(tree.ToString());//$D#$D[DATA]
                 int firstD = encoded.IndexOf("$D");
                 int secondD = encoded.IndexOf("$D", firstD + 1);
-                uint whitespace = ((uint)encoded[firstD + 2]) - 60;
+                uint whitespace = ((uint)encoded[firstD + 2]) - 60; //new bug: decoder chokes and dies on the big json objects if whitespace is 0.
                 string data = encoded.Substring(firstD + 5);
                 Queue<string> process = new Queue<string>();
                 for (int i = 0; i < data.Length; i++)
                 {
                     if (i == data.Length - 1)
                     {
-#warning I think something is wrong here.
                         string s = Convert.ToString(((short)data[i]), 2);
                         s = s.PadLeft(16, '0');
                         s = s.Substring(0, ((int)s.Length - (int)whitespace));
@@ -345,7 +422,7 @@ namespace PokemonSimulator
                     }
                     else
                     {
-                        // does 1 (dec) cast as "1" in short or "0001000000000001"
+                        // does 1 (dec) cast as "1" in short or "0000000000000001" (former is true)
                         string temp = Convert.ToString(((short)data[i]), 2);
                         temp = temp.PadLeft(16, '0');
                         process.Enqueue(temp);
@@ -397,26 +474,47 @@ namespace PokemonSimulator
 
         #region Fields
         #region Consts
-        public static readonly Regex yes = new Regex("^[y|Ye|Es|S]|[y|Y]");
-        public static readonly Regex no = new Regex("^[n|No|O]|[n|N]");
+        private const string yesRegex = @"^[y|Ye|Es|S]|[y|Y]";
+        /// <summary>
+        /// Regex field that matches common permutations of "yes". Regex value is: <see cref="yesRegex"/>.
+        /// </summary>
+        public static readonly Regex yes = new Regex(yesRegex);
+        private const string noRegex = @"^[n|No|O]|[n|N]";
+        /// <summary>
+        /// Regex field that matches common permutations of "no". Regex value is: <see cref="noRegex"/>.
+        /// </summary>
+        public static readonly Regex no = new Regex(noRegex);
         #endregion
 
         #region Class Fields
         public readonly static HashAlgorithm sha;
+#if DEBUG
         public readonly static Random rand;
+#endif
         #endregion
         #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Static Ctor for Grand, creates the SHA object, sets and initializes the RAND object, and sets up the static Dtor.
+        /// </summary>
         static Grand()
         {
             sha = new SHA1CryptoServiceProvider();
             rand = new Random(((DateTime.Now.Millisecond - 500) * 17) / 5);
             AppDomain.CurrentDomain.ProcessExit += GrandDestructor;
         }
+        /// <summary>
+        /// Static Dtor for Grand.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         static void GrandDestructor(object sender, EventArgs e)
         {
             sha.Dispose();
         }
+        #endregion
+
         public static bool VerifyPokemonLegitimacy(APIPokemonBlueprint mine, APIPokemonBlueprint theirs)
         {
             byte[] mh = sha.ComputeHash(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(mine, typeof(APIPokemonBlueprint), Formatting.None, null)));
@@ -434,17 +532,17 @@ namespace PokemonSimulator
         {
             return new HuffmanCoder().Encode(json);
         }
-        public static string HuffmanSerialize<T>(T toSerialize) where T : ISerializable
-        {
-            throw new NotImplementedException();
-        }
+        //public static string HuffmanSerialize<T>(T toSerialize) where T : ISerializable
+        //{
+        //    throw new NotImplementedException();
+        //}
         public static string HuffmanDeserialize(string huff)
         {
             return new HuffmanCoder().Decode(huff);
         }
-        public static T HuffmanDeserialize<T>(string huff) where T : ISerializable
-        {
-            throw new NotImplementedException();
-        }
+        //public static T HuffmanDeserialize<T>(string huff) where T : ISerializable
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
