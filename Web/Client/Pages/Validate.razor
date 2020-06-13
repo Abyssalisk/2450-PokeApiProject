@@ -1,0 +1,54 @@
+﻿@page "/validate"
+@using Web.Shared.Models
+
+@inject NavigationManager navMan
+@inject HttpClient client
+
+<div class="container-fluid" style="max-width: 50%;">
+    <h1 class="text-center">Validate Email</h1>
+    <p class="text-center">Enter the Code Sent to Your Email</p>
+
+    <!-- Email Validation Code Form -->
+    <EditForm Context="formContext" Model="Model" OnValidSubmit="ValidateCode">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <form>
+            <div class="form-group">
+                <label for="ValidationCodeInput">Code: </label>
+                <InputText id="ValidationCodeInput" class="form-control" placeholder="code" @bind-Value="@ValidationCodeInput" />
+            </div>
+            <div class="text-center">
+                <small id="message" style="color: green;">@Message</small><br />
+                <br />
+                <button class="btn btn-primary" type="submit">Validate</button>
+            </div>
+        </form>
+    </EditForm>
+</div>
+
+@code {
+
+    private Validator Model = new Validator();
+
+    private string Message { get; set; }
+    private string Result { get; set; }
+    private string ValidationCodeInput { get; set; }
+    private bool ShowValidationCodeForm { get; set; }
+
+
+    private void ValidateCode()
+    {
+        if (Result.Equals(ValidationCodeInput.ToLower()))
+        {
+            Message = $"Email successfully validated with code {ValidationCodeInput}";
+
+            // todo: createAccount endpoint
+            //http://pokemanz.live/api/login?username=srosy&password=kja;lsdkfjalksjhfjal;bdlf;aju
+
+            // todo: after account creation hit create a new trainer endpoint
+            //http://pokemanz.live/api/login?username=srosy&password=kja;lsdkfjalksjhfjal;bdlf;aju
+            System.Threading.Thread.Sleep(1000);
+            navMan.NavigateTo("team");
+        }
+    }
+}

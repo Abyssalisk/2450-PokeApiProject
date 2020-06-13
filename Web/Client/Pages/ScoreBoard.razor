@@ -43,13 +43,22 @@
 
 <button class="btn btn-primary" @onclick="PlayAgain">Play Again?</button>
 <button class="btn btn-primary" @onclick="Exit">Exit</button>
+<br />
+<button class="btn btn-primary" @onclick="Test">Test</button>
 
 @code {
 
     //int score = 0;
 
-    List<Trainer> topTenTrainers = new List<Trainer>();
+    private List<Trainer> topTenTrainers = new List<Trainer>();
 
+
+    private async Task Test()
+    {
+        var endpoint = $"api/Login/validate/serosenvall@gmail.com";
+        var validator = await client.GetFromJsonAsync<Validator>(endpoint);
+        var Result = validator.RandomCode;
+    }
 
     protected override async Task OnInitializedAsync()
     {

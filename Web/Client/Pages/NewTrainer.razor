@@ -1,20 +1,85 @@
 ﻿@page "/newTrainer"
+@using Web.Shared.Models
+
 @inject NavigationManager navMan
 @inject HttpClient client
 
-<h1>Create New Trainer</h1>
+    <div class="container-fluid" style="max-width: 50%;">
 
-<p>Form here with some basic info so we can create a new trainer for the person...</p>
-<!-- Form stuffz here... -->
-<button class="btn btn-primary" @onclick="Save">Save</button>
+
+            <h1 class="text-center">Create Account</h1>
+            <p class="text-center">Fill Out the Form and then Click Create Account</p>
+
+            <!-- CreateAccount Form -->
+            <EditForm Model=@Model>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <form>
+                    <div class="form-group">
+                        <label for="Username">Username: </label>
+                        <InputText id="Username" class="form-control" placeholder="username" @bind-Value=@Model.Username />
+                    </div>
+                    <div class="form-group">
+                        <label for="Password">Password: </label>
+                        <InputText type="password" id="Password" class="form-control" placeholder="password" @bind-Value=@Model.Password />
+                    </div>
+                    <div class="form-group">
+                        <label for="Email">Email: </label>
+                        <InputText id="Email" class="form-control" placeholder="email" @bind-Value=@Model.Email />
+                    </div>
+                    <div class="text-center">
+                        <small id="message" style="color: red;">@Message</small><br />
+                        <br />
+                        <button class="btn btn-primary" @onclick="DoCreateAccount">Create Account</button>
+                        <button class="btn btn-secondary" @onclick="GoBack">Back</button>
+                    </div>
+                </form>
+            </EditForm>
+    </div>
+
 
 @code {
-    //private int currentCount = 0;
+    private Web.Shared.Models.CreateAccount Model = new Web.Shared.Models.CreateAccount();
 
-    private void Save()
+    private string Message { get; set; }
+    private string Result { get; set; }
+    private string ValidationCodeInput { get; set; }
+    private bool ShowValidationCodeForm { get; set; }
+
+    protected override void OnInitialized()
     {
-        // TODO create new trainer, verify if handle already exists, form validation, etc...
-        Console.WriteLine("creating new trainer...");
-        navMan.NavigateTo("team");
+        Message = "A code will be sent to your email for verification";
+        ShowValidationCodeForm = false;
+    }
+
+    private async void DoCreateAccount()
+    {
+        if (!string.IsNullOrEmpty(Model.Username) && !string.IsNullOrEmpty(Model.Password) && !string.IsNullOrEmpty(Model.Email))
+        {
+            try
+            {
+                var endpoint = $"api/Login/validate/{Model.Email}";
+                var validator = await client.GetFromJsonAsync<Validator>(endpoint);
+                Result = validator.RandomCode;
+
+                if (!Result.Equals("error")) // verify code
+                {
+                    Message = "Code sent, please check your email";
+                    System.Threading.Thread.Sleep(1000);
+                    navMan.NavigateTo("verify");
+                }
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            //send code first, then create accounts
+            //Console.WriteLine(client.BaseAddress + $"api/Login/validate/{Model.Email}"); // testing
+        }
+    }
+
+    private void GoBack()
+    {
+        navMan.NavigateTo("login");
     }
 }
+

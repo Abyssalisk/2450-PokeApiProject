@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +6,6 @@ using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using MySql.Data.MySqlClient;
-using Web.Client.Pages;
 using Web.Shared.Models;
 
 namespace Web.Server.Controllers
@@ -18,13 +14,30 @@ namespace Web.Server.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-
         // GET api/<LoginController>?username=adf&password=34523n
         [HttpGet]
         public ActionResult Get([FromQuery] string username, [FromQuery] string password)
         {
-            Login(username, password);
+            //Login(username, password);
             return Ok();
+        }
+
+        // GET api/<LoginController>?username=adf&password=34523n
+        [HttpGet("validate/{email}")]
+        public async Task<Validator> Get(string email)
+        {
+            var validator = new Validator() { RandomCode = "error" };
+            var evee = new EmailValidation(email);
+            if (evee.EmailIsValid)
+            {
+                var success = await EmailValidation.SendEmail(evee.Email, evee.RandomCode);
+                await Task.Delay(2000);
+                if (success)
+                {
+                    validator.RandomCode = evee.RandomCode.ToUpper();
+                }
+            }
+            return validator;
         }
 
         // POST api/<LoginController>
@@ -122,7 +135,7 @@ namespace Web.Server.Controllers
             enteredEmail = email;
             string lookupEmailByName = "SELECT email FROM sql3346222.userCredentials WHERE(TrainerName = '" + trainerName + "');";
             string returnedEmail = "0";
-            
+
             con.Open();
             MySqlCommand query = new MySqlCommand(lookupEmailByName, con);
             MySqlDataReader rdr = query.ExecuteReader();
@@ -140,7 +153,7 @@ namespace Web.Server.Controllers
                 if (returnedEmail == enteredEmail)
                 {
                     var emailVerificationForReset = new EmailValidation(returnedEmail);
-                    if (emailVerificationForReset.emailIsValid == true)
+                    if (emailVerificationForReset.EmailIsValid == true)
                     {
                         Console.WriteLine("Lets reset your password...");
                         makeNewPassword();
@@ -270,53 +283,47 @@ namespace Web.Server.Controllers
     }
     public class EmailValidation
     {
-        public Boolean emailIsInCorrectForm;
-        public Boolean emailIsValid;
-        private string randomCode;
+        public string Email { get; set; }
+        public bool EmailIsValid { get; set; }
+        public string RandomCode { get; set; }
+        public static bool SendSuccess { get; set; }
 
         public EmailValidation(string email)
         {
-            randomCode = randoStringBuilder();
-            emailIsInCorrectForm = emailFormCheck(email);
-            sendEmail(randomCode, email);
-            emailIsValid = emailVerificationCode(email, randomCode);
+            Email = email;
+            RandomCode = RandoStringBuilder();
+            EmailIsValid = EmailFormCheck(email);
         }
-        private async void sendEmail(string verificationCode, string email)
+        public static async Task<bool> SendEmail(string email, string code)
         {
-            var mailMessage = new MimeMessage();
-            mailMessage.From.Add(new MailboxAddress("Pokemanz Password Reset", "pokemanz2450@gmail.com"));
-            mailMessage.To.Add(new MailboxAddress("Trainer", email));
-            mailMessage.Subject = "Password verification code";
-            mailMessage.Body = new TextPart("plain")
+            try
             {
-                Text = "Here is your verification code: \n\n" + verificationCode
-            };
+                var mailMessage = new MimeMessage();
+                mailMessage.From.Add(new MailboxAddress("Pokemanz Password Reset", "pokemanz2450@gmail.com"));
+                mailMessage.To.Add(new MailboxAddress("Trainer", email));
+                mailMessage.Subject = "Password verification code";
+                mailMessage.Body = new TextPart("plain")
+                {
+                    Text = "Here is your verification code: \n\n" + code
+                };
 
-            using (var client = new MailKit.Net.Smtp.SmtpClient())
-            {
-                await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync("pokemanz2450@gmail.com", "13juliet");
-                await client.SendAsync(mailMessage);
-                await client.DisconnectAsync(true);
+                using (var client = new MailKit.Net.Smtp.SmtpClient())
+                {
+                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                    await client.AuthenticateAsync("pokemanz2450@gmail.com", "13juliet");
+                    await client.SendAsync(mailMessage);
+                    await client.DisconnectAsync(true);
+                }
+                SendSuccess = true;
             }
+            catch
+            {
+                SendSuccess = false;
+            }
+            return SendSuccess;
         }
 
-        private Boolean validateEmailCode()
-        {
-            string codeEntered;
-            Console.WriteLine("Enter email validation code: ");
-            codeEntered = Console.ReadLine();
-            if (codeEntered == randomCode)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private Boolean emailFormCheck(string email)
+        public static bool EmailFormCheck(string email)
         {
             Boolean isValid = System.Text.RegularExpressions.Regex.IsMatch(email,
                 @"^(?("")("".+?(?<!\\)""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))" +
@@ -324,7 +331,7 @@ namespace Web.Server.Controllers
             return isValid;
         }
 
-        private string randoStringBuilder()
+        public string RandoStringBuilder()
         {
             int length = 6;
 
@@ -341,21 +348,6 @@ namespace Web.Server.Controllers
                 str_build.Append(letter);
             }
             return str_build.ToString();
-        }
-
-        private Boolean emailVerificationCode(string email, string randomCode)
-        {
-            Console.WriteLine("Email with verifiaction code has been sent, please check your email....");
-            if (validateEmailCode() == true)
-            {
-                Console.WriteLine("Email has been verified");
-                return true;
-            }
-            else
-            {
-                Console.WriteLine("Incorrect verfication code! Lets try this again");
-                return false;
-            }
         }
     }
 }
