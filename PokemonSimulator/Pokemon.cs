@@ -14,24 +14,24 @@ namespace PokemonSimulator
     {
         #region Fields
         public PokemonType Type { get; private set; } = (PokemonType)0;
-        public string Species { get; private set; }
-        public string Nickname { get; private set; } = null;
+        public string Species { get; private set; } // get rid of/don't need
+        public string Nickname { get; private set; } = null; // get rid of/don't need
         public int BaseHP { get; private set; }
         public int BaseSpeed { get; private set; }
         public int BaseAttack { get; private set; }
         public int BaseDefense { get; private set; }
         public int BaseSpecialAttack { get; private set; }
         public int BaseSpecialDefense { get; private set; }
-        public int ActingHP { get; private set; }
-        public int ActingSpeed { get; private set; }
-        public int ActingAttack { get; private set; }
-        public int ActingDefense { get; private set; }
-        public int ActingSpecialAttack { get; private set; }
-        public int ActingSpecialDefense { get; private set; }
-        public string FirstMove { get; private set; } = string.Empty;
-        public string SecondMove { get; private set; } = string.Empty;
-        public string ThirdMove { get; private set; } = string.Empty;
-        public string FourthMove { get; private set; } = string.Empty;
+        public int ActingHP { get; private set; } // guessing this is the hp that's kept track of during sequences in the game
+        public int ActingSpeed { get; private set; } // get rid of/don't need
+        public int ActingAttack { get; private set; } // get rid of/don't need
+        public int ActingDefense { get; private set; } // get rid of/don't need
+        public int ActingSpecialAttack { get; private set; } // get rid of/don't need
+        public int ActingSpecialDefense { get; private set; } // get rid of/don't need
+        public string FirstMove { get; private set; } = string.Empty; // Create a Move class, see Derek's branch for class Move.cs and Pokemon.cs and Trainer.cs
+        public string SecondMove { get; private set; } = string.Empty; // Create a Move class, see Derek's branch for class Move.cs and Pokemon.cs and Trainer.cs
+        public string ThirdMove { get; private set; } = string.Empty; // Create a Move class, see Derek's branch for class Move.cs and Pokemon.cs and Trainer.cs
+        public string FourthMove { get; private set; } = string.Empty; // Create a Move class, see Derek's branch for class Move.cs and Pokemon.cs and Trainer.cs
         public bool IsAlive { get => ActingHP > 0; }
         #endregion
 
