@@ -339,7 +339,7 @@ namespace PokemonSimulator
                     {
 #warning I think something is wrong here.
                         string s = Convert.ToString(((short)data[i]), 2);
-                        s.PadLeft(16, '0');
+                        s = s.PadLeft(16, '0');
                         s = s.Substring(0, ((int)s.Length - (int)whitespace));
                         process.Enqueue(s);
                     }
