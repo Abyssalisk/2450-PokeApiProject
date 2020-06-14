@@ -1,5 +1,6 @@
 ﻿@page "/validate"
 @using Web.Shared.Models
+
 @inject NavigationManager navMan
 @inject HttpClient client
 
@@ -41,7 +42,7 @@
 
     private void ValidateCode()
     {
-        if (Model.RandomCode.ToUpper().Equals(ValidationCodeInput.ToUpper()))
+        if (Model.RandomCode.ToUpper().Equals(ValidationCodeInput.ToUpper().Trim()))
         {
             Message = $"Email successfully validated with code {ValidationCodeInput}";
             StateHasChanged();

@@ -22,32 +22,35 @@ namespace Web.Server.Controllers
         }
 
         // POST api/<LoginController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+        //[HttpPost]
+        //public void Post([FromBody] string value)
+        //{
+        //}
 
-        // PUT api/<LoginController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        //// PUT api/<LoginController>/5
+        //[HttpPut("{id}")]
+        //public void Put(int id, [FromBody] string value)
+        //{
+        //}
 
-        // DELETE api/<LoginController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        //// DELETE api/<LoginController>/5
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+        //}
 
         private ActionResult Login(string loginName, string password)
         {
-            var login = new Shared.Models.LoginModel();
-            login.Username = loginName;
-            login.Password = password;
+            var login = new LoginModel()
+            {
+                Username = loginName,
+                Password = password
+            };
+
             var connection = new DBConnect();
 
             //validates password
-            Boolean accountIsAuth = Validate(loginName, password, connection.myConnection);
+            Boolean accountIsAuth = Validate(login, connection.myConnection);
             if (accountIsAuth == false)
             {
                 return Conflict("Invalid username and/or password");
@@ -91,9 +94,9 @@ namespace Web.Server.Controllers
         }
 
         //Private method to validate password, if password is false gives option to reset password
-        public Boolean Validate(string userName, string pass, MySqlConnection con)
+        public bool Validate(LoginModel login, MySqlConnection con)
         {
-            string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + userName + "');";
+            string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + login.Username + "');";
             string correctPassword = "";
             int userID = 0;
 
@@ -116,9 +119,9 @@ namespace Web.Server.Controllers
             }
 
             string attemptedPassword;
-            var sendToHashPasswordAlg = new HashingAlg(pass);
-            attemptedPassword = sendToHashPasswordAlg.getHash();
-            correctPassword = sendToHashPasswordAlg.reomveSecret(correctPassword);
+            var sendToHashPasswordAlg = new HashingAlg(login.Password);
+            attemptedPassword = sendToHashPasswordAlg.GetHash();
+            correctPassword = sendToHashPasswordAlg.RemoveSecret(correctPassword);
 
             //checks the hashed password the user entered agaisnt the hashedpass from DB
             if (correctPassword == attemptedPassword)
@@ -127,7 +130,7 @@ namespace Web.Server.Controllers
             }
             else //failed, reset password
             {
-                var reset = new ResetPassword(con, userName, "testEmail@email.com");
+                var reset = new ResetPassword(con, login.Username, "testEmail@email.com");
                 // var reset = new ResetPassword(con, userName, "testEmail@email.com"); => Change to api call 
             }
             return true;
@@ -189,8 +192,8 @@ namespace Web.Server.Controllers
 
             string Hashedpass;
             var sendToHashPasswordAlg = new HashingAlg(newPass);
-            Hashedpass = sendToHashPasswordAlg.getHash();
-            Hashedpass = sendToHashPasswordAlg.addSecret(Hashedpass);
+            Hashedpass = sendToHashPasswordAlg.GetHash();
+            Hashedpass = sendToHashPasswordAlg.AddSecret(Hashedpass);
 
             connection.Open();
             //INSERT query
@@ -266,12 +269,12 @@ namespace Web.Server.Controllers
             }
 
         }
-        public string getHash()
+        public string GetHash()
         {
             return hashString;
         }
 
-        public string addSecret(string alreadyHashed)
+        public string AddSecret(string alreadyHashed)
         {
             alreadyHashed += "-";
             //Secret
@@ -287,7 +290,7 @@ namespace Web.Server.Controllers
             return alreadyHashed;
         }
 
-        public string reomveSecret(string alreadyHashed)
+        public string RemoveSecret(string alreadyHashed)
         {
             int splitOn = alreadyHashed.IndexOf("-");
             alreadyHashed = alreadyHashed.Substring(0, splitOn);

@@ -1,10 +1,9 @@
-﻿using MailKit.Security;
-using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MimeKit;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Dynamic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,22 +11,26 @@ using Web.Shared.Models;
 
 namespace Web.Client.Services
 {
-    public class AuthService
+
+    public interface IAuthService
+    {
+        string RandomCode { get; set; }
+        string Email { get; set; }
+        bool CodeSent { get; set; }
+    }
+
+    public class AuthService : IAuthService
     {
         public string RandomCode { get; set; }
         public string Email { get; set; }
+        public bool CodeSent { get; set; }
 
-        [Inject]
-        HttpClient Client { get; set; }
 
-        public AuthService(HttpClient client)
+        public AuthService() { }
+
+        public void SendEmail(HttpClient client, string email, string code)
         {
-            Client = client;
-        }
-
-        public void SendEmail(string email, string code)
-        {
-            Task.Run(() => Client.GetStringAsync($"api/Login/validate?email={email}&code={code}"));
+            Task.Run(() => client.GetStringAsync($"https://srosy.azurewebsites.net/api/login/validate?email={email}&code={code}"));
         }
 
         public static bool EmailFormCheck(string email)

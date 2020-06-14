@@ -4,13 +4,14 @@
 
 @inject NavigationManager navMan
 @inject HttpClient client
+@*@inject AuthService auth*@
 
 
 <div class="container-fluid" style="max-width: 50%;">
     @{
-        if (CodeSent)
+        if (auth.CodeSent)
         {
-            <Validate Model=@Validation />
+            <Validate Model=@Validation ></Validate>
         }
         else
         {
@@ -50,7 +51,6 @@
     private CreateAccountModel Model = new CreateAccountModel();
     private string Message { get; set; }
     private string ValidationCodeInput { get; set; }
-    private bool CodeSent { get; set; }
 
     private ValidationModel Validation { get; set; }
     private string RandomCode { get; set; }
@@ -59,10 +59,9 @@
 
     protected override void OnInitialized()
     {
-        auth = new AuthService(client);
+        auth = new AuthService();
         Message = "A code will be sent to your email for verification";
         Validation = new ValidationModel() { Email = "serosenvall@gmail.com", RandomCode = "XYZXYZ" }; // testing
-
     }
 
     private void DoCreateAccount()
@@ -75,8 +74,8 @@
                 Email = Model.Email
             };
 
-            auth.SendEmail(Validation.Email, Validation.RandomCode);
-            CodeSent = true;
+            auth.SendEmail(client, Validation.Email, Validation.RandomCode);
+            auth.CodeSent = true;
         }
         //navMan.NavigateTo("validate");
         StateHasChanged();
