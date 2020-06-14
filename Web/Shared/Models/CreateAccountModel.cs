@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Web.Shared.Models
 {
-    public class Validator
+    public class CreateAccountModel : LoginModel
     {
-        public string RandomCode { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Web.Shared.Models
 {
-   public class Move
+   public class MoveModel
     {
         public string Name { get; set; }
         public string Type { get; set; }

@@ -1,6 +1,5 @@
 ﻿@page "/validate"
 @using Web.Shared.Models
-
 @inject NavigationManager navMan
 @inject HttpClient client
 
@@ -9,7 +8,7 @@
     <p class="text-center">Enter the Code Sent to Your Email</p>
 
     <!-- Email Validation Code Form -->
-    <EditForm Context="formContext" Model="Model" OnValidSubmit="ValidateCode">
+    <EditForm Context="formContext" Model="@Model">
         <DataAnnotationsValidator />
         <ValidationSummary />
         <form>
@@ -20,7 +19,7 @@
             <div class="text-center">
                 <small id="message" style="color: green;">@Message</small><br />
                 <br />
-                <button class="btn btn-primary" type="submit">Validate</button>
+                <button class="btn btn-primary" @onclick="ValidateCode">Validate</button>
             </div>
         </form>
     </EditForm>
@@ -28,27 +27,30 @@
 
 @code {
 
-    private Validator Model = new Validator();
+    [Parameter]
+    public ValidationModel Model { get; set; }
 
     private string Message { get; set; }
-    private string Result { get; set; }
     private string ValidationCodeInput { get; set; }
-    private bool ShowValidationCodeForm { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Message = $"Code emailed to {Model.Email}";
+    }
 
 
     private void ValidateCode()
     {
-        if (Result.Equals(ValidationCodeInput.ToLower()))
+        if (Model.RandomCode.ToUpper().Equals(ValidationCodeInput.ToUpper()))
         {
             Message = $"Email successfully validated with code {ValidationCodeInput}";
-
-            // todo: createAccount endpoint
-            //http://pokemanz.live/api/login?username=srosy&password=kja;lsdkfjalksjhfjal;bdlf;aju
-
-            // todo: after account creation hit create a new trainer endpoint
-            //http://pokemanz.live/api/login?username=srosy&password=kja;lsdkfjalksjhfjal;bdlf;aju
-            System.Threading.Thread.Sleep(1000);
+            StateHasChanged();
+            System.Threading.Thread.Sleep(2000);
             navMan.NavigateTo("team");
+        }
+        else
+        {
+            Message = $"Code {ValidationCodeInput} is incorrect";
         }
     }
 }

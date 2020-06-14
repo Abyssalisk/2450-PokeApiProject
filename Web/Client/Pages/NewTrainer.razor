@@ -1,15 +1,21 @@
 ﻿@page "/newTrainer"
 @using Web.Shared.Models
+@using Web.Client.Pages
 
 @inject NavigationManager navMan
 @inject HttpClient client
 
-    <div class="container-fluid" style="max-width: 50%;">
 
-
+<div class="container-fluid" style="max-width: 50%;">
+    @{
+        if (CodeSent)
+        {
+            <Validate Model=@Validation />
+        }
+        else
+        {
             <h1 class="text-center">Create Account</h1>
             <p class="text-center">Fill Out the Form and then Click Create Account</p>
-
             <!-- CreateAccount Form -->
             <EditForm Model=@Model>
                 <DataAnnotationsValidator />
@@ -35,46 +41,45 @@
                     </div>
                 </form>
             </EditForm>
-    </div>
+        }
+    }
+</div>
 
 
 @code {
-    private Web.Shared.Models.CreateAccount Model = new Web.Shared.Models.CreateAccount();
-
+    private CreateAccountModel Model = new CreateAccountModel();
     private string Message { get; set; }
-    private string Result { get; set; }
     private string ValidationCodeInput { get; set; }
-    private bool ShowValidationCodeForm { get; set; }
+    private bool CodeSent { get; set; }
+
+    private ValidationModel Validation { get; set; }
+    private string RandomCode { get; set; }
+
+    private AuthService auth { get; set; }
 
     protected override void OnInitialized()
     {
+        auth = new AuthService(client);
         Message = "A code will be sent to your email for verification";
-        ShowValidationCodeForm = false;
+        Validation = new ValidationModel() { Email = "serosenvall@gmail.com", RandomCode = "XYZXYZ" }; // testing
+
     }
 
-    private async void DoCreateAccount()
+    private void DoCreateAccount()
     {
         if (!string.IsNullOrEmpty(Model.Username) && !string.IsNullOrEmpty(Model.Password) && !string.IsNullOrEmpty(Model.Email))
         {
-            try
+            Validation = new ValidationModel()
             {
-                var endpoint = $"api/Login/validate/{Model.Email}";
-                var validator = await client.GetFromJsonAsync<Validator>(endpoint);
-                Result = validator.RandomCode;
+                RandomCode = auth.GenRandomString(),
+                Email = Model.Email
+            };
 
-                if (!Result.Equals("error")) // verify code
-                {
-                    Message = "Code sent, please check your email";
-                    System.Threading.Thread.Sleep(1000);
-                    navMan.NavigateTo("verify");
-                }
-            } catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            //send code first, then create accounts
-            //Console.WriteLine(client.BaseAddress + $"api/Login/validate/{Model.Email}"); // testing
+            auth.SendEmail(Validation.Email, Validation.RandomCode);
+            CodeSent = true;
         }
+        //navMan.NavigateTo("validate");
+        StateHasChanged();
     }
 
     private void GoBack()

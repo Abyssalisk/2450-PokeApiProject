@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Web.Shared.Models
 {
-    public class Pokemon
+    public class PokemonModel
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -12,7 +12,7 @@ namespace Web.Shared.Models
         public int Speed { get; set; }
         public string Type { get; set; }
         public List<string> TypeWeaknesses { get; set; }
-        public List<Move> Moves { get; set; }
+        public List<MoveModel> Moves { get; set; }
         // @Sam any other object properties you need
     }
 }

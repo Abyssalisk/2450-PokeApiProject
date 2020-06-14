@@ -14,30 +14,11 @@ namespace Web.Server.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        // GET api/<LoginController>?username=adf&password=34523n
-        [HttpGet]
-        public ActionResult Get([FromQuery] string username, [FromQuery] string password)
+        // GET api/<LoginController>/validate?username=adf&password=34523n
+        [HttpGet("validate")]
+        public void Get([FromQuery] string email, [FromQuery] string code)
         {
-            //Login(username, password);
-            return Ok();
-        }
-
-        // GET api/<LoginController>?username=adf&password=34523n
-        [HttpGet("validate/{email}")]
-        public async Task<Validator> Get(string email)
-        {
-            var validator = new Validator() { RandomCode = "error" };
-            var evee = new EmailValidation(email);
-            if (evee.EmailIsValid)
-            {
-                var success = await EmailValidation.SendEmail(evee.Email, evee.RandomCode);
-                await Task.Delay(2000);
-                if (success)
-                {
-                    validator.RandomCode = evee.RandomCode.ToUpper();
-                }
-            }
-            return validator;
+            SendEmail(email, code);
         }
 
         // POST api/<LoginController>
@@ -60,7 +41,7 @@ namespace Web.Server.Controllers
 
         private ActionResult Login(string loginName, string password)
         {
-            var login = new Shared.Models.Login();
+            var login = new Shared.Models.LoginModel();
             login.Username = loginName;
             login.Password = password;
             var connection = new DBConnect();
@@ -74,6 +55,38 @@ namespace Web.Server.Controllers
             else
             {
                 return Ok();
+            }
+        }
+
+        public void SendEmail(string email, string code)
+        {
+            try
+            {
+                var mailMessage = new MimeMessage();
+                mailMessage.From.Add(new MailboxAddress("Pokemanz Password Reset", "pokemanz2450@gmail.com"));
+                mailMessage.To.Add(new MailboxAddress("Trainer", email));
+                mailMessage.Subject = "Password verification code";
+                mailMessage.Body = new TextPart("plain")
+                {
+                    Text = "Here is your verification code: \n\n" + code
+                };
+
+                Task.Run(() => DoSending(mailMessage)); // fire off and forget about it
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        public async Task DoSending(MimeMessage mailMessage)
+        {
+            using (var client = new MailKit.Net.Smtp.SmtpClient())
+            {
+                await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                await client.AuthenticateAsync("pokemanz2450@gmail.com", "13juliet");
+                await client.SendAsync(mailMessage);
+                await client.DisconnectAsync(true);
             }
         }
 
@@ -148,23 +161,23 @@ namespace Web.Server.Controllers
             rdr.Close();
             con.Close();
 
-            while (true)
-            {
-                if (returnedEmail == enteredEmail)
-                {
-                    var emailVerificationForReset = new EmailValidation(returnedEmail);
-                    if (emailVerificationForReset.EmailIsValid == true)
-                    {
-                        Console.WriteLine("Lets reset your password...");
-                        makeNewPassword();
-                        return; // return ActionResult Ok
-                    }
-                }
-                else
-                {
-                    return; //return ActionResult Conflict
-                }
-            }
+            //while (true)
+            //{
+            //    if (returnedEmail == enteredEmail)
+            //    {
+            //        var emailVerificationForReset = new EmailValidation(returnedEmail);
+            //        if (emailVerificationForReset.EmailIsValid == true)
+            //        {
+            //            Console.WriteLine("Lets reset your password...");
+            //            makeNewPassword();
+            //            return; // return ActionResult Ok
+            //        }
+            //    }
+            //    else
+            //    {
+            //        return; //return ActionResult Conflict
+            //    }
+            //}
         }
 
         private void makeNewPassword()
@@ -281,73 +294,5 @@ namespace Web.Server.Controllers
             return alreadyHashed;
         }
     }
-    public class EmailValidation
-    {
-        public string Email { get; set; }
-        public bool EmailIsValid { get; set; }
-        public string RandomCode { get; set; }
-        public static bool SendSuccess { get; set; }
 
-        public EmailValidation(string email)
-        {
-            Email = email;
-            RandomCode = RandoStringBuilder();
-            EmailIsValid = EmailFormCheck(email);
-        }
-        public static async Task<bool> SendEmail(string email, string code)
-        {
-            try
-            {
-                var mailMessage = new MimeMessage();
-                mailMessage.From.Add(new MailboxAddress("Pokemanz Password Reset", "pokemanz2450@gmail.com"));
-                mailMessage.To.Add(new MailboxAddress("Trainer", email));
-                mailMessage.Subject = "Password verification code";
-                mailMessage.Body = new TextPart("plain")
-                {
-                    Text = "Here is your verification code: \n\n" + code
-                };
-
-                using (var client = new MailKit.Net.Smtp.SmtpClient())
-                {
-                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    await client.AuthenticateAsync("pokemanz2450@gmail.com", "13juliet");
-                    await client.SendAsync(mailMessage);
-                    await client.DisconnectAsync(true);
-                }
-                SendSuccess = true;
-            }
-            catch
-            {
-                SendSuccess = false;
-            }
-            return SendSuccess;
-        }
-
-        public static bool EmailFormCheck(string email)
-        {
-            Boolean isValid = System.Text.RegularExpressions.Regex.IsMatch(email,
-                @"^(?("")("".+?(?<!\\)""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))" +
-                @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-zA-Z][-0-9a-zA-Z]*[0-9a-zA-Z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$");
-            return isValid;
-        }
-
-        public string RandoStringBuilder()
-        {
-            int length = 6;
-
-            StringBuilder str_build = new StringBuilder();
-            Random random = new Random();
-
-            char letter;
-
-            for (int i = 0; i < length; i++)
-            {
-                double flt = random.NextDouble();
-                int shift = Convert.ToInt32(Math.Floor(25 * flt));
-                letter = Convert.ToChar(shift + 65);
-                str_build.Append(letter);
-            }
-            return str_build.ToString();
-        }
-    }
 }
