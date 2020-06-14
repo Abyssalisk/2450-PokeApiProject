@@ -41,16 +41,16 @@ namespace Web.Server.Controllers
 
         private ActionResult Login(string loginName, string password)
         {
-            var login = new LoginModel()
-            {
-                Username = loginName,
-                Password = password
-            };
+            //var login = new LoginModel()
+            //{
+            //    Username = loginName,
+            //    Password = password
+            //};
 
             var connection = new DBConnect();
 
             //validates password
-            Boolean accountIsAuth = Validate(login, connection.myConnection);
+            Boolean accountIsAuth = Validate(loginName, password, connection.myConnection);
             if (accountIsAuth == false)
             {
                 return Conflict("Invalid username and/or password");
@@ -94,9 +94,9 @@ namespace Web.Server.Controllers
         }
 
         //Private method to validate password, if password is false gives option to reset password
-        public bool Validate(LoginModel login, MySqlConnection con)
+        public bool Validate(string username, string pass, MySqlConnection con)
         {
-            string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + login.Username + "');";
+            string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + username + "');";
             string correctPassword = "";
             int userID = 0;
 
@@ -119,7 +119,7 @@ namespace Web.Server.Controllers
             }
 
             string attemptedPassword;
-            var sendToHashPasswordAlg = new HashingAlg(login.Password);
+            var sendToHashPasswordAlg = new HashingAlg(pass);
             attemptedPassword = sendToHashPasswordAlg.GetHash();
             correctPassword = sendToHashPasswordAlg.RemoveSecret(correctPassword);
 
@@ -130,7 +130,7 @@ namespace Web.Server.Controllers
             }
             else //failed, reset password
             {
-                var reset = new ResetPassword(con, login.Username, "testEmail@email.com");
+                var reset = new ResetPassword(con, username, "testEmail@email.com");
                 // var reset = new ResetPassword(con, userName, "testEmail@email.com"); => Change to api call 
             }
             return true;
