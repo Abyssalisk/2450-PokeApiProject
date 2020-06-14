@@ -18,25 +18,25 @@ namespace Web.Server.Controllers
     {
         // GET api/<PokemonController>/5
         [HttpGet("id/{id}")]
-        public Pokemon Get(int id)
+        public PokemonModel Get(int id)
         {
             // use map here or hit db, idc
-            if (id == 1) return new Pokemon() { Name = "Gyrados" };
-            if (id == 2) return new Pokemon() { Name = "Charizard" };
-            if (id == 3) return new Pokemon() { Name = "Articuno" };
-            return new Pokemon() { Name = "SomeOtherPokemon" };
+            if (id == 1) return new PokemonModel() { Name = "Gyrados" };
+            if (id == 2) return new PokemonModel() { Name = "Charizard" };
+            if (id == 3) return new PokemonModel() { Name = "Articuno" };
+            return new PokemonModel() { Name = "SomeOtherPokemon" };
         }
 
         // GET api/<PokemonController>/name=
         [HttpGet("name/{name}")]
-        public async Task<Pokemon> Get(string name)
+        public async Task<PokemonModel> Get(string name)
         {
             var client = new RestClient("https://pokeapi.co/api/v2/pokemon/" + name);
             var request = new RestRequest(Method.GET);
             var response = await client.ExecuteAsync(request, new CancellationToken());
 
             var obj = (IDictionary<string, object>)JsonConvert.DeserializeObject<ExpandoObject>(response.Content, new ExpandoObjectConverter());
-            return new Pokemon() { 
+            return new PokemonModel() { 
                 Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(obj[obj.Keys.First(k => k.ToLower().Equals("name"))].ToString())
             };
         }

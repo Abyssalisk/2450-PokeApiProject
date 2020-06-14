@@ -13,18 +13,18 @@ namespace Web.Server.Controllers
     {
         // GET: api/<TrainerController>
         [HttpGet]
-        public IEnumerable<Trainer> Get()
+        public IEnumerable<TrainerModel> Get()
         {
             // do getting
-            return new Trainer[] { new Trainer(), new Trainer() };
+            return new TrainerModel[] { new TrainerModel(), new TrainerModel() };
         }
 
         // GET api/<TrainerController>/5
         [HttpGet("{id}")]
-        public Trainer Get(int id)
+        public TrainerModel Get(int id)
         {
             // do getting
-            return new Trainer();
+            return new TrainerModel();
         }
 
         // POST api/<TrainerController>

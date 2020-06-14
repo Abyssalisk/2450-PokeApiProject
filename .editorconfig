@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CS0006: Metadata file 'E:\Git\School\Software Engineering\2450-PokeApiProject\Web\Server\bin\Release\netcoreapp3.1\Web.Server.dll' could not be found
+dotnet_diagnostic.CS0006.severity = none

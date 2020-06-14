@@ -17,11 +17,11 @@ namespace UnitTest.Web.Server
         [Fact]
         public async void GetPokemonByName()
         {
-            var testPokemon = new Pokemon() { Name = "Charizard" };
+            var testPokemon = new PokemonModel() { Name = "Charizard" };
             Client = new RestClient(BaseUrl + "charizard");
             Request = new RestRequest(Method.GET);
             Response = await Client.ExecuteAsync(Request);
-            var pokemon = JS.Deserialize<Pokemon>(Response.Content);
+            var pokemon = JS.Deserialize<PokemonModel>(Response.Content);
 
             pokemon.IsSameOrEqualTo(testPokemon);
         }

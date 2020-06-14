@@ -4,7 +4,13 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <Configurations>Debug;Release;Test</Configurations>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
@@ -17,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PokemonSimulator\PokemonSimulator.csproj" />
+    <ProjectReference Include="..\Web\Client\Web.Client.csproj" />
     <ProjectReference Include="..\Web\Server\Web.Server.csproj" />
     <ProjectReference Include="..\Web\Shared\Web.Shared.csproj" />
   </ItemGroup>

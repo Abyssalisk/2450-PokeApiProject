@@ -7,20 +7,20 @@ using MailKit.Security;
 
 namespace PokemonSimulator
 {
-    class EmailValidation
+    public class EmailValidation
     {
-        public Boolean emailIsInCorrectForm;
-        public Boolean emailIsValid;
-        private string randomCode;
+        public Boolean EmailIsInCorrectForm { get; set; }
+        public Boolean EmailIsValid { get; set; }
+        public string RandomCode { get; private set; }
 
         public EmailValidation(string email)
         {
-            randomCode = randoStringBuilder();
-            emailIsInCorrectForm = emailFormCheck(email);
-            sendEmail(randomCode, email);
-            emailIsValid = emailVerificationCode(email,randomCode);
+            RandomCode = RandoStringBuilder();
+            EmailIsInCorrectForm = EmailFormCheck(email);
+            SendEmail(RandomCode, email);
+            EmailIsValid = EmailVerificationCode(email,RandomCode);
         }
-        private async void sendEmail(string verificationCode, string email)
+        private async void SendEmail(string verificationCode, string email)
         {
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(new MailboxAddress("Pokemanz Password Reset", "pokemanz2450@gmail.com"));
@@ -40,12 +40,12 @@ namespace PokemonSimulator
             }
         }
 
-        private Boolean validateEmailCode()
+        private Boolean ValidateEmailCode()
         {
             string codeEntered;
             Console.WriteLine("Enter email validation code: ");
             codeEntered = Console.ReadLine();
-            if (codeEntered == randomCode)
+            if (codeEntered == RandomCode)
             {
                 return true;
             }
@@ -55,7 +55,7 @@ namespace PokemonSimulator
             }
         }
 
-        private Boolean emailFormCheck(string email)
+        private Boolean EmailFormCheck(string email)
         {
             Boolean isValid = System.Text.RegularExpressions.Regex.IsMatch(email,
                 @"^(?("")("".+?(?<!\\)""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))" +
@@ -63,7 +63,7 @@ namespace PokemonSimulator
             return isValid;
         }
 
-        private string randoStringBuilder()
+        private string RandoStringBuilder()
         {
             int length = 6;
 
@@ -82,10 +82,10 @@ namespace PokemonSimulator
             return str_build.ToString();
         }
 
-        private Boolean emailVerificationCode(string email, string randomCode)
+        private Boolean EmailVerificationCode(string email, string RandomCode)
         {
             Console.WriteLine("Email with verifiaction code has been sent, please check your email....");
-            if (validateEmailCode() == true)
+            if (ValidateEmailCode() == true)
             {
                 Console.WriteLine("Email has been verified");
                 return true;

@@ -1,0 +1,57 @@
+﻿@page "/validate"
+@using Web.Shared.Models
+
+@inject NavigationManager navMan
+@inject HttpClient client
+
+<div class="container-fluid" style="max-width: 50%;">
+    <h1 class="text-center">Validate Email</h1>
+    <p class="text-center">Enter the Code Sent to Your Email</p>
+
+    <!-- Email Validation Code Form -->
+    <EditForm Context="formContext" Model="@Model">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <form>
+            <div class="form-group">
+                <label for="ValidationCodeInput">Code: </label>
+                <InputText id="ValidationCodeInput" class="form-control" placeholder="code" @bind-Value="@ValidationCodeInput" />
+            </div>
+            <div class="text-center">
+                <small id="message" style="color: green;">@Message</small><br />
+                <br />
+                <button class="btn btn-primary" @onclick="ValidateCode">Validate</button>
+            </div>
+        </form>
+    </EditForm>
+</div>
+
+@code {
+
+    [Parameter]
+    public ValidationModel Model { get; set; }
+
+    private string Message { get; set; }
+    private string ValidationCodeInput { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Message = $"Code emailed to {Model.Email}";
+    }
+
+
+    private void ValidateCode()
+    {
+        if (Model.RandomCode.ToUpper().Equals(ValidationCodeInput.ToUpper().Trim()))
+        {
+            Message = $"Email successfully validated with code {ValidationCodeInput}";
+            StateHasChanged();
+            System.Threading.Thread.Sleep(2000);
+            navMan.NavigateTo("team");
+        }
+        else
+        {
+            Message = $"Code {ValidationCodeInput} is incorrect";
+        }
+    }
+}

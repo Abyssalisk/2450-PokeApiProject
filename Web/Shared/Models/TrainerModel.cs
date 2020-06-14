@@ -4,11 +4,12 @@ using System.Text;
 
 namespace Web.Shared.Models
 {
-    class Battle
+    public class TrainerModel
     {
+        public int Id { get; set; }
+        public string Handle { get; set; }
         public int Score { get; set; }
-        public Trainer Player { get; set; }
-        public Trainer Computer { get; set; }
+        public List<PokemonModel> Team { get; set; }
         // @Sam any other object properties you need
     }
 }

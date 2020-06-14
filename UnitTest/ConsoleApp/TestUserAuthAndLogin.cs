@@ -10,9 +10,9 @@ namespace UnitTest.ConsoleApp
 {
     public class TestUserAuthAndLogin
     {
-        ConsoleOutputInput c = new ConsoleOutputInput("blah");
-        DBconnect connection = new DBconnect();
-        CreateNewUser user = new CreateNewUser();
+        readonly UserAuthAndLogin c = new UserAuthAndLogin(true);
+        readonly DBconnect connection = new DBconnect();
+        readonly CreateNewUser user = new CreateNewUser(true);
 
         [Fact]
         public void ValidateFalse()
@@ -29,13 +29,13 @@ namespace UnitTest.ConsoleApp
         [Fact]
         public void UserNameValidationFalse()
         {
-            Assert.False(user.userNameValidation("Derek", connection.myConnection));
+            Assert.False(user.UserNameValidation("Derek", connection.myConnection));
         }
 
         [Fact]
         public void UserNameValidationTrue()
         {
-            Assert.True(user.userNameValidation("ScoobyDoo", connection.myConnection));
+            Assert.True(user.UserNameValidation("ScoobyDoo", connection.myConnection));
         }
 
         [Fact]

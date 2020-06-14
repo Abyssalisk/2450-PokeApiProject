@@ -19,7 +19,7 @@
         @foreach (var trainer in topTenTrainers)
         {
             string team = string.Empty;
-            @foreach (Pokemon p in trainer.Team)
+            @foreach (PokemonModel p in trainer.Team)
             {
                 if (string.IsNullOrEmpty(team))
                     team += p.Name;
@@ -43,45 +43,54 @@
 
 <button class="btn btn-primary" @onclick="PlayAgain">Play Again?</button>
 <button class="btn btn-primary" @onclick="Exit">Exit</button>
+<br />
+<button class="btn btn-primary" @onclick="Test">Test</button>
 
 @code {
 
-    int score = 0;
+    //int score = 0;
 
-    List<Trainer> topTenTrainers = new List<Trainer>();
+    private List<TrainerModel> topTenTrainers = new List<TrainerModel>();
 
+
+    private async Task Test()
+    {
+        var endpoint = $"api/Login/validate/serosenvall@gmail.com";
+        var validator = await client.GetFromJsonAsync<ValidationModel>(endpoint);
+        var Result = validator.RandomCode;
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        topTenTrainers.Add(new Trainer()
+        topTenTrainers.Add(new TrainerModel()
         {
             Handle = "Spencer",
             Score = 100,
-            Team = new List<Pokemon>() { new Pokemon() { Name = "Charizard" },
-            new Pokemon() { Name = "Gengar" },
-            new Pokemon() { Name = "Houndoom" } }
+            Team = new List<PokemonModel>() { new PokemonModel() { Name = "Charizard" },
+            new PokemonModel() { Name = "Gengar" },
+            new PokemonModel() { Name = "Houndoom" } }
         });
 
-        topTenTrainers.Add(new Trainer()
+        topTenTrainers.Add(new TrainerModel()
         {
             Handle = "Gavin",
             Score = 250,
-            Team = new List<Pokemon>() { new Pokemon() { Name = "Gyrados" },
-            new Pokemon() { Name = "Articuno" },
-            new Pokemon() { Name = "Feraligatr" } }
+            Team = new List<PokemonModel>() { new PokemonModel() { Name = "Gyrados" },
+            new PokemonModel() { Name = "Articuno" },
+            new PokemonModel() { Name = "Feraligatr" } }
         });
-        topTenTrainers.Add(new Trainer()
+        topTenTrainers.Add(new TrainerModel()
         {
             Handle = "Trainer 3",
             Score = 15,
-            Team = new List<Pokemon>() { new Pokemon() { Name = "Metapod" },
-            new Pokemon() { Name = "Kakuna" },
-            new Pokemon() { Name = "Magikarp" } }
+            Team = new List<PokemonModel>() { new PokemonModel() { Name = "Metapod" },
+            new PokemonModel() { Name = "Kakuna" },
+            new PokemonModel() { Name = "Magikarp" } }
         });
 
-        var testpokemon1 = new Pokemon();
-        var testpokemon2 = new Pokemon();
-        var testpokemon3 = new Pokemon();
+        var testpokemon1 = new PokemonModel();
+        var testpokemon2 = new PokemonModel();
+        var testpokemon3 = new PokemonModel();
 
 
         // Test Web.Server.Controllers
@@ -89,15 +98,15 @@
         {
             var url = client.BaseAddress + "api/Pokemon/1";
             Console.WriteLine(url);
-            testpokemon1 = await client.GetFromJsonAsync<Pokemon>("api/Pokemon/name/blastoise");
-            testpokemon2 = await client.GetFromJsonAsync<Pokemon>("api/Pokemon/name/charizard");
-            testpokemon3 = await client.GetFromJsonAsync<Pokemon>("api/Pokemon/name/bulbasaur");
+            testpokemon1 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/blastoise");
+            testpokemon2 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/charizard");
+            testpokemon3 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/bulbasaur");
 
-            topTenTrainers.Add(new Trainer()
+            topTenTrainers.Add(new TrainerModel()
             {
                 Handle = "Trainer Controller",
                 Score = 1576,
-                Team = new List<Pokemon>() { testpokemon1, testpokemon2, testpokemon3 }
+                Team = new List<PokemonModel>() { testpokemon1, testpokemon2, testpokemon3 }
             });
         }
         catch // Non success

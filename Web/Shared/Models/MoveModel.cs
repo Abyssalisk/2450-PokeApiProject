@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Web.Shared.Models
 {
-    public class Pokemon
+   public class MoveModel
     {
-        public int Id { get; set; }
         public string Name { get; set; }
-        // @Sam any other object properties you need
+        public string Type { get; set; }
+        public string Damage { get; set; }
     }
 }
