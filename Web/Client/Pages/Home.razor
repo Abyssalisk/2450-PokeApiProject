@@ -2,19 +2,18 @@
 @inject NavigationManager navMan
 @inject HttpClient client
 
-<h1>Home</h1>
-
-<p>This is a page where home will be welcoming...etc.</p>
-<!-- Create the form... -->
-<button class="btn btn-primary" @onclick="Start">Start</button>
+<div class="container-fluid" style="max-width: 50%;">
+    <HomeComponent />
+    <br />
+    <div class="text-center">
+        <button class="btn btn-primary" @onclick="Start">Start</button>
+    </div>
+</div>
 
 @code {
-    //public string trainerHandle = string.Empty;
-
-
     private void Start()
     {
-        Console.WriteLine("Creating new account...");
         navMan.NavigateTo("login");
     }
 }
+
