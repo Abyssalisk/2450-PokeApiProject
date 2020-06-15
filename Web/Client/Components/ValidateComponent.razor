@@ -31,14 +31,17 @@
     [Parameter]
     public ValidationModel Model { get; set; }
 
+    [Parameter]
+    public CreateAccountModel CreateAccountModel { get; set; }
+
     private string Message { get; set; }
     private string ValidationCodeInput { get; set; }
+    private AuthService auth { get; set; }
 
     protected override void OnInitialized()
     {
         Message = $"Code emailed to {Model.Email}";
     }
-
 
     private void ValidateCode()
     {
@@ -46,8 +49,11 @@
         {
             Message = $"Email successfully validated with code {ValidationCodeInput}";
             StateHasChanged();
-            System.Threading.Thread.Sleep(2000);
-            navMan.NavigateTo("team");
+
+            CreateAccountModel.Email = Model.Email;
+            auth = new AuthService();
+            auth.CreateAccount(client, CreateAccountModel);
+            navMan.NavigateTo("login");
         }
         else
         {

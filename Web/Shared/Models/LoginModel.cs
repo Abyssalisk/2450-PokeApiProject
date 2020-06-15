@@ -10,7 +10,6 @@ namespace Web.Shared.Models
     {
         public string Username { get; set; }
         public string Password { get; set; }
-        // @Derek any other object properties you need
     }
 
 }

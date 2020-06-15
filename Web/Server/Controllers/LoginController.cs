@@ -6,6 +6,8 @@ using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
+using Web.Client.Pages;
 using Web.Shared.Models;
 
 namespace Web.Server.Controllers
@@ -21,44 +23,29 @@ namespace Web.Server.Controllers
             SendEmail(email, code);
         }
 
-        // POST api/<LoginController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
-
-        //// PUT api/<LoginController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE api/<LoginController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
-
-        private ActionResult Login(string loginName, string password)
+        //POST api/<LoginController>
+        [HttpGet("createaccount")]
+        public string Get([FromQuery] string name, [FromQuery] string pass, [FromQuery] string email)
         {
-            //var login = new LoginModel()
-            //{
-            //    Username = loginName,
-            //    Password = password
-            //};
-
-            var connection = new DBConnect();
-
-            //validates password
-            Boolean accountIsAuth = Validate(loginName, password, connection.myConnection);
-            if (accountIsAuth == false)
+            var cam = new CreateAccountModel()
             {
-                return Conflict("Invalid username and/or password");
-            }
+                Username = name,
+                Password = pass,
+                Email = email
+            };
+
+            return CreateNewUser.DoUserCreation(cam);
+        }
+
+        [HttpGet]
+        public string Login([FromQuery] string loginName, [FromQuery] string password)
+        {
+            var accountIsAuth = Validate(loginName, password, new DBConnect().myConnection);
+
+            if (accountIsAuth)
+                return "true";
             else
-            {
-                return Ok();
-            }
+                return "false";
         }
 
         public void SendEmail(string email, string code)
@@ -94,9 +81,15 @@ namespace Web.Server.Controllers
         }
 
         //Private method to validate password, if password is false gives option to reset password
-        public bool Validate(string username, string pass, MySqlConnection con)
+        public bool Validate(string username, string password, MySqlConnection con)
         {
-            string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + username + "');";
+            LoginModel login = new LoginModel()
+            {
+                Username = username,
+                Password = password
+            };
+
+            string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + login.Username + "');";
             string correctPassword = "";
             int userID = 0;
 
@@ -119,7 +112,7 @@ namespace Web.Server.Controllers
             }
 
             string attemptedPassword;
-            var sendToHashPasswordAlg = new HashingAlg(pass);
+            var sendToHashPasswordAlg = new HashingAlg(login.Password);
             attemptedPassword = sendToHashPasswordAlg.GetHash();
             correctPassword = sendToHashPasswordAlg.RemoveSecret(correctPassword);
 
@@ -130,7 +123,7 @@ namespace Web.Server.Controllers
             }
             else //failed, reset password
             {
-                var reset = new ResetPassword(con, username, "testEmail@email.com");
+                var reset = new ResetPassword(con, login.Username, "testEmail@email.com");
                 // var reset = new ResetPassword(con, userName, "testEmail@email.com"); => Change to api call 
             }
             return true;
@@ -297,5 +290,81 @@ namespace Web.Server.Controllers
             return alreadyHashed;
         }
     }
+
+    public class CreateNewUser
+    {
+        public static string DoUserCreation(CreateAccountModel model)
+        {
+            var Password = model.Password;
+            var TrainerName = model.Username;
+            var Email = model.Email;
+
+            var con = new DBConnect().myConnection;
+            if (UserNameValidation(TrainerName, con) == false)
+                return "username already taken"; // username taken
+
+            try
+            {
+                Password = UserPasswordHash(Password);
+                InsertDBcredentials(TrainerName, Password, Email, con);
+                return "account created";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "error";
+            }
+        }
+
+        //This is a private helper method that uses hashing alg to hash the nwe Password
+        public static string UserPasswordHash(string thePass)
+        {
+            string Hashedpass;
+            var sendToHashPasswordAlg = new HashingAlg(thePass);
+            Hashedpass = sendToHashPasswordAlg.GetHash();
+            Hashedpass = sendToHashPasswordAlg.AddSecret(Hashedpass);
+            return Hashedpass;
+        }
+        //checks to see if username is already taken
+        public static bool UserNameValidation(string userName, MySqlConnection con)
+        {
+            con.Open();
+            //INSERT query
+            string plainTextQuery = "SELECT TrainerName FROM sql3346222.userCredentials WHERE(TrainerName = '" + userName + "');";
+            string returnedQuery = "";
+            //execute the query
+            MySqlCommand query = new MySqlCommand(plainTextQuery, con);
+            MySqlDataReader rdr = query.ExecuteReader();
+
+            while (rdr.Read())
+            {
+                returnedQuery = (rdr[0]).ToString();
+            }
+            rdr.Close();
+            con.Close();
+
+            return !returnedQuery.Equals(userName);
+        }
+        //This method inserts the user login credentials into the DB
+        public static void InsertDBcredentials(string name, string passAfterItHashed, string Email, MySqlConnection connection)
+        {
+            //Opens a new connection to MySql DB
+            connection.Open();
+            //INSERT query
+            string plainTextQuery = "INSERT INTO sql3346222.userCredentials(TrainerName, Password, Email) VALUES('" + name +
+                "','" + passAfterItHashed + "','" + Email + "');";
+            //execute the query
+            MySqlCommand query = new MySqlCommand(plainTextQuery, connection);
+            MySqlDataReader rdr = query.ExecuteReader();
+
+            while (rdr.Read())
+            {
+                Console.WriteLine(rdr[0] + " -- " + rdr[1]);
+            }
+            rdr.Close();
+            connection.Close();
+        }
+    }
+
 
 }
