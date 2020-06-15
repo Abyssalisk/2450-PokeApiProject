@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.XPath;
 using Web.Shared.Models;
 
 namespace Web.Client.Services
@@ -27,6 +30,18 @@ namespace Web.Client.Services
 
 
         public AuthService() { }
+
+        public async Task<string> TryLogin(HttpClient client, LoginModel login)
+        {
+            var result = await client.GetStringAsync($"api/login?username={login.Username}&password={login.Password}");
+            return result;
+        }
+
+        public void CreateAccount(HttpClient client, CreateAccountModel createAccount)
+        {
+            //client.GetStringAsync($"https://srosy.azurewebsites.net/api/login/createaccount?username={login.Username}&password={login.Password}&email={login.Email}"));
+            Task.Run(() => client.GetStringAsync($"http://pokemanz.live/api/login/createaccount?user={createAccount.Username}&pass={createAccount.Password}&email={createAccount.Email}"));
+        }
 
         public void SendEmail(HttpClient client, string email, string code)
         {

@@ -16,7 +16,7 @@ namespace Web.Server.Controllers
     [ApiController]
     public class PokemonController : ControllerBase
     {
-        // GET api/<PokemonController>/5
+        // GET api/<PokemonController>/id/id
         [HttpGet("id/{id}")]
         public PokemonModel Get(int id)
         {
@@ -27,7 +27,7 @@ namespace Web.Server.Controllers
             return new PokemonModel() { Name = "SomeOtherPokemon" };
         }
 
-        // GET api/<PokemonController>/name=
+        // GET api/<PokemonController>/name
         [HttpGet("name/{name}")]
         public async Task<PokemonModel> Get(string name)
         {
