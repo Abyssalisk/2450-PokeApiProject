@@ -1,3 +1,4 @@
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PokemonSimulator;
 using System;
@@ -10,6 +11,10 @@ namespace Testing
     [TestClass]
     public class HuffmanTest
     {
+        public class Ref<T>
+        {
+            public T Value { get; set; }
+        }
         [TestMethod]
         public void SampleHuffOne()
         {
@@ -45,8 +50,8 @@ namespace Testing
         [TestMethod]
         public void BigHuffTest()
         {
-            string api = string.Empty;
-            string result = string.Empty;
+            //string api = string.Empty;
+            //string result = string.Empty;
             //Func<object?, string> getPoke = async (object? o) => await ((object? o) => APIPokemonBlueprint.GetPokemonBlueprint(o.ToString()).ToString());
             //Task<string> task = new Task<string>(getPoke, Grand.rand.Next(1, 785).ToString());
             //IEnumerable GetPokemon()
@@ -54,49 +59,55 @@ namespace Testing
             //    yield return await task;
             //}
             //Parallel.ForEach(Enumerable.Repeat()
-            ulong charCount = 0;
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
-            charCount = charCount + (ulong)api.Length;
-            result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
-            Assert.AreEqual(api, result);
-            ulong mbs = charCount / 524288;
-            ;
+            Grand.HuffmanCoder<Ref<APIPokemonBlueprint>> coder1 = new Grand.HuffmanCoder<Ref<APIPokemonBlueprint>>();
+            coder1.DecompressedObject = new Ref<APIPokemonBlueprint> { Value = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()) };
+            Grand.HuffmanCoder<Ref<APIPokemonBlueprint>> coder2 = new Grand.HuffmanCoder<Ref<APIPokemonBlueprint>>();
+            coder2.CompressedObject = coder1.CompressedObject;
+            Assert.IsTrue(coder1.DecompressedObject.Value.Equals(coder2.DecompressedObject.Value));
+            Assert.AreEqual(coder1.CompressedObject, coder2.CompressedObject);
+            //ulong charCount = 0;
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //api = @APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()).ToString();
+            //charCount = charCount + (ulong)api.Length;
+            //result = Grand.HuffmanDecompress(Grand.HuffmanCompress(api));
+            //Assert.AreEqual(api, result);
+            //ulong mbs = charCount / 524288;
+            //;
         }
     }
 }

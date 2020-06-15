@@ -51,13 +51,13 @@ namespace PokemonSimulator
                 }
             }
             Species = model.name;
-            Nickname = Nickname ?? Species;
+            //Nickname = Nickname ?? Species;
             ActingHP = BaseHP = Array.Find(model.stats, x => x.stat.name == "hp").base_stat;
-            ActingSpeed = BaseSpeed = Array.Find(model.stats, x => x.stat.name == "speed").base_stat;
-            ActingAttack = BaseAttack = Array.Find(model.stats, x => x.stat.name == "attack").base_stat;
-            ActingDefense = BaseDefense = Array.Find(model.stats, x => x.stat.name == "defense").base_stat;
-            ActingSpecialAttack = BaseSpecialAttack = Array.Find(model.stats, x => x.stat.name == "special-attack").base_stat;
-            ActingSpecialDefense = BaseSpecialDefense = Array.Find(model.stats, x => x.stat.name == "special-defense").base_stat;
+            //ActingSpeed = BaseSpeed = Array.Find(model.stats, x => x.stat.name == "speed").base_stat;
+            //ActingAttack = BaseAttack = Array.Find(model.stats, x => x.stat.name == "attack").base_stat;
+            //ActingDefense = BaseDefense = Array.Find(model.stats, x => x.stat.name == "defense").base_stat;
+            //ActingSpecialAttack = BaseSpecialAttack = Array.Find(model.stats, x => x.stat.name == "special-attack").base_stat;
+            //ActingSpecialDefense = BaseSpecialDefense = Array.Find(model.stats, x => x.stat.name == "special-defense").base_stat;
             //Temporary.
             if (model.moves.Length > 3)
             {
@@ -109,7 +109,7 @@ namespace PokemonSimulator
         #region Redefinitions/Overrides
         public new string ToString()
         {
-            return $"{Nickname.ToPascalCase(System.Globalization.CultureInfo.CurrentCulture)}" +
+            return /*$"{Nickname.ToPascalCase(System.Globalization.CultureInfo.CurrentCulture)}" +*/
                 $" species\' is {Species}, types are {Type.ToString()}, stats are BaseHP:{BaseHP}" +
                 $" BaseSpeed:{BaseSpeed} BaseAttack:{BaseAttack} BaseDefense:{BaseDefense}" +
                 $" BaseSpecialAttack:{BaseSpecialAttack} BaseSpecialDefense:{BaseSpecialDefense}," +

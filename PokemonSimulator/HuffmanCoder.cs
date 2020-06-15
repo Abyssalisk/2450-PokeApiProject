@@ -954,27 +954,50 @@ namespace PokemonSimulator
             {
                 get
                 {
-                    if (!compressedObject.Equals(null))
+                    if (compressedObject != null)
                     {
                         return compressedObject;
                     }
-                    else if (!decompressedObject.Equals(null))
+                    else if (decompressedObject != null)
                     {
-                        compressedObject = Encode(JsonConvert.SerializeObject(DecompressedObject));
+                        compressedObject = Encode(JsonConvert.SerializeObject(decompressedObject));
                         return compressedObject;
                     }
                     else
                     {
                         return null;
                     }
+                    //if (!compressedObject.Equals(null))
+                    //{
+                    //    return compressedObject;
+                    //}
+                    //else if (!decompressedObject.Equals(null))
+                    //{
+                    //    compressedObject = Encode(JsonConvert.SerializeObject(DecompressedObject));
+                    //    return compressedObject;
+                    //}
+                    //else
+                    //{
+                    //    return null;
+                    //}
                 }
                 set
                 {
-                    if (!compressedObject.Equals(value))
-                    {
-                        compressedObject = value;
-                        DecompressedObject = null;
-                    }
+                    compressedObject = value;
+                    decompressedObject = null;
+                    //if (compressedObject != null && value != null)
+                    //{
+                    //    if (!compressedObject.Equals(value))
+                    //    {
+                    //        compressedObject = value;
+                    //        DecompressedObject = null;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    compressedObject = value;
+                    //    DecompressedObject = null;
+                    //}
                 }
             }
             private T decompressedObject;
@@ -986,11 +1009,11 @@ namespace PokemonSimulator
             {
                 get
                 {
-                    if (!decompressedObject.Equals(null))
+                    if (decompressedObject != null)
                     {
                         return decompressedObject;
                     }
-                    else if (!compressedObject.Equals(null))
+                    else if (compressedObject != null)
                     {
                         decompressedObject = JsonConvert.DeserializeObject<T>(Decode(compressedObject));
                         return decompressedObject;
@@ -999,14 +1022,37 @@ namespace PokemonSimulator
                     {
                         return null;
                     }
+                    //if (!decompressedObject.Equals(null))
+                    //{
+                    //    return decompressedObject;
+                    //}
+                    //else if (!compressedObject.Equals(null))
+                    //{
+                    //    decompressedObject = JsonConvert.DeserializeObject<T>(Decode(compressedObject));
+                    //    return decompressedObject;
+                    //}
+                    //else
+                    //{
+                    //    return null;
+                    //}
                 }
                 set
                 {
-                    if (!decompressedObject.Equals(value))
-                    {
-                        decompressedObject = value;
-                        CompressedObject = null;
-                    }
+                    decompressedObject = value;
+                    compressedObject = null;
+                    //if (decompressedObject != null && value != null)
+                    //{
+                    //    if (!decompressedObject.Equals(value))
+                    //    {
+                    //        decompressedObject = value;
+                    //        CompressedObject = null;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    decompressedObject = value;
+                    //    CompressedObject = null;
+                    //}
                 }
             }
             #endregion
