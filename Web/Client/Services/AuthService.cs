@@ -37,10 +37,14 @@ namespace Web.Client.Services
             return result;
         }
 
+        public void SendLogin(HttpClient client, SendLoginModel model)
+        {
+            Task.Run(() => client.GetStringAsync($"api/login/sendlogin/email={model.Email}"));
+        }
+
         public void CreateAccount(HttpClient client, CreateAccountModel createAccount)
         {
-            //client.GetStringAsync($"https://srosy.azurewebsites.net/api/login/createaccount?username={login.Username}&password={login.Password}&email={login.Email}"));
-            Task.Run(() => client.GetStringAsync($"http://pokemanz.live/api/login/createaccount?user={createAccount.Username}&pass={createAccount.Password}&email={createAccount.Email}"));
+            Task.Run(() => client.GetStringAsync($"api/login/createaccount?name={createAccount.Username}&pass={createAccount.Password}&email={createAccount.Email}"));
         }
 
         public void SendEmail(HttpClient client, string email, string code)

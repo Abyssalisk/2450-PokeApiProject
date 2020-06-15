@@ -3,57 +3,52 @@
 @inject NavigationManager navMan
 @inject HttpClient client
 
-<EditForm Model="@LoginModel">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <form>
-        <div class="form-group">
-            <label for="TrainerHandle">Username: </label>
-            <InputText id="Username" class="form-control" placeholder="username" @bind-Value="@LoginModel.Username" />
-        </div>
-        <div class="form-group">
-            <label for="Password">Password: </label>
-            <InputText type="password" id="Password" class="form-control" placeholder="password" @bind-Value="@LoginModel.Password" />
-        </div>
-    </form>
-</EditForm>
-<br />
-<div class="text-center">
-    <button class="btn btn-primary" @onclick="Authenticate">Login</button>
-    <button class="btn btn-secondary" @onclick="CreateAccount">Create New Account</button>
-</div>
+    <h1 class="text-center">Login</h1>
+    <p class="text-center">Login or Create a New Account</p>
+    <EditForm Model="@LoginModel">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <form>
+            <div class="form-group">
+                <label for="TrainerHandle">Username: </label>
+                <InputText id="Username" class="form-control" placeholder="username" @bind-Value="@LoginModel.Username" />
+            </div>
+            <div class="form-group">
+                <label for="Password">Password: </label>
+                <InputText type="password" id="Password" class="form-control" placeholder="password" @bind-Value="@LoginModel.Password" />
+            </div>
+        </form>
+    </EditForm>
+    <br />
+    <div class="text-center">
+        <button class="btn btn-primary" @onclick="Authenticate">Login</button>
+    </div>
 
-@code {
-    public LoginModel LoginModel { get; set; }
-    public string Message { get; set; }
-    private string Response { get; set; }
-    private AuthService Auth { get; set; }
+    @code {
+        public LoginModel LoginModel { get; set; }
+        public string Message { get; set; }
+        private string Response { get; set; }
+        private AuthService Auth { get; set; }
 
-    protected override void OnInitialized()
-    {
-        LoginModel = new LoginModel();
-        Response = string.Empty;
-        Message = string.Empty;
-        Auth = new AuthService();
-    }
-
-    public async Task Authenticate()
-    {
-        if (!string.IsNullOrEmpty(LoginModel.Username) && !string.IsNullOrEmpty(LoginModel.Password))
+        protected override void OnInitialized()
         {
-            Response = await Auth.TryLogin(client, LoginModel);
-            if (Response.Equals("true"))
-                navMan.NavigateTo("team");
-            else
+            LoginModel = new LoginModel();
+            Response = string.Empty;
+            Message = string.Empty;
+            Auth = new AuthService();
+        }
+
+        public async Task Authenticate()
+        {
+            if (!string.IsNullOrEmpty(LoginModel.Username) && !string.IsNullOrEmpty(LoginModel.Password))
             {
-                Message = "Failed to login. Check username/password or select Forgot Password";
+                Response = await Auth.TryLogin(client, LoginModel);
+                if (Response.Equals("true"))
+                    navMan.NavigateTo("team");
+                else
+                {
+                    Message = "Failed to login. Check username/password or select Forgot Password";
+                }
             }
         }
     }
-
-    private void CreateAccount()
-    {
-        navMan.NavigateTo("newTrainer");
-    }
-
-}
