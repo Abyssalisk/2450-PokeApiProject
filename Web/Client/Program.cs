@@ -18,7 +18,9 @@ namespace Web.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            //builder.Services.AddSingleton<AuthService>();
+
+            // custom services that don't require HttpClient, IJSRuntime, or NavigationManager
+            builder.Services.AddSingleton<IPokemonService, PokemonService>();
 
             builder.RootComponents.Add<App>("app");
             await builder.Build().RunAsync();

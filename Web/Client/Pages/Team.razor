@@ -2,26 +2,13 @@
 @inject NavigationManager navMan
 @inject HttpClient client
 
-<h1>Team</h1>
 
-<p>Create a team of preferrably all fire pokemon...</p>
-<!-- Create the form... -->
-<button class="btn btn-primary" @onclick="SelectPreviousTeam">Select</button>
+
+<TeamComponent />
 <button class="btn btn-primary" @onclick="CreateNewTeam">Create New Team</button>
 
 
 @code {
-    public string trainerHandle = string.Empty;
-    public string password = string.Empty;
-
-
-    private void SelectPreviousTeam()
-    {
-        // todo: get selection from existing teams indicated on UI through DDL, etc...
-        Console.WriteLine("Selecting team...");
-        navMan.NavigateTo("battle");
-    }
-
     private void CreateNewTeam()
     {
         Console.WriteLine("Creating new team...");
