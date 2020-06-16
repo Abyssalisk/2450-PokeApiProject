@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System;
 using System.Collections.Generic;
+using PokeAPI;
 
 namespace PokemonSimulator
 {
