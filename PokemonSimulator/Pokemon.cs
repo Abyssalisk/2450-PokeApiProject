@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System;
-using System.Collections.Generic;
+using PokeAPI;
 
 namespace PokemonSimulator
 {
@@ -14,7 +13,7 @@ namespace PokemonSimulator
     {
         public int Id { get; set; }
         public string Species { get; private set; }
-        public PokemonType Type { get; private set; } = (PokemonType)0;
+        public PokemonType Type { get; private set; }
         public int BaseHP { get; private set; }
         public int BaseSpeed { get; private set; }
         public int BaseAttack { get; private set; }
@@ -25,7 +24,6 @@ namespace PokemonSimulator
         public List<Move> Moves { get; set; }
         public int ActingHP { get; private set; }
         public bool IsAlive { get => ActingHP > 0; }
-        // @Sam any other object properties you need
 
         #region Ctors
         //public Pokemon(API.PokemonBlueprint model)
@@ -90,7 +88,6 @@ namespace PokemonSimulator
                 ActingHP = 0;
             }
         }
-        #endregion
 
         #region Redefinitions/Overrides
         public new string ToString()
