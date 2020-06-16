@@ -1,0 +1,83 @@
+﻿@using Web.Shared.Models
+@using Web.Client.Pages
+@using Web.Client.Components
+
+@inject NavigationManager navMan
+@inject HttpClient client
+
+@{
+    if (auth.CodeSent)
+    {
+        <ValidateComponent Model="@Validation" CreateAccountModel="@CreateAccountModel" />
+    }
+    else
+    {
+        <h1 class="text-center">Create Account</h1>
+        <p class="text-center">Fill Out the Form and then Click Create Account</p>
+        <!-- CreateAccount Form -->
+        <EditForm Model=@CreateAccountModel>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <form>
+                <div class="form-group">
+                    <label for="Username">Username: </label>
+                    <InputText id="Username" class="form-control" placeholder="username" @bind-Value=@CreateAccountModel.Username />
+                </div>
+                <div class="form-group">
+                    <label for="Password">Password: </label>
+                    <InputText type="password" id="Password" class="form-control" placeholder="password" @bind-Value=@CreateAccountModel.Password />
+                </div>
+                <div class="form-group">
+                    <label for="Email">Email: </label>
+                    <InputText id="Email" class="form-control" placeholder="email" @bind-Value=@CreateAccountModel.Email />
+                </div>
+                <div class="text-center">
+                    <small id="message" style="color: red;">@Message</small><br />
+                    <br />
+                    <button class="btn btn-primary" @onclick="DoCreateAccount">Create Account</button>
+                    <button class="btn btn-secondary" @onclick="GoBack">Back</button>
+                </div>
+            </form>
+        </EditForm>
+    }
+}
+
+
+@code {
+    private CreateAccountModel CreateAccountModel = new CreateAccountModel();
+    private string Message { get; set; }
+    private string ValidationCodeInput { get; set; }
+
+    private ValidationModel Validation { get; set; }
+    private string RandomCode { get; set; }
+
+    private AuthService auth { get; set; }
+
+    protected override void OnInitialized()
+    {
+        auth = new AuthService();
+        Message = "A code will be sent to your email for verification";
+        Validation = new ValidationModel() { Email = "serosenvall@gmail.com", RandomCode = "XYZXYZ" }; // testing
+    }
+
+    private void DoCreateAccount()
+    {
+        if (!string.IsNullOrEmpty(CreateAccountModel.Username) && !string.IsNullOrEmpty(CreateAccountModel.Password) && !string.IsNullOrEmpty(CreateAccountModel.Email))
+        {
+            Validation = new ValidationModel()
+            {
+                RandomCode = auth.GenRandomString(),
+                Email = CreateAccountModel.Email
+            };
+
+            auth.SendEmail(client, Validation.Email, Validation.RandomCode);
+            auth.CodeSent = true;
+        }
+        StateHasChanged();
+    }
+
+    private void GoBack()
+    {
+        navMan.NavigateTo("login");
+    }
+}

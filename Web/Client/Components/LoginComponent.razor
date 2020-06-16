@@ -1,8 +1,12 @@
 ﻿@using Web.Shared.Models
+@using System.Text.Json
 
-@inject NavigationManager navMan
-@inject HttpClient client
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager navMan;
+@inject HttpClient client;
 
+<h1 class="text-center">Login</h1>
+<p class="text-center">Login or Create a New Account</p>
 <EditForm Model="@LoginModel">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -20,7 +24,6 @@
 <br />
 <div class="text-center">
     <button class="btn btn-primary" @onclick="Authenticate">Login</button>
-    <button class="btn btn-secondary" @onclick="CreateAccount">Create New Account</button>
 </div>
 
 @code {
@@ -37,13 +40,27 @@
         Auth = new AuthService();
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        var cookie = await GetCookie();
+        if (!string.IsNullOrEmpty(cookie))
+        {
+            //Console.WriteLine(cookie);
+            navMan.NavigateTo("team");
+        }
+    }
+
     public async Task Authenticate()
     {
         if (!string.IsNullOrEmpty(LoginModel.Username) && !string.IsNullOrEmpty(LoginModel.Password))
         {
             Response = await Auth.TryLogin(client, LoginModel);
             if (Response.Equals("true"))
+            {
+                var username = JsonSerializer.Serialize(LoginModel.Username);
+                await WriteAuthCookie(username);
                 navMan.NavigateTo("team");
+            }
             else
             {
                 Message = "Failed to login. Check username/password or select Forgot Password";
@@ -51,9 +68,15 @@
         }
     }
 
-    private void CreateAccount()
+    public async Task WriteAuthCookie(string value)
     {
-        navMan.NavigateTo("newTrainer");
+        await Auth.WriteCookieAsync(JSRuntime, "Username", value, 1);
+    }
+
+    public async Task<string> GetCookie()
+    {
+        var cookie = await Auth.GetCookieAsync(JSRuntime, "Username");
+        return cookie;
     }
 
 }

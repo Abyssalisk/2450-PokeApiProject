@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -31,16 +32,38 @@ namespace Web.Client.Services
 
         public AuthService() { }
 
+        public static async Task<string> EraseCookieAsync(IJSRuntime js, string name)
+        {
+            var cookie = await js.InvokeAsync<string>("EraseCookie", name);
+            return cookie;
+        }
+
+        public async Task<string> WriteCookieAsync(IJSRuntime js, string name, string value, int days)
+        {
+            var cookie = await js.InvokeAsync<string>("WriteCookie", name, value, days);
+            return cookie;
+        }
+
+        public async Task<string> GetCookieAsync(IJSRuntime js, string name)
+        {
+            var cookie = await js.InvokeAsync<string>("GetCookie", name);
+            return cookie;
+        }
+
         public async Task<string> TryLogin(HttpClient client, LoginModel login)
         {
             var result = await client.GetStringAsync($"api/login?username={login.Username}&password={login.Password}");
             return result;
         }
 
+        public void SendLogin(HttpClient client, SendLoginModel model)
+        {
+            Task.Run(() => client.GetStringAsync($"api/login/sendlogin/email={model.Email}"));
+        }
+
         public void CreateAccount(HttpClient client, CreateAccountModel createAccount)
         {
-            //client.GetStringAsync($"https://srosy.azurewebsites.net/api/login/createaccount?username={login.Username}&password={login.Password}&email={login.Email}"));
-            Task.Run(() => client.GetStringAsync($"http://pokemanz.live/api/login/createaccount?user={createAccount.Username}&pass={createAccount.Password}&email={createAccount.Email}"));
+            Task.Run(() => client.GetStringAsync($"api/login/createaccount?name={createAccount.Username}&pass={createAccount.Password}&email={createAccount.Email}"));
         }
 
         public void SendEmail(HttpClient client, string email, string code)

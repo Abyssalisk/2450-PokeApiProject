@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PokeAPI;
 
 namespace PokemonSimulator
 {
@@ -9,14 +8,13 @@ namespace PokemonSimulator
     {
         static void Main(string[] args)
         {
-            var loginStart = new UserAuthAndLogin();
-            System.GC.Collect();
-
-            var currenttrainer = new Trainer();
-            currenttrainer.UserId = loginStart.UserID;
-            currenttrainer.TrainerName = loginStart.TrainerName;
-
-            var lineup = new TrainerLineUp(currenttrainer.UserId, currenttrainer.TrainerName, loginStart.Connection.myConnection);
+            //var loginStart = new ConsoleOutputInput();
+            //System.GC.Collect();
+            //var CurrentTrainer = new PokemonTrainer(loginStart.userID,loginStart.TrainerName);
+            //var lineup = new TrainerLineUp(CurrentTrainer.userID,CurrentTrainer.TrainerName, loginStart.connection.myConnection);
+            DBconnect con = new DBconnect();
+            var CurrentTrainer = new Trainer() { TrainerName = "Misty", UserId = 10 };
+            var lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, con.myConnection);
 
             while(lineup.LoopStuck == true)
             {
@@ -29,20 +27,15 @@ namespace PokemonSimulator
                 }
                 else
                 {
-                    loginStart = new UserAuthAndLogin();
-                    System.GC.Collect();
-                    currenttrainer = new Trainer();
-                    currenttrainer.UserId = loginStart.UserID;
-                    currenttrainer.TrainerName =loginStart.TrainerName;
-                    lineup = new TrainerLineUp(currenttrainer.UserId, currenttrainer.TrainerName, loginStart.Connection.myConnection);
+                    //loginStart = new ConsoleOutputInput();
+                    //System.GC.Collect();
+                    //CurrentTrainer = new PokemonTrainer(loginStart.userID, loginStart.TrainerName);
+                    //lineup = new TrainerLineUp(CurrentTrainer.userID, CurrentTrainer.TrainerName, loginStart.conn
                 }
             }
 
-            currenttrainer = lineup.GhostTrainer;
+            CurrentTrainer = lineup.GhostTrainer;
             System.GC.Collect();
-
-            Console.WriteLine("It's time to Battle!");
         }
-
     }
 }

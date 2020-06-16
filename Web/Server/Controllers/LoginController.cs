@@ -1,9 +1,12 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MimeKit;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
@@ -38,9 +41,9 @@ namespace Web.Server.Controllers
         }
 
         [HttpGet]
-        public string Login([FromQuery] string loginName, [FromQuery] string password)
+        public string Login([FromQuery] string username, [FromQuery] string password)
         {
-            var accountIsAuth = Validate(loginName, password, new DBConnect().myConnection);
+            var accountIsAuth = Validate(username, password, new DBConnect().myConnection);
 
             if (accountIsAuth)
                 return "true";
@@ -48,19 +51,53 @@ namespace Web.Server.Controllers
                 return "false";
         }
 
-        public void SendEmail(string email, string code)
+        [HttpGet("sendlogin/{email}")]
+        public void SendLogin(string email)
+        {
+            SendEmail(email.Replace("email=", string.Empty));
+        }
+
+        public void SendEmail(string email, [Optional] string code)
         {
             try
             {
                 var mailMessage = new MimeMessage();
-                mailMessage.From.Add(new MailboxAddress("Pokemanz Password Reset", "pokemanz2450@gmail.com"));
+                mailMessage.From.Add(new MailboxAddress("Pokemanz", "pokemanz2450@gmail.com"));
                 mailMessage.To.Add(new MailboxAddress("Trainer", email));
-                mailMessage.Subject = "Password verification code";
-                mailMessage.Body = new TextPart("plain")
-                {
-                    Text = "Here is your verification code: \n\n" + code
-                };
+                
 
+                var textpart = new TextPart("plain");
+
+                if (!string.IsNullOrEmpty(code))
+                {
+                    mailMessage.Subject = "PokeMans Verification Code";
+                    textpart.Text = $"Your PokeManz verification code is: \n\n" + code;
+                }
+                else // send login creds/forgot password
+                {
+                    var LoginModel = new LoginModel();
+
+                    var con = new DBConnect().myConnection;
+                    string lookupEmailByName = $"SELECT TrainerName, Password FROM sql3346222.userCredentials WHERE(Email='{email}') LIMIT 1;";
+
+                    con.Open();
+                    MySqlCommand query = new MySqlCommand(lookupEmailByName, con);
+                    MySqlDataReader rdr = query.ExecuteReader();
+
+                    //reading returned query
+                    while (rdr.Read())
+                    {
+                        LoginModel.Username = rdr[0].ToString(); // username
+                        LoginModel.Password = new Encryption().Decrypt(rdr[1].ToString()); // password hashed + secret
+                    }
+                    rdr.Close();
+                    con.Close();
+
+                    mailMessage.Subject = "PokeManz Credentials";
+                    textpart.Text = $"Your login credentials are\n\nUsername: {LoginModel.Username}\nPassword: {LoginModel.Password}";
+                }
+
+                mailMessage.Body = textpart;
                 Task.Run(() => DoSending(mailMessage)); // fire off and forget about it
             }
             catch (Exception ex)
@@ -80,7 +117,6 @@ namespace Web.Server.Controllers
             }
         }
 
-        //Private method to validate password, if password is false gives option to reset password
         public bool Validate(string username, string password, MySqlConnection con)
         {
             LoginModel login = new LoginModel()
@@ -90,7 +126,7 @@ namespace Web.Server.Controllers
             };
 
             string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + login.Username + "');";
-            string correctPassword = "";
+            string decryptedPass = string.Empty;
             int userID = 0;
 
             //opens new DB connection with MySql and pulls hashed password from userCredentials table
@@ -98,11 +134,10 @@ namespace Web.Server.Controllers
             MySqlCommand query = new MySqlCommand(lookupByName, con);
             MySqlDataReader rdr = query.ExecuteReader();
 
-            //reading returned query
             while (rdr.Read())
             {
                 userID = Convert.ToInt32(rdr[0].ToString());
-                correctPassword = rdr[1].ToString();
+                decryptedPass = new Encryption().Decrypt(rdr[1].ToString());
             }
             rdr.Close();
             con.Close();
@@ -111,22 +146,7 @@ namespace Web.Server.Controllers
                 return false; // account not found
             }
 
-            string attemptedPassword;
-            var sendToHashPasswordAlg = new HashingAlg(login.Password);
-            attemptedPassword = sendToHashPasswordAlg.GetHash();
-            correctPassword = sendToHashPasswordAlg.RemoveSecret(correctPassword);
-
-            //checks the hashed password the user entered agaisnt the hashedpass from DB
-            if (correctPassword == attemptedPassword)
-            {
-                //TrainerName = userName;
-            }
-            else //failed, reset password
-            {
-                var reset = new ResetPassword(con, login.Username, "testEmail@email.com");
-                // var reset = new ResetPassword(con, userName, "testEmail@email.com"); => Change to api call 
-            }
-            return true;
+            return decryptedPass.Equals(password);
         }
     }
 
@@ -184,9 +204,8 @@ namespace Web.Server.Controllers
             newPass = Console.ReadLine();
 
             string Hashedpass;
-            var sendToHashPasswordAlg = new HashingAlg(newPass);
-            Hashedpass = sendToHashPasswordAlg.GetHash();
-            Hashedpass = sendToHashPasswordAlg.AddSecret(Hashedpass);
+            var sendToHashPasswordAlg = new Encryption(newPass);
+            Hashedpass = sendToHashPasswordAlg.EncryptedPassword;
 
             connection.Open();
             //INSERT query
@@ -245,49 +264,28 @@ namespace Web.Server.Controllers
             return connectionString;
         }
     }
-    public class HashingAlg
+    public class Encryption
     {
-        //add SHA256 secret, seperate with -, split on
-        string hashString;
-        public HashingAlg(string password)
-        {
-            using (SHA256 mySHA256 = SHA256.Create())
-            {
-                byte[] bytes = Encoding.Unicode.GetBytes(password);
-                byte[] hashValue = mySHA256.ComputeHash(bytes);
-                foreach (byte x in hashValue)
-                {
-                    hashString += String.Format("{0:x2}", x);
-                }
-            }
+        public string EncryptedPassword { get; set; }
 
-        }
-        public string GetHash()
+        public Encryption()
         {
-            return hashString;
+            
+        }
+        public Encryption(string password)
+        {
+            EncryptedPassword = Encrypt(password);
         }
 
-        public string AddSecret(string alreadyHashed)
+        public string Encrypt(string password)
         {
-            alreadyHashed += "-";
-            //Secret
-            using (SHA256 mySHA256 = SHA256.Create())
-            {
-                byte[] bytes = Encoding.Unicode.GetBytes("pokemon");
-                byte[] hashValue = mySHA256.ComputeHash(bytes);
-                foreach (byte x in hashValue)
-                {
-                    alreadyHashed += String.Format("{0:x2}", x);
-                }
-            }
-            return alreadyHashed;
+            var bytes = System.Text.Encoding.UTF8.GetBytes(password);
+            return System.Convert.ToBase64String(bytes);
         }
-
-        public string RemoveSecret(string alreadyHashed)
+        public string Decrypt(string encryptedPassword)
         {
-            int splitOn = alreadyHashed.IndexOf("-");
-            alreadyHashed = alreadyHashed.Substring(0, splitOn);
-            return alreadyHashed;
+            var base64EncodedBytes = System.Convert.FromBase64String(encryptedPassword);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }
     }
 
@@ -320,9 +318,8 @@ namespace Web.Server.Controllers
         public static string UserPasswordHash(string thePass)
         {
             string Hashedpass;
-            var sendToHashPasswordAlg = new HashingAlg(thePass);
-            Hashedpass = sendToHashPasswordAlg.GetHash();
-            Hashedpass = sendToHashPasswordAlg.AddSecret(Hashedpass);
+            var sendToHashPasswordAlg = new Encryption(thePass);
+            Hashedpass = sendToHashPasswordAlg.EncryptedPassword;
             return Hashedpass;
         }
         //checks to see if username is already taken
