@@ -36,6 +36,11 @@ namespace Web.Client.Services
             return result;
         }
 
+        public void CreateTrainer(HttpClient client, string trainerHandle)
+        {
+            Task.Run( () => client.GetStringAsync($"api/pokemon/trainer/create/{trainerHandle}"));
+        }
+
         public async Task<PokemonMove[]> GetMoves(HttpClient client, string pokemonname)
         {
             var result = await client.GetFromJsonAsync<PokemonMove[]>($"api/pokemon/moves/{pokemonname}");

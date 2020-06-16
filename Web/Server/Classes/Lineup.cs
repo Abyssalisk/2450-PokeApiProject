@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 using PokeAPI;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using Web.Shared.Models;
 
 namespace Web.Server.Classes
 {
-    public class NewLineup
+    public class Lineup
     {
         public List<PokemonModel> lineup { get; set; }
 
@@ -24,7 +25,7 @@ namespace Web.Server.Classes
         Boolean ValidPokemon;
         int LineupSize;
 
-        public NewLineup(TrainerModel ghostTrainer, MySqlConnection con)
+        public Lineup(TrainerModel ghostTrainer, MySqlConnection con)
         {
             PokemonArray = new string[6];
             MovesCSVArray = new string[6];
@@ -38,6 +39,25 @@ namespace Web.Server.Classes
                 PokeFinder();
             }
             AddPokemonToDB();
+        }
+
+
+        public static LineupModel DeserializeLineup(string lineup)
+        {
+            var lu = JsonConvert.DeserializeObject<LineupModel>(lineup);
+            return lu;
+        }
+
+        public static List<LineupModel> DeserializeLineupList(string lineupsJson)
+        {
+            var ll = JsonConvert.DeserializeObject<List<LineupModel>>(lineupsJson);
+            return ll;
+        }
+
+        public static string SerializeLineup(LineupModel lineup)
+        {
+            var jsonLineup = JsonConvert.SerializeObject(lineup);
+            return jsonLineup;
         }
 
         public void ReadName()

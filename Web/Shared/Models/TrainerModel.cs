@@ -8,8 +8,9 @@ namespace Web.Shared.Models
     {
         public int Id { get; set; }
         public string Handle { get; set; }
-        public int Score { get; set; }
-        public List<PokemonModel> Team { get; set; }
-        // @Sam any other object properties you need
+        public int CurrentScore { get; set; }
+        public int HighScore { get; set; }
+        public LineupModel Team { get; set; } // current lineup
+        public List<LineupModel> Lineups { get; set; } // all lineups from previous teams
     }
 }

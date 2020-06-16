@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using PokeAPI;
 using RestSharp;
+using Web.Server.Classes;
 using Web.Shared.Models;
 
 namespace Web.Server.Controllers
@@ -28,10 +31,16 @@ namespace Web.Server.Controllers
             return new PokemonModel() { Name = "SomeOtherPokemon" };
         }
 
-        [HttpGet("trainer/{name}")] // can be used to get any additional info on types, moves, etc
+        [HttpGet("lineup")] // https://localhost:44392/api/pokemon/trainer/srosy
+        public void NewLineup([FromQuery] string trainername, [FromQuery] string lineupJson)
+        {
+            CreateLineupDB(trainername, lineupJson);
+        }
+
+        [HttpGet("trainer/{name}")] // https://localhost:44392/api/pokemon/trainer/srosy
         public TrainerModel GetTrainer(string name)
         {
-            var trainer = GetTrainerFromDB(name);
+            var trainer = GetTrainerFromDB(name.Replace("\"", string.Empty));
             return trainer;
         }
 
@@ -124,9 +133,43 @@ namespace Web.Server.Controllers
             return pokemon;
         }
 
+        public void CreateLineupDB(string trainername, string lineupJson)
+        {
+            var con = new DBConnect().MyConnection;
+            con.Open();
+            var querystring = $"INSERT INTO sql3346222.userCredentials(TrainerName, Team) VALUES ('{trainername}', '{lineupJson}')";
+            MySqlCommand cmd = new MySqlCommand(querystring, con);
+            cmd.ExecuteNonQuery();
+            con.Close();
+        }
+
         public TrainerModel GetTrainerFromDB(string name)
         {
-            // todo @derek
+            var trainer = new TrainerModel()
+            {
+                Handle = name
+            };
+
+            var con = new DBConnect().MyConnection;
+            con.Open();
+            var querystring = $"SELECT * FROM sql3346222.userCredentials WHERE(TrainerName = '{name}');";
+            MySqlCommand cmd = new MySqlCommand(querystring, con);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+
+            while (rdr.Read())
+            {
+                trainer.Id = int.Parse(rdr[0].ToString());
+                trainer.HighScore = int.Parse(rdr[5].ToString());
+                trainer.Lineups = Lineup.DeserializeLineupList(rdr[4].ToString());
+            }
+            rdr.Close();
+            con.Close();
+            return trainer;
+        }
+
+        public List<PokemonModel> GetLineUp(string trainerName)
+        {
+            //todo @derek
             return null;
         }
 
@@ -139,6 +182,8 @@ namespace Web.Server.Controllers
             var obj = (IDictionary<string, object>)JsonConvert.DeserializeObject<ExpandoObject>(response.Content, new ExpandoObjectConverter());
             return obj;
         }
+
+
 
     }
 }
