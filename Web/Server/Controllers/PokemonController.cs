@@ -46,7 +46,7 @@ namespace Web.Server.Controllers
         [HttpGet("moves/{name}")]
         public async Task<List<string>> GetMoves(string name)
         {
-            var obj = var info = await GetAdditionInfo(m.ResourceUri);
+            var obj = await DataFetcher.GetNamedApiObject<Pokemon>(name);
             var moves = obj.Moves.Select(m => m.Move.Name).ToList();
             return moves;
         }
