@@ -40,48 +40,48 @@ namespace PokemonSimulator
         #endregion
 
         #region Ctors
-        public Pokemon(APIPokemonBlueprint model)
-        {
-            string[] enumStrings = Enum.GetNames(typeof(PokemonType));
-            for (int i = 0; i < model.types.Length; i++)
-            {
-                for (int j = 0; j < enumStrings.Length; j++)
-                {
-                    Type |= ((enumStrings[j].ToLower() == model.types[i].type.name) ? ((PokemonType)Math.Pow(2, j)) : (PokemonType)0);
-                }
-            }
-            Species = model.name;
-            //Nickname = Nickname ?? Species;
-            ActingHP = BaseHP = Array.Find(model.stats, x => x.stat.name == "hp").base_stat;
-            //ActingSpeed = BaseSpeed = Array.Find(model.stats, x => x.stat.name == "speed").base_stat;
-            //ActingAttack = BaseAttack = Array.Find(model.stats, x => x.stat.name == "attack").base_stat;
-            //ActingDefense = BaseDefense = Array.Find(model.stats, x => x.stat.name == "defense").base_stat;
-            //ActingSpecialAttack = BaseSpecialAttack = Array.Find(model.stats, x => x.stat.name == "special-attack").base_stat;
-            //ActingSpecialDefense = BaseSpecialDefense = Array.Find(model.stats, x => x.stat.name == "special-defense").base_stat;
-            //Temporary.
-            if (model.moves.Length > 3)
-            {
-                FirstMove = model.moves[0].move.name;
-                SecondMove = model.moves[1].move.name;
-                ThirdMove = model.moves[2].move.name;
-                FourthMove = model.moves[3].move.name;
-            }
-            else if (model.moves.Length > 2)
-            {
-                FirstMove = model.moves[0].move.name;
-                SecondMove = model.moves[1].move.name;
-                ThirdMove = model.moves[2].move.name;
-            }
-            else if (model.moves.Length > 1)
-            {
-                FirstMove = model.moves[0].move.name;
-                SecondMove = model.moves[1].move.name;
-            }
-            else if (model.moves.Length > 0)
-            {
-                FirstMove = model.moves[0].move.name;
-            }
-        }
+        //public Pokemon(API.PokemonBlueprint model)
+        //{
+        //    string[] enumStrings = Enum.GetNames(typeof(PokemonType));
+        //    for (int i = 0; i < model.types.Length; i++)
+        //    {
+        //        for (int j = 0; j < enumStrings.Length; j++)
+        //        {
+        //            Type |= ((enumStrings[j].ToLower() == model.types[i].type.name) ? ((PokemonType)Math.Pow(2, j)) : (PokemonType)0);
+        //        }
+        //    }
+        //    Species = model.name;
+        //    //Nickname = Nickname ?? Species;
+        //    ActingHP = BaseHP = Array.Find(model.stats, x => x.stat.name == "hp").base_stat;
+        //    //ActingSpeed = BaseSpeed = Array.Find(model.stats, x => x.stat.name == "speed").base_stat;
+        //    //ActingAttack = BaseAttack = Array.Find(model.stats, x => x.stat.name == "attack").base_stat;
+        //    //ActingDefense = BaseDefense = Array.Find(model.stats, x => x.stat.name == "defense").base_stat;
+        //    //ActingSpecialAttack = BaseSpecialAttack = Array.Find(model.stats, x => x.stat.name == "special-attack").base_stat;
+        //    //ActingSpecialDefense = BaseSpecialDefense = Array.Find(model.stats, x => x.stat.name == "special-defense").base_stat;
+        //    //Temporary.
+        //    if (model.moves.Length > 3)
+        //    {
+        //        FirstMove = model.moves[0].move.name;
+        //        SecondMove = model.moves[1].move.name;
+        //        ThirdMove = model.moves[2].move.name;
+        //        FourthMove = model.moves[3].move.name;
+        //    }
+        //    else if (model.moves.Length > 2)
+        //    {
+        //        FirstMove = model.moves[0].move.name;
+        //        SecondMove = model.moves[1].move.name;
+        //        ThirdMove = model.moves[2].move.name;
+        //    }
+        //    else if (model.moves.Length > 1)
+        //    {
+        //        FirstMove = model.moves[0].move.name;
+        //        SecondMove = model.moves[1].move.name;
+        //    }
+        //    else if (model.moves.Length > 0)
+        //    {
+        //        FirstMove = model.moves[0].move.name;
+        //    }
+        //}
         #endregion
 
         #region Methods

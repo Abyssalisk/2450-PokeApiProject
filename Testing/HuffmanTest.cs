@@ -59,9 +59,9 @@ namespace Testing
             //    yield return await task;
             //}
             //Parallel.ForEach(Enumerable.Repeat()
-            Grand.HuffmanCoder<Ref<APIPokemonBlueprint>> coder1 = new Grand.HuffmanCoder<Ref<APIPokemonBlueprint>>();
-            coder1.DecompressedObject = new Ref<APIPokemonBlueprint> { Value = APIPokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()) };
-            Grand.HuffmanCoder<Ref<APIPokemonBlueprint>> coder2 = new Grand.HuffmanCoder<Ref<APIPokemonBlueprint>>();
+            Grand.HuffmanCoder<Ref<API.PokemonBlueprint>> coder1 = new Grand.HuffmanCoder<Ref<API.PokemonBlueprint>>();
+            coder1.DecompressedObject = new Ref<API.PokemonBlueprint> { Value = API.PokemonBlueprint.GetPokemonBlueprint(Grand.rand.Next(1, 785).ToString()) };
+            Grand.HuffmanCoder<Ref<API.PokemonBlueprint>> coder2 = new Grand.HuffmanCoder<Ref<API.PokemonBlueprint>>();
             coder2.CompressedObject = coder1.CompressedObject;
             Assert.IsTrue(coder1.DecompressedObject.Value.Equals(coder2.DecompressedObject.Value));
             Assert.AreEqual(coder1.CompressedObject, coder2.CompressedObject);

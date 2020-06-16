@@ -10,6 +10,9 @@ using System.Text.RegularExpressions;
 using System.Drawing;
 using System.Runtime.InteropServices.ComTypes;
 using System.Diagnostics;
+//using PokeAPI;
+using System.Threading.Tasks;
+using PokemonSimulator;
 
 namespace PokemonSimulator
 {
@@ -20,6 +23,10 @@ namespace PokemonSimulator
     {
         static void Main(string[] args)
         {
+            //Task<PokeAPI.Pokemon> pikachu = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>("pikachu");
+            //pikachu.Wait();
+            //Console.WriteLine(pikachu.Result.Name);
+            //Console.ReadLine();
             //bool playing = true;
             //float compressionAverageEffc = 0f;
             //float compressionAverageTime = 0f;
