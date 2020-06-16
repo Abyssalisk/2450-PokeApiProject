@@ -53,19 +53,19 @@ namespace PokemonSimulator
         }
         #endregion
 
-        public static bool VerifyPokemonLegitimacy(API.PokemonBlueprint mine, API.PokemonBlueprint theirs)
-        {
-            byte[] mh = sha.ComputeHash(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(mine, typeof(API.PokemonBlueprint), Formatting.None, null)));
-            byte[] th = sha.ComputeHash(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(theirs, typeof(API.PokemonBlueprint), Formatting.None, null)));
-            for (int i = 0; i < mh.Length; i++)
-            {
-                if (mh[i] != th[i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
+        //public static bool VerifyPokemonLegitimacy(API.PokemonBlueprint mine, API.PokemonBlueprint theirs)
+        //{
+        //    byte[] mh = sha.ComputeHash(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(mine, typeof(API.PokemonBlueprint), Formatting.None, null)));
+        //    byte[] th = sha.ComputeHash(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(theirs, typeof(API.PokemonBlueprint), Formatting.None, null)));
+        //    for (int i = 0; i < mh.Length; i++)
+        //    {
+        //        if (mh[i] != th[i])
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    return true;
+        //}
         [Obsolete("Create your own instance of HuffmanCoder instead.")]
         public static string HuffmanCompress(string decompressed)
         {

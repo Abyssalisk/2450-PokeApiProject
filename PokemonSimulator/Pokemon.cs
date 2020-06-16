@@ -12,7 +12,7 @@ namespace PokemonSimulator
     public class Pokemon
     {
         public int Id { get; set; }
-        public string Species { get; private set; }
+        public string Species { get; set; }
         public PokemonType Type { get; private set; }
         public int BaseHP { get; private set; }
         public int BaseSpeed { get; private set; }

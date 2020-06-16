@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Org.BouncyCastle.Asn1.Ocsp;
+using PokeAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -30,10 +31,17 @@ namespace Web.Client.Services
 
         public PokemonService() { }
 
+        public async Task<PokemonMove[]> GetMoves(HttpClient client, string pokemonname)
+        {
+            var result = await client.GetFromJsonAsync<PokemonMove[]>($"api/pokemon/moves/{pokemonname}");
+            return result;
+        }
 
-
-
-
+        public async Task<Pokemon> GetPokemon(HttpClient client, string pokemonname)
+        {
+            var result = await client.GetFromJsonAsync<Pokemon>($"api/pokemon?name={pokemonname}");
+            return result;
+        }
 
     }
 }
