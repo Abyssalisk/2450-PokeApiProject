@@ -1,0 +1,20 @@
+﻿@page "/newTeam"
+@inject NavigationManager navMan
+@inject HttpClient client
+
+<h1>Create New Pokemon Team</h1>
+
+<p>media here for pokemon team selection</p>
+<!-- Form stuffz here... -->
+<button class="btn btn-primary" @onclick="Save">Save</button>
+
+@code {
+    //private int currentCount = 0;
+
+    private void Save()
+    {
+        // TODO create new trainer, verify if handle already exists, form validation, etc...
+        Console.WriteLine("creating new team...");
+        navMan.NavigateTo("battle");
+    }
+}

@@ -1,0 +1,27 @@
+﻿@page "/battle"
+@inject NavigationManager navMan
+@inject HttpClient client
+
+<h1>Battle</h1>
+
+<p>Create some cool backgrounds here for the elite 4 battles... let's do something new and extra special for the champion battle... get some placeholders going</p>
+<button class="btn btn-primary" @onclick="Win">Win</button>
+<button class="btn btn-primary" @onclick="Lose">Lose</button>
+
+
+@code {
+    //int score = 0;
+
+    private void Win()
+    {
+        Console.WriteLine("Win");
+        // let's say that all 4 elite 4 are defeated, so move onto champion
+        navMan.NavigateTo("champion");
+    }
+
+    private void Lose()
+    {
+        Console.WriteLine("Lose");
+        navMan.NavigateTo("scoreboard");
+    }
+}

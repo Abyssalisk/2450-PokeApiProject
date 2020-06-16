@@ -1,0 +1,19 @@
+﻿@page "/"
+@inject NavigationManager navMan
+@inject HttpClient client
+
+<div class="container-fluid" style="max-width: 50%;">
+    <HomeComponent />
+    <br />
+    <div class="text-center">
+        <button class="btn btn-primary" @onclick="Start">Start</button>
+    </div>
+</div>
+
+@code {
+    private void Start()
+    {
+        navMan.NavigateTo("login");
+    }
+}
+

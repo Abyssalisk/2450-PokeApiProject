@@ -1,0 +1,22 @@
+﻿@page "/scoreboard"
+@inject NavigationManager navMan
+@inject HttpClient client
+@using Web.Shared.Models
+@using Web.Client.Components
+
+<ScoreboardComponent></ScoreboardComponent>
+
+<button class="btn btn-primary" @onclick="PlayAgain">Play Again?</button>
+<button class="btn btn-primary" @onclick="Exit">Exit</button>
+
+@code {
+    private void PlayAgain()
+    {
+        navMan.NavigateTo("team");
+    }
+
+    private void Exit()
+    {
+        navMan.NavigateTo("home");
+    }
+}

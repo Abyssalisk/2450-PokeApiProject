@@ -1,43 +1,31 @@
-﻿using RestSharp.Extensions;
+
+using RestSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System;
+using System.Collections.Generic;
 
 namespace PokemonSimulator
 {
-    /// <summary>
-    /// Author: Samuel Gardner
-    /// </summary>
-    class Pokemon
+    public class Pokemon
     {
-        #region Fields
+        public int Id { get; set; }
+        public string Species { get; private set; }
         public PokemonType Type { get; private set; } = (PokemonType)0;
-        public string Species { get; private set; } // get rid of/don't need; Sam says: but isn't this important?
-        //public string Nickname { get; private set; } = null; // get rid of/don't need
         public int BaseHP { get; private set; }
         public int BaseSpeed { get; private set; }
         public int BaseAttack { get; private set; }
         public int BaseDefense { get; private set; }
         public int BaseSpecialAttack { get; private set; }
         public int BaseSpecialDefense { get; private set; }
-        public int ActingHP { get; private set; } // guessing this is the hp that's kept track of during sequences in the game
-        //public int ActingSpeed { get; private set; } // get rid of/don't need
-        //public int ActingAttack { get; private set; } // get rid of/don't need
-        //public int ActingDefense { get; private set; } // get rid of/don't need
-        //public int ActingSpecialAttack { get; private set; } // get rid of/don't need
-        //public int ActingSpecialDefense { get; private set; } // get rid of/don't need
-        [Obsolete("Move class isn't implemented yet.")]
-        public string FirstMove { get; private set; } = string.Empty; // Create a Move class, see Derek's branch for class Move.cs and Pokemon.cs and Trainer.cs
-        [Obsolete("Move class isn't implemented yet.")]
-        public string SecondMove { get; private set; } = string.Empty; // Create a Move class, see Derek's branch for class Move.cs and Pokemon.cs and Trainer.cs
-        [Obsolete("Move class isn't implemented yet.")]
-        public string ThirdMove { get; private set; } = string.Empty; // Create a Move class, see Derek's branch for class Move.cs and Pokemon.cs and Trainer.cs
-        [Obsolete("Move class isn't implemented yet.")]
-        public string FourthMove { get; private set; } = string.Empty; // Create a Move class, see Derek's branch for class Move.cs and Pokemon.cs and Trainer.cs
+        public List<string> TypeWeaknesses { get; set; }
+        public List<Move> Moves { get; set; }
+        public int ActingHP { get; private set; }
         public bool IsAlive { get => ActingHP > 0; }
-        #endregion
+        // @Sam any other object properties you need
 
         #region Ctors
         //public Pokemon(API.PokemonBlueprint model)
@@ -83,9 +71,7 @@ namespace PokemonSimulator
         //    }
         //}
         #endregion
-
-        #region Methods
-        #region Member Methods
+        
         public void RequestFieldChange(Pokemon proposedModel /*handle to conversation*/)
         {
             //notify server and opponent that your pokemon differs from the template.
@@ -109,14 +95,10 @@ namespace PokemonSimulator
         #region Redefinitions/Overrides
         public new string ToString()
         {
-            return /*$"{Nickname.ToPascalCase(System.Globalization.CultureInfo.CurrentCulture)}" +*/
+            return
                 $" species\' is {Species}, types are {Type.ToString()}, stats are BaseHP:{BaseHP}" +
                 $" BaseSpeed:{BaseSpeed} BaseAttack:{BaseAttack} BaseDefense:{BaseDefense}" +
-                $" BaseSpecialAttack:{BaseSpecialAttack} BaseSpecialDefense:{BaseSpecialDefense}," +
-                $" moves are {((FirstMove == string.Empty) ? "No move in this slot" : FirstMove)};" +
-                $" {((SecondMove == string.Empty) ? "No move in this slot" : SecondMove)};" +
-                $" {((ThirdMove == string.Empty) ? "No move in this slot" : ThirdMove)};" +
-                $" {((FourthMove == string.Empty) ? "No move in this slot" : FourthMove)}.";
+                $" BaseSpecialAttack:{BaseSpecialAttack} BaseSpecialDefense:{BaseSpecialDefense},";
         }
         #endregion
 
@@ -130,6 +112,10 @@ namespace PokemonSimulator
         //    throw new NotImplementedException();
         //}
         #endregion
-        #endregion
+          
+        public Pokemon()
+        {
+            
+        }
     }
 }

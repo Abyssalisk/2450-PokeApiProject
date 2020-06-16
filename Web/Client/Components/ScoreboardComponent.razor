@@ -1,0 +1,117 @@
+﻿@inject NavigationManager navMan
+@inject HttpClient client
+@using Web.Shared.Models
+
+<h1>Scoreboard</h1>
+
+<p>display top 10 trainers and scores, etc... in pretty grid/table.</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Trainer</th>
+            <th>Score</th>
+            <th>Pokemon</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var trainer in topTenTrainers)
+        {
+            string team = string.Empty;
+            @foreach (PokemonModel p in trainer.Team)
+            {
+                if (string.IsNullOrEmpty(team))
+                    team += p.Name;
+                else
+                {
+                    team += ", ";
+                    team += p.Name;
+                }
+            }
+
+            <tr>
+                <td>@trainer.Handle</td>
+                <td>@trainer.Score</td>
+                <td>
+                    @team
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+<br />
+@*<button class="btn btn-primary" @onclick="Test">Test</button>*@
+
+@code {
+
+    //int score = 0;
+
+    private List<TrainerModel> topTenTrainers = new List<TrainerModel>();
+
+
+    private async Task Test()
+    {
+        var endpoint = $"api/Login/validate/serosenvall@gmail.com";
+        var validator = await client.GetFromJsonAsync<ValidationModel>(endpoint);
+        var Result = validator.RandomCode;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        topTenTrainers.Add(new TrainerModel()
+        {
+            Handle = "Spencer",
+            Score = 100,
+            Team = new List<PokemonModel>() { new PokemonModel() { Name = "Charizard" },
+            new PokemonModel() { Name = "Gengar" },
+            new PokemonModel() { Name = "Houndoom" } }
+        });
+
+        topTenTrainers.Add(new TrainerModel()
+        {
+            Handle = "Gavin",
+            Score = 250,
+            Team = new List<PokemonModel>() { new PokemonModel() { Name = "Gyrados" },
+            new PokemonModel() { Name = "Articuno" },
+            new PokemonModel() { Name = "Feraligatr" } }
+        });
+        topTenTrainers.Add(new TrainerModel()
+        {
+            Handle = "Trainer 3",
+            Score = 15,
+            Team = new List<PokemonModel>() { new PokemonModel() { Name = "Metapod" },
+            new PokemonModel() { Name = "Kakuna" },
+            new PokemonModel() { Name = "Magikarp" } }
+        });
+
+        var testpokemon1 = new PokemonModel();
+        var testpokemon2 = new PokemonModel();
+        var testpokemon3 = new PokemonModel();
+
+
+        // Test Web.Server.Controllers
+        try
+        {
+            var url = client.BaseAddress + "api/Pokemon/1";
+            Console.WriteLine(url);
+            testpokemon1 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/blastoise");
+            testpokemon2 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/charizard");
+            testpokemon3 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/bulbasaur");
+
+            topTenTrainers.Add(new TrainerModel()
+            {
+                Handle = "Trainer Controller",
+                Score = 1576,
+                Team = new List<PokemonModel>() { testpokemon1, testpokemon2, testpokemon3 }
+            });
+        }
+        catch // Non success
+        {
+            Console.WriteLine("An error occurred.");
+        }
+    }
+
+}
