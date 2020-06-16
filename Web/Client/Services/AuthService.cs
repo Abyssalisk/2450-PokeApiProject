@@ -32,6 +32,12 @@ namespace Web.Client.Services
 
         public AuthService() { }
 
+        public static async Task<string> EraseCookieAsync(IJSRuntime js, string name)
+        {
+            var cookie = await js.InvokeAsync<string>("EraseCookie", name);
+            return cookie;
+        }
+
         public async Task<string> WriteCookieAsync(IJSRuntime js, string name, string value, int days)
         {
             var cookie = await js.InvokeAsync<string>("WriteCookie", name, value, days);

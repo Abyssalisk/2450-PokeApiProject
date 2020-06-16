@@ -1,6 +1,7 @@
-﻿@page "/scoreboard"
-@inject NavigationManager navMan
-@inject HttpClient client
+﻿@page "/scoreboard";
+@inject NavigationManager navMan;
+@inject HttpClient client;
+@inject IJSRuntime JSRuntime;
 @using Web.Shared.Models
 @using Web.Client.Components
 
@@ -15,8 +16,9 @@
         navMan.NavigateTo("team");
     }
 
-    private void Exit()
+    private async Task Exit()
     {
+        await AuthService.EraseCookieAsync(JSRuntime, "Username");
         navMan.NavigateTo("home");
     }
 }
