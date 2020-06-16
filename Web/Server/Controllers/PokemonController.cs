@@ -28,6 +28,13 @@ namespace Web.Server.Controllers
             return new PokemonModel() { Name = "SomeOtherPokemon" };
         }
 
+        [HttpGet("trainer/{name}")] // can be used to get any additional info on types, moves, etc
+        public TrainerModel GetTrainer(string name)
+        {
+            var trainer = GetTrainerFromDB(name);
+            return trainer;
+        }
+
         // GET api/<PokemonController>/name
         [HttpGet("name/{name}")]
         public async Task<PokemonModel> GetName(string name)
@@ -113,11 +120,15 @@ namespace Web.Server.Controllers
                     ResourceUri = t.Type.Url.AbsoluteUri.ToString()
                 });
             });
-            
+
             return pokemon;
         }
 
-
+        public TrainerModel GetTrainerFromDB(string name)
+        {
+            // todo @derek
+            return null;
+        }
 
         public async Task<IDictionary<string, object>> GetAdditionInfo(string uri)
         {

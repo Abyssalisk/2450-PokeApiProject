@@ -17,7 +17,6 @@ using Web.Shared.Models;
 
 namespace Web.Client.Services
 {
-
     public interface IPokemonService
     {
         List<PokemonModel> Team { get; set; }
@@ -31,17 +30,28 @@ namespace Web.Client.Services
 
         public PokemonService() { }
 
+        public async Task<TrainerModel> GetTrainer(HttpClient client, string trainerHandle)
+        {
+            var result = await client.GetFromJsonAsync<TrainerModel>($"api/pokemon/trainer/{trainerHandle}");
+            return result;
+        }
+
         public async Task<PokemonMove[]> GetMoves(HttpClient client, string pokemonname)
         {
             var result = await client.GetFromJsonAsync<PokemonMove[]>($"api/pokemon/moves/{pokemonname}");
             return result;
         }
 
-        public async Task<Pokemon> GetPokemon(HttpClient client, string pokemonname)
+        public async Task<PokemonModel> GetPokemon(HttpClient client, string pokemonname)
         {
-            var result = await client.GetFromJsonAsync<Pokemon>($"api/pokemon?name={pokemonname}");
+            var result = await client.GetFromJsonAsync<PokemonModel>($"api/pokemon?name={pokemonname}");
             return result;
         }
 
+        public async Task<IDictionary<string, object>> GetInfo(HttpClient client, string uri)
+        {
+            var result = await client.GetFromJsonAsync<IDictionary<string, object>>($"api/pokemon/info/{uri}");
+            return result;
+        }
     }
 }
