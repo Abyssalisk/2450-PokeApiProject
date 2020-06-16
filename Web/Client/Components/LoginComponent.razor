@@ -1,54 +1,82 @@
 ﻿@using Web.Shared.Models
+@using System.Text.Json
 
-@inject NavigationManager navMan
-@inject HttpClient client
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager navMan;
+@inject HttpClient client;
 
-    <h1 class="text-center">Login</h1>
-    <p class="text-center">Login or Create a New Account</p>
-    <EditForm Model="@LoginModel">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <form>
-            <div class="form-group">
-                <label for="TrainerHandle">Username: </label>
-                <InputText id="Username" class="form-control" placeholder="username" @bind-Value="@LoginModel.Username" />
-            </div>
-            <div class="form-group">
-                <label for="Password">Password: </label>
-                <InputText type="password" id="Password" class="form-control" placeholder="password" @bind-Value="@LoginModel.Password" />
-            </div>
-        </form>
-    </EditForm>
-    <br />
-    <div class="text-center">
-        <button class="btn btn-primary" @onclick="Authenticate">Login</button>
-    </div>
+<h1 class="text-center">Login</h1>
+<p class="text-center">Login or Create a New Account</p>
+<EditForm Model="@LoginModel">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <form>
+        <div class="form-group">
+            <label for="TrainerHandle">Username: </label>
+            <InputText id="Username" class="form-control" placeholder="username" @bind-Value="@LoginModel.Username" />
+        </div>
+        <div class="form-group">
+            <label for="Password">Password: </label>
+            <InputText type="password" id="Password" class="form-control" placeholder="password" @bind-Value="@LoginModel.Password" />
+        </div>
+    </form>
+</EditForm>
+<br />
+<div class="text-center">
+    <button class="btn btn-primary" @onclick="Authenticate">Login</button>
+</div>
 
-    @code {
-        public LoginModel LoginModel { get; set; }
-        public string Message { get; set; }
-        private string Response { get; set; }
-        private AuthService Auth { get; set; }
+@code {
+    public LoginModel LoginModel { get; set; }
+    public string Message { get; set; }
+    private string Response { get; set; }
+    private AuthService Auth { get; set; }
 
-        protected override void OnInitialized()
+    protected override void OnInitialized()
+    {
+        LoginModel = new LoginModel();
+        Response = string.Empty;
+        Message = string.Empty;
+        Auth = new AuthService();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var cookie = await GetCookie();
+        if (!string.IsNullOrEmpty(cookie))
         {
-            LoginModel = new LoginModel();
-            Response = string.Empty;
-            Message = string.Empty;
-            Auth = new AuthService();
+            //Console.WriteLine(cookie);
+            navMan.NavigateTo("team");
         }
+    }
 
-        public async Task Authenticate()
+    public async Task Authenticate()
+    {
+        if (!string.IsNullOrEmpty(LoginModel.Username) && !string.IsNullOrEmpty(LoginModel.Password))
         {
-            if (!string.IsNullOrEmpty(LoginModel.Username) && !string.IsNullOrEmpty(LoginModel.Password))
+            Response = await Auth.TryLogin(client, LoginModel);
+            if (Response.Equals("true"))
             {
-                Response = await Auth.TryLogin(client, LoginModel);
-                if (Response.Equals("true"))
-                    navMan.NavigateTo("team");
-                else
-                {
-                    Message = "Failed to login. Check username/password or select Forgot Password";
-                }
+                var username = JsonSerializer.Serialize(LoginModel.Username);
+                await WriteAuthCookie(username);
+                navMan.NavigateTo("team");
+            }
+            else
+            {
+                Message = "Failed to login. Check username/password or select Forgot Password";
             }
         }
     }
+
+    public async Task WriteAuthCookie(string value)
+    {
+        await Auth.WriteCookieAsync(JSRuntime, "Username", value, 1);
+    }
+
+    public async Task<string> GetCookie()
+    {
+        var cookie = await Auth.GetCookieAsync(JSRuntime, "Username");
+        return cookie;
+    }
+
+}

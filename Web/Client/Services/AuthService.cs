@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -30,6 +31,18 @@ namespace Web.Client.Services
 
 
         public AuthService() { }
+
+        public async Task<string> WriteCookieAsync(IJSRuntime js, string name, string value, int days)
+        {
+            var cookie = await js.InvokeAsync<string>("WriteCookie", name, value, days);
+            return cookie;
+        }
+
+        public async Task<string> GetCookieAsync(IJSRuntime js, string name)
+        {
+            var cookie = await js.InvokeAsync<string>("GetCookie", name);
+            return cookie;
+        }
 
         public async Task<string> TryLogin(HttpClient client, LoginModel login)
         {
