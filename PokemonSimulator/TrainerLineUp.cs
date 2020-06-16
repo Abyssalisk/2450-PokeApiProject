@@ -67,11 +67,10 @@ namespace PokemonSimulator
             MySqlCommand cmd = new MySqlCommand(getPokemonQuery, Con);
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
-                var index = 0;
                 while (reader.Read())
                 {
-                    tempLineUp.Add(new Pokemon() { Name = reader[index].ToString() });
-                    index++;
+                    for(int i = 0; i < 6; i++)
+                        tempLineUp.Add(new Pokemon() { Name = reader[i].ToString() });
                 }
             }
             Con.Close();
@@ -100,6 +99,7 @@ namespace PokemonSimulator
             {
                 LoopStuck = false;
                 var makeAlineup = new CreateLineUp(GhostTrainer, Con);
+
             }
             if (choice.ToLower().Equals("n"))
             {
