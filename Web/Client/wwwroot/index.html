@@ -44,6 +44,10 @@
             }
             return null;
         }
+
+        function EraseCookie(name) {
+            document.cookie = name + '=; Max-Age=-99999999;';
+        }
     </script>
 </body>
 
