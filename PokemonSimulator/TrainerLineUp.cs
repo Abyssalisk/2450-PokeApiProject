@@ -71,7 +71,6 @@ namespace PokemonSimulator
                 {
                     for(int i = 0; i < 6; i++)
                         tempLineUp.Add(new Pokemon() { Name = reader[i].ToString() });
-                    
                 }
             }
             Con.Close();

@@ -9,13 +9,14 @@ namespace PokemonSimulator
     {
         static void Main(string[] args)
         {
-            //var loginStart = new ConsoleOutputInput();
-            //System.GC.Collect();
-            //var CurrentTrainer = new PokemonTrainer(loginStart.userID,loginStart.TrainerName);
-            //var lineup = new TrainerLineUp(CurrentTrainer.userID,CurrentTrainer.TrainerName, loginStart.connection.myConnection);
-            DBconnect con = new DBconnect();
-            var CurrentTrainer = new Trainer() { TrainerName = "Misty", UserId = 10 };
-            var lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, con.myConnection);
+            var loginStart = new UserAuthAndLogin();
+            System.GC.Collect();
+
+            var currenttrainer = new Trainer();
+            currenttrainer.UserId = loginStart.UserID;
+            currenttrainer.TrainerName = loginStart.TrainerName;
+
+            var lineup = new TrainerLineUp(currenttrainer.UserId, currenttrainer.TrainerName, loginStart.Connection.myConnection);
 
             while(lineup.LoopStuck == true)
             {
@@ -28,15 +29,19 @@ namespace PokemonSimulator
                 }
                 else
                 {
-                    //loginStart = new ConsoleOutputInput();
-                    //System.GC.Collect();
-                    //CurrentTrainer = new PokemonTrainer(loginStart.userID, loginStart.TrainerName);
-                    //lineup = new TrainerLineUp(CurrentTrainer.userID, CurrentTrainer.TrainerName, loginStart.conn
+                    loginStart = new UserAuthAndLogin();
+                    System.GC.Collect();
+                    currenttrainer = new Trainer();
+                    currenttrainer.UserId = loginStart.UserID;
+                    currenttrainer.TrainerName =loginStart.TrainerName;
+                    lineup = new TrainerLineUp(currenttrainer.UserId, currenttrainer.TrainerName, loginStart.Connection.myConnection);
                 }
             }
 
-            CurrentTrainer = lineup.GhostTrainer;
+            currenttrainer = lineup.GhostTrainer;
             System.GC.Collect();
+
+            Console.WriteLine("It's time to Battle!");
         }
 
     }
