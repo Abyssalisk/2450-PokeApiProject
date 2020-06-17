@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PokeAPI;
+using System.Threading.Tasks;
 
 namespace PokemonSimulator
 {
@@ -45,5 +47,6 @@ namespace PokemonSimulator
 
             Console.WriteLine("Let's Battle! ");
         }
+       
     }
 }
