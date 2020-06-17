@@ -9,298 +9,87 @@ namespace PokemonSimulator
         public Dictionary<string, List<string>> TypeMapSuper = new Dictionary<string, List<string>>();
         public Dictionary<string, List<string>> TypeMapNotVery = new Dictionary<string, List<string>>();
 
-        List<string> SuperEffective;
-        List<string> NotVeryEffective;
         public TypeWeaknessMap()
         {
             //Only using one type for this not dual types. Dual types that the given move is super effective against
             //have one of the two types rooted in single type effectiveness. This single type effectiveness can be
             //used as a lookup for dual type effectiveness. Exceptions to this methodology, yes but very limited cases
-           
+
             //Normal
-            NotVeryEffective.Add("Ghost");
-            NotVeryEffective.Add("Rock");
-            NotVeryEffective.Add("Steel");
-
-            TypeMapNotVery.Add("Normal", NotVeryEffective);
-
-            NotVeryEffective.Clear();
+            TypeMapNotVery.Add("Normal", new List<string> { "Ghost", "Rock","Steel" });
 
             //Fire
-            SuperEffective.Add("Grass");
-            SuperEffective.Add("Ice");
-            SuperEffective.Add("Bug");
-            SuperEffective.Add("Steel");
+            TypeMapSuper.Add("Fire", new List<string> {"Grass","Ice" ,"Bug","Steel"});
+            TypeMapNotVery.Add("Fire", new List<string> { "Water", "Rock" ,"Dragon"});
 
-            NotVeryEffective.Add("Water");
-            NotVeryEffective.Add("Rock");
-            NotVeryEffective.Add("Dragon");
-
-            TypeMapSuper.Add("Fire", SuperEffective);
-            TypeMapNotVery.Add("Fire", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
 
             //Water
-            SuperEffective.Add("Fire");
-            SuperEffective.Add("Ground");
-            SuperEffective.Add("Rock");
-
-            NotVeryEffective.Add("Grass");
-            NotVeryEffective.Add("Dragon");
-
-            TypeMapSuper.Add("Water", SuperEffective);
-            TypeMapNotVery.Add("Water", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
+            TypeMapSuper.Add("Water", new List<string> { "Fire", "Ground","Rock" });
+            TypeMapNotVery.Add("Water", new List<string> { "Grass", "Dargon" });
 
             //Electric
-            SuperEffective.Add("Water");
-            SuperEffective.Add("Flying");
+            TypeMapSuper.Add("Electric", new List<string> { "Water", "Flying" });
+            TypeMapNotVery.Add("Electric", new List<string> { "Ground" });
 
-            NotVeryEffective.Add("Ground");
-
-            TypeMapSuper.Add("Electric", SuperEffective);
-            TypeMapNotVery.Add("Electric", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
 
             //Grass
-            SuperEffective.Add("Water");
-            SuperEffective.Add("Ground");
-            SuperEffective.Add("Rock");
-
-            NotVeryEffective.Add("Fire");
-            NotVeryEffective.Add("Poison");
-            NotVeryEffective.Add("Bug");
-            NotVeryEffective.Add("Dragon");
-            NotVeryEffective.Add("Steel");
-            NotVeryEffective.Add("Flying");
-
-            TypeMapSuper.Add("Grass", SuperEffective);
-            TypeMapNotVery.Add("Grass", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
+            TypeMapSuper.Add("Grass", new List<string> { "Water","Ground", "Rock" });
+            TypeMapNotVery.Add("Grass", new List<string> { "Fire", "Poison","Bug","Dragon","Steel","Flying" });
 
             //Ice
-            SuperEffective.Add("Grass");
-            SuperEffective.Add("Ground");
-            SuperEffective.Add("Flying");
-            SuperEffective.Add("Dragon");
+            TypeMapSuper.Add("Ice", new List<string> { "Grass", "Ground","Flying","Dragon" });
+            TypeMapNotVery.Add("Ice", new List<string> { "Fire", "Water","Steel" });
 
-            NotVeryEffective.Add("Fire");
-            NotVeryEffective.Add("Water");
-            NotVeryEffective.Add("Steel");
 
-            TypeMapSuper.Add("Ice", SuperEffective);
-            TypeMapNotVery.Add("Ice", NotVeryEffective);
+            //Fighting
+            TypeMapSuper.Add("Fighting", new List<string> { "Ice", "Rock","Steel","Dark","Normal" });
+            TypeMapNotVery.Add("Fighting", new List<string> { "Ghost", "Poison","Flying","Bug","Psychic" });
 
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
-
-            //Fight
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Fight", SuperEffective);
-            TypeMapNotVery.Add("Fight", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
 
             //Poison
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Poison", SuperEffective);
-            TypeMapNotVery.Add("Poison", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
+            TypeMapSuper.Add("Poison", new List<string> { "Grass" });
+            TypeMapNotVery.Add("Poison", new List<string> { "Ground", "Rock","Ghost","Steel" });
 
             //Ground
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Ground", SuperEffective);
-            TypeMapNotVery.Add("Ground", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
+            TypeMapSuper.Add("Ground", new List<string> { "Fire", "Electric","Poison","Rock","Steel" });
+            TypeMapNotVery.Add("Ground", new List<string> { "Grass", "Flying","Bug" });
 
             //Flying
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Flying", SuperEffective);
-            TypeMapNotVery.Add("Flying", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
+            TypeMapSuper.Add("Flying", new List<string> { "Grass", "Fighting","Bug" });
+            TypeMapNotVery.Add("Flying", new List<string> { "Steel", "Rock","Electric" });
 
             //Psychic
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Psychic", SuperEffective);
-            TypeMapNotVery.Add("Psychic", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
+            TypeMapSuper.Add("Psychic", new List<string> { "Poison", "Fighting" });
+            TypeMapNotVery.Add("Psychic", new List<string> { "Dark", "Steel" });
 
             //Bug
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
+            TypeMapSuper.Add("Bug", new List<string> { "Grass", "Psychic","Dark" });
+            TypeMapNotVery.Add("Bug", new List<string> { "Ghost", "Flying","Poison","Fighting","Fire","Steel" });
 
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Bug", SuperEffective);
-            TypeMapNotVery.Add("Bug", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
 
             //Rock
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Rock", SuperEffective);
-            TypeMapNotVery.Add("Rock", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
+            TypeMapSuper.Add("Rock", new List<string> { "Ice", "Fire","Flying","Bug" });
+            TypeMapNotVery.Add("Rock", new List<string> { "Fighting", "Ground","Steel" });
 
             //Ghost
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
+            TypeMapSuper.Add("Ghost", new List<string> { "Psychic", "Ghost" });
+            TypeMapNotVery.Add("Ghost", new List<string> { "Dark", "Steel" });
 
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Ghost", SuperEffective);
-            TypeMapNotVery.Add("Ghost", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
 
             //Dragon
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
+            TypeMapSuper.Add("Dragon", new List<string> { "Dragon" });
+            TypeMapNotVery.Add("Dragon", new List<string> { "Steel" });
 
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Dragon", SuperEffective);
-            TypeMapNotVery.Add("Dragon", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
 
             //Dark
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Dark", SuperEffective);
-            TypeMapNotVery.Add("Dark", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
+            TypeMapSuper.Add("Dark", new List<string> { "Psychic","Ghost"});
+            TypeMapNotVery.Add("Dark", new List<string> { "Steel","Dark","Fighting" });
 
             //Steel
-            SuperEffective.Add("");
-            SuperEffective.Add("");
-            SuperEffective.Add("");
+            TypeMapSuper.Add("Steel", new List<string> {"Ice","Rock" });
+            TypeMapNotVery.Add("Steel", new List<string> { "Fire", "Water","Electric" });
 
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-            NotVeryEffective.Add("");
-
-            TypeMapSuper.Add("Steel", SuperEffective);
-            TypeMapNotVery.Add("Steel", NotVeryEffective);
-
-            SuperEffective.Clear();
-            NotVeryEffective.Clear();
         }
-
 
     }
 }

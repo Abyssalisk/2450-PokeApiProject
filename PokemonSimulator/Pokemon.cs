@@ -14,8 +14,10 @@ namespace PokemonSimulator
     public class Pokemon
     {
         public int Id { get; set; }
+
+        public string Name { get; set; }
         public string Species { get; private set; }
-        public PokemonType Type { get; private set; } = (PokemonType)0;
+        public PokemonType Type { get; private set; }
         public int BaseHP { get; private set; }
         public int BaseSpeed { get; private set; }
         public int BaseAttack { get; private set; }
@@ -91,7 +93,6 @@ namespace PokemonSimulator
                 ActingHP = 0;
             }
         }
-        #endregion
 
         #region Redefinitions/Overrides
         public new string ToString()
