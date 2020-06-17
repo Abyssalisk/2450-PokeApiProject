@@ -11,6 +11,7 @@ using MimeKit;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Web.Client.Pages;
+using Web.Server.Classes;
 using Web.Shared.Models;
 
 namespace Web.Server.Controllers
@@ -37,13 +38,13 @@ namespace Web.Server.Controllers
                 Email = email
             };
 
-            return CreateNewUser.DoUserCreation(cam);
+            return NewUser.DoUserCreation(cam);
         }
 
         [HttpGet]
         public string Login([FromQuery] string username, [FromQuery] string password)
         {
-            var accountIsAuth = Validate(username, password, new DBConnect().myConnection);
+            var accountIsAuth = Validate(username, password, new DBConnect().MyConnection);
 
             if (accountIsAuth)
                 return "true";
@@ -64,7 +65,7 @@ namespace Web.Server.Controllers
                 var mailMessage = new MimeMessage();
                 mailMessage.From.Add(new MailboxAddress("Pokemanz", "pokemanz2450@gmail.com"));
                 mailMessage.To.Add(new MailboxAddress("Trainer", email));
-                
+
 
                 var textpart = new TextPart("plain");
 
@@ -77,7 +78,7 @@ namespace Web.Server.Controllers
                 {
                     var LoginModel = new LoginModel();
 
-                    var con = new DBConnect().myConnection;
+                    var con = new DBConnect().MyConnection;
                     string lookupEmailByName = $"SELECT TrainerName, Password FROM sql3346222.userCredentials WHERE(Email='{email}') LIMIT 1;";
 
                     con.Open();
@@ -149,219 +150,4 @@ namespace Web.Server.Controllers
             return decryptedPass.Equals(password);
         }
     }
-
-
-    public class ResetPassword
-    {
-        string trainerName;
-        string enteredEmail;
-        MySqlConnection connection;
-
-        public ResetPassword(MySqlConnection con, string username, string email) // become an endpoint for api
-        {
-            connection = con;
-            trainerName = username;
-            enteredEmail = email;
-            string lookupEmailByName = "SELECT email FROM sql3346222.userCredentials WHERE(TrainerName = '" + trainerName + "');";
-            string returnedEmail = "0";
-
-            con.Open();
-            MySqlCommand query = new MySqlCommand(lookupEmailByName, con);
-            MySqlDataReader rdr = query.ExecuteReader();
-
-            //reading returned query
-            while (rdr.Read())
-            {
-                returnedEmail = rdr[0].ToString();
-            }
-            rdr.Close();
-            con.Close();
-
-            //while (true)
-            //{
-            //    if (returnedEmail == enteredEmail)
-            //    {
-            //        var emailVerificationForReset = new EmailValidation(returnedEmail);
-            //        if (emailVerificationForReset.EmailIsValid == true)
-            //        {
-            //            Console.WriteLine("Lets reset your password...");
-            //            makeNewPassword();
-            //            return; // return ActionResult Ok
-            //        }
-            //    }
-            //    else
-            //    {
-            //        return; //return ActionResult Conflict
-            //    }
-            //}
-        }
-
-        private void makeNewPassword()
-        {
-            string newPass;
-
-            Console.WriteLine("Enter new password: ");
-            newPass = Console.ReadLine();
-
-            string Hashedpass;
-            var sendToHashPasswordAlg = new Encryption(newPass);
-            Hashedpass = sendToHashPasswordAlg.EncryptedPassword;
-
-            connection.Open();
-            //INSERT query
-            string plainTextQuery = "UPDATE sql3346222.userCredentials SET Password=('" + Hashedpass + "')" +
-                " WHERE TrainerName = ('" + trainerName + "');";
-            //execute the query
-            MySqlCommand query = new MySqlCommand(plainTextQuery, connection);
-            MySqlDataReader rdr = query.ExecuteReader();
-
-            while (rdr.Read())
-            {
-                Console.WriteLine(rdr[0] + " -- " + rdr[1]);
-            }
-            rdr.Close();
-            connection.Close();
-
-            Console.WriteLine("Password reset!");
-        }
-    }
-
-    public class DBConnect
-    {
-        public MySqlConnection myConnection;
-        public DBConnect()
-        {
-            using (MySqlConnection connect = new MySqlConnection())
-            {
-                try
-                {
-                    connect.ConnectionString = Helpers.GetRDSConnectionString();
-                    connect.Open();
-                }
-                catch { }
-                finally
-                {
-                    if (connect != null || connect.State == System.Data.ConnectionState.Open)
-                        myConnection = connect;
-                }
-            }
-        }
-    }
-
-    public class Helpers
-    {
-        public static string GetRDSConnectionString()
-        {
-            var dbname = "sql3346222";
-
-            if (string.IsNullOrEmpty(dbname)) return null;
-
-            string username = "sql3346222";
-            string password = "wTvU3pVa7f";
-            string hostname = "sql3.freemysqlhosting.net";
-            string port = "3306";
-            var connectionString = "Server=" + hostname + "; Port=" + port + "; Database=" + dbname + "; Uid=" + username + "; Pwd=" + password + ";";
-            return connectionString;
-        }
-    }
-    public class Encryption
-    {
-        public string EncryptedPassword { get; set; }
-
-        public Encryption()
-        {
-            
-        }
-        public Encryption(string password)
-        {
-            EncryptedPassword = Encrypt(password);
-        }
-
-        public string Encrypt(string password)
-        {
-            var bytes = System.Text.Encoding.UTF8.GetBytes(password);
-            return System.Convert.ToBase64String(bytes);
-        }
-        public string Decrypt(string encryptedPassword)
-        {
-            var base64EncodedBytes = System.Convert.FromBase64String(encryptedPassword);
-            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
-        }
-    }
-
-    public class CreateNewUser
-    {
-        public static string DoUserCreation(CreateAccountModel model)
-        {
-            var Password = model.Password;
-            var TrainerName = model.Username;
-            var Email = model.Email;
-
-            var con = new DBConnect().myConnection;
-            if (UserNameValidation(TrainerName, con) == false)
-                return "username already taken"; // username taken
-
-            try
-            {
-                Password = UserPasswordHash(Password);
-                InsertDBcredentials(TrainerName, Password, Email, con);
-                return "account created";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return "error";
-            }
-        }
-
-        //This is a private helper method that uses hashing alg to hash the nwe Password
-        public static string UserPasswordHash(string thePass)
-        {
-            string Hashedpass;
-            var sendToHashPasswordAlg = new Encryption(thePass);
-            Hashedpass = sendToHashPasswordAlg.EncryptedPassword;
-            return Hashedpass;
-        }
-        //checks to see if username is already taken
-        public static bool UserNameValidation(string userName, MySqlConnection con)
-        {
-            con.Open();
-            //INSERT query
-            string plainTextQuery = "SELECT TrainerName FROM sql3346222.userCredentials WHERE(TrainerName = '" + userName + "');";
-            string returnedQuery = "";
-            //execute the query
-            MySqlCommand query = new MySqlCommand(plainTextQuery, con);
-            MySqlDataReader rdr = query.ExecuteReader();
-
-            while (rdr.Read())
-            {
-                returnedQuery = (rdr[0]).ToString();
-            }
-            rdr.Close();
-            con.Close();
-
-            return !returnedQuery.Equals(userName);
-        }
-        //This method inserts the user login credentials into the DB
-        public static void InsertDBcredentials(string name, string passAfterItHashed, string Email, MySqlConnection connection)
-        {
-            //Opens a new connection to MySql DB
-            connection.Open();
-            //INSERT query
-            string plainTextQuery = "INSERT INTO sql3346222.userCredentials(TrainerName, Password, Email) VALUES('" + name +
-                "','" + passAfterItHashed + "','" + Email + "');";
-            //execute the query
-            MySqlCommand query = new MySqlCommand(plainTextQuery, connection);
-            MySqlDataReader rdr = query.ExecuteReader();
-
-            while (rdr.Read())
-            {
-                Console.WriteLine(rdr[0] + " -- " + rdr[1]);
-            }
-            rdr.Close();
-            connection.Close();
-        }
-    }
-
-
 }

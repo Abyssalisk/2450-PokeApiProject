@@ -10,9 +10,17 @@ namespace Web.Shared.Models
         public string Name { get; set; }
         public int BaseHP { get; set; }
         public int Speed { get; set; }
-        public string Type { get; set; }
-        public List<string> TypeWeaknesses { get; set; }
-        public List<MoveModel> Moves { get; set; }
+        public List<PokemonType> Types { get; set; } = new List<PokemonType>();
+        public List<string> TypeWeaknesses { get; set; } = new List<string>();
+        public List<MoveModel> Moves { get; set; } = new List<MoveModel>();
+        public string BackImageUri { get; set; }
+        public string FrontImageUri { get; set; }
+        public int Attack { get; set; }
+        public int Defense { get; set; }
+        public int SpecialAttack { get; set; }
+        public int SpecialDefense { get; set; }
+
+        public List<MoveCheckboxModel> MoveSelections { get; set; } // helper field for new teams
         // @Sam any other object properties you need
     }
 }

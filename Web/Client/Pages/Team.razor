@@ -2,16 +2,18 @@
 @inject NavigationManager navMan
 @inject HttpClient client
 
-
-
 <TeamComponent />
 <button class="btn btn-primary" @onclick="CreateNewTeam">Create New Team</button>
-
+<button class="btn btn-primary" @onclick="StartBattles">Start</button>
 
 @code {
     private void CreateNewTeam()
     {
-        Console.WriteLine("Creating new team...");
         navMan.NavigateTo("newTeam");
+    }
+
+    private void StartBattles()
+    {
+        navMan.NavigateTo("battle");
     }
 }

@@ -70,13 +70,13 @@ namespace PokemonSimulator
                 while (reader.Read())
                 {
                     for(int i = 0; i < 6; i++)
-                        tempLineUp.Add(new Pokemon() { Name = reader[i].ToString() });
+                        tempLineUp.Add(new Pokemon() { Species = reader[i].ToString() });
                 }
             }
             Con.Close();
 
             //Print Pokemon
-            tempLineUp.ForEach(p => { Console.WriteLine(p.Name); });
+            tempLineUp.ForEach(p => { Console.WriteLine(p.Species); });
 
             Console.WriteLine("Use this lineup? (y/n)");
             var choice = Console.ReadLine();

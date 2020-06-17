@@ -18,7 +18,7 @@
         @foreach (var trainer in topTenTrainers)
         {
             string team = string.Empty;
-            @foreach (PokemonModel p in trainer.Team)
+            @foreach (PokemonModel p in trainer.Team.Lineup)
             {
                 if (string.IsNullOrEmpty(team))
                     team += p.Name;
@@ -31,7 +31,7 @@
 
             <tr>
                 <td>@trainer.Handle</td>
-                <td>@trainer.Score</td>
+                <td>@trainer.HighScore</td>
                 <td>
                     @team
                 </td>
@@ -64,27 +64,31 @@
         topTenTrainers.Add(new TrainerModel()
         {
             Handle = "Spencer",
-            Score = 100,
-            Team = new List<PokemonModel>() { new PokemonModel() { Name = "Charizard" },
-            new PokemonModel() { Name = "Gengar" },
-            new PokemonModel() { Name = "Houndoom" } }
+            HighScore = 10,
+            Team = new LineupModel()
+            {
+                Lineup = new List<PokemonModel>()
+                {
+                    new PokemonModel() { Name = "Charizard" },
+                    new PokemonModel() { Name = "Gengar" },
+                    new PokemonModel() { Name = "Houndoom" }
+                }
+            }
         });
 
         topTenTrainers.Add(new TrainerModel()
         {
             Handle = "Gavin",
-            Score = 250,
-            Team = new List<PokemonModel>() { new PokemonModel() { Name = "Gyrados" },
-            new PokemonModel() { Name = "Articuno" },
-            new PokemonModel() { Name = "Feraligatr" } }
-        });
-        topTenTrainers.Add(new TrainerModel()
-        {
-            Handle = "Trainer 3",
-            Score = 15,
-            Team = new List<PokemonModel>() { new PokemonModel() { Name = "Metapod" },
-            new PokemonModel() { Name = "Kakuna" },
-            new PokemonModel() { Name = "Magikarp" } }
+            HighScore = 15324500,
+            Team = new LineupModel()
+            {
+                Lineup = new List<PokemonModel>()
+                {
+                    new PokemonModel() { Name = "Gyrados" },
+                    new PokemonModel() { Name = "Articuno" },
+                    new PokemonModel() { Name = "Charizard" }
+                }
+            }
         });
 
         var testpokemon1 = new PokemonModel();
@@ -103,9 +107,17 @@
 
             topTenTrainers.Add(new TrainerModel()
             {
-                Handle = "Trainer Controller",
-                Score = 1576,
-                Team = new List<PokemonModel>() { testpokemon1, testpokemon2, testpokemon3 }
+                Handle = "hello from the controller",
+                HighScore = 314159,
+                Team = new LineupModel()
+                {
+                    Lineup = new List<PokemonModel>()
+                {
+                    new PokemonModel() { Name = "Charizard" },
+                    new PokemonModel() { Name = "Charizard" },
+                    new PokemonModel() { Name = "Charizard" }
+                }
+                }
             });
         }
         catch // Non success
