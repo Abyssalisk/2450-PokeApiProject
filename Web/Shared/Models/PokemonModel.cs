@@ -19,6 +19,8 @@ namespace Web.Shared.Models
         public int Defense { get; set; }
         public int SpecialAttack { get; set; }
         public int SpecialDefense { get; set; }
+
+        public List<MoveCheckboxModel> MoveSelections { get; set; } // helper field for new teams
         // @Sam any other object properties you need
     }
 }

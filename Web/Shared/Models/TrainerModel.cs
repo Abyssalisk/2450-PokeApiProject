@@ -11,6 +11,6 @@ namespace Web.Shared.Models
         public int CurrentScore { get; set; }
         public int HighScore { get; set; }
         public LineupModel Team { get; set; } // current lineup
-        public List<LineupModel> Lineups { get; set; } // all lineups from previous teams
+        public List<LineupModel> Lineups { get; set; } = new List<LineupModel>(); // all lineups from previous teams
     }
 }
