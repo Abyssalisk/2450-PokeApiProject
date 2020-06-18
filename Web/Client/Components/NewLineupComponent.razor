@@ -4,70 +4,106 @@
 @using Web.Shared.Models
 @using Web.Client.Components
 
+@if (Loading)
+{
+    <div class="fa fa-spinner fa-spin fa-2x fa-fw">Loading...</div>
+}
+else
+{
+    <h3>NewLineup</h3>
+    <p>or create a team of preferrably all fire pokemon...</p>
+    <br />
 
-<h3>NewLineup</h3>
-<p>or create a team of preferrably all fire pokemon...</p>
-<br />
-<!-- Create new team Multiselect... -->
-<div class="multiselect">
-    <div id="checkboxes">
-        @if (ShowMessage)
-        {
-            <h4 style="color: red;">You must select 6 and only 6 pokemon</h4>
-        }
+    @if (ShowMessage)
+    {
+        <h4 style="color: red;">You must select 6 pokemon</h4>
+    }
 
-        @if (PokemonNames?.Count > 0)
-        {
-            @foreach (var name in @PokemonNames)
-            {
-                <div>
-                    <label for="@name.Text">
-                        @if (name.Checked)
-                        {
-                            <input type="checkbox" id="@name.Text" checked="checked" @onchange="@(() => name.Checked = !name.Checked)" />
-                        }
-                        else
-                        {
-                            <input type="checkbox" id="@name.Text" @onchange="@(() => name.Checked = !name.Checked)" />
-                        }
-                        @name.Text
-                    </label>
-                </div>
-            }
-        }
-        @if (PokemonSelections?.Count == 6)
-        {
-            <button class="btn btn-primary" @onclick="GenPokemon">Generate Pokemon Moves</button>
-
-            if (PokemonGenDone)
-            {
-                @foreach (var p in PokemonSelections)
+    @if (PokemonNames?.Count > 0 && !PokemonGenDone)
+    {
+        <table class="table-responsive">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col"><button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var name in @PokemonNames)
                 {
-                    <p>@p.Name</p>
-                    @foreach (var m in p.MoveSelections)
-                    {
-                        <div>
-                            <label for="@m.Name">
-                                @if (m.Checked)
-                                {
-                                    <input type="checkbox" id="@m.Name" checked="checked" @onchange="@(() => m.Checked = !m.Checked)" />
-                                }
-                                else
-                                {
-                                    <input type="checkbox" id="@m.Name" @onchange="@(() => m.Checked = !m.Checked)" />
-                                }
-                                @m.Name
-                            </label>
-                        </div>
-                    }
+                    <tr>
+                        <label for="@name.Text">
+                            @if (name.Checked)
+                            {
+                                <input type="checkbox" id="@name.Text" checked="checked"
+                                       @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount--; })" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" id="@name.Text" @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount++; })" />
+                            }
+                            @name.Text
+                        </label>
+                    </tr>
                 }
-            }
-        }
-    </div>
-</div>
-<br />
-<button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
+            </tbody>
+        </table>
+    }
+    @if (PokemonNameCheckedCount == 6)
+    {
+        <p>Select Moves for each pokemon</p>
+        if (PokemonGenDone && PokemonSelections?.Count == 6)
+        {
+            <div class="table-responsive">
+                <table class="table">
 
+                    <thead>
+                        <tr class="d-flex">
+                            <th class="col-1">Name</th>
+                            <th class="col-2">Move 1</th>
+                            <th class="col-2">Move 2</th>
+                            <th class="col-2">Move 3</th>
+                            <th class="col-2">Move 4</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var p in PokemonSelections)
+                        {
+                            <tr class="d-flex">
+                                <td class="col-1"><b>@p.Name</b></td>
+                                @for (int i = 0; i < 4; i++)
+                                {
+                                    var id = p.Name + "Move" + i; //https://stackoverflow.com/questions/49947790/blazor-onchange-event-with-select-dropdown
+                                    Console.WriteLine(p.Name + " - " + i);
+                                    <td class="col-2">
+                                        <select Id=@id class="form-group" style="width: inherit;">
+                                            @try
+                                            {
+                                                Console.WriteLine(p.Name + " - " + i + " - trying");
+                                                @foreach (var m in p.Moves)
+                                                {
+                                                    <option value="@m.Name">@m.Name (Type: @m.Type - Damage: @m.Damage - @m.Category)</option>
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Console.WriteLine(ex.Message);
+                                            }
+
+                                        </select>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+    <br />
+    <button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
+}
 
 @code {
 
@@ -77,13 +113,18 @@
     public List<PokemonModel> PokemonSelections { get; set; }
     public PokemonService Poke { get; set; }
     public bool PokemonGenDone { get; set; }
-
+    public int PokemonNameCheckedCount { get; set; }
+    public int MoveCheckedCount { get; set; }
     private bool ShowMessage { get; set; }
+    private bool Loading { get; set; }
 
+    public MoveModel Model { get; set; } = new MoveModel();
 
     protected override async Task OnParametersSetAsync()
     {
         await Task.Run(() => PokemonSelections = new List<PokemonModel>());
+        PokemonNameCheckedCount = PokemonSelections.Count; // set max count of pokemon
+        MoveCheckedCount = 4;
     }
 
     protected override void OnInitialized()
@@ -91,25 +132,27 @@
         Poke = new PokemonService();
     }
 
-    private void GenPokemon()
+    private async Task GenPokemon()
     {
+        Loading = true;
         if (PokemonNames.Count(n => n.Checked == true) == 6)
         {
-            PokemonNames.Where(n => n.Checked == true)
-        .Select(n => n.Text)
-        .ToList()
-        .ForEach(async n =>
-        {
-            var pokemon = await Poke.GetPokemonByName(client, n);
-            PokemonSelections.Add(pokemon);
-        });
+            Loading = true;
 
-            PokemonSelections.ForEach(p =>
+            var names = PokemonNames.Where(n => n.Checked == true)
+            .Select(n => n.Text)
+            .ToArray();
+
+            for (int i = 0; i < names.Length; i++)
             {
-                p.Moves.ForEach(m => { p.MoveSelections.Add((MoveCheckboxModel)m); });
-            });
+                var pokemon = await Poke.GetPokemonByName(client, names[i]);
+                PokemonSelections.Add(pokemon);
+            }
+
 
             PokemonGenDone = true;
+            Loading = false;
+            ShowMessage = false;
         }
         else
         {

@@ -4,7 +4,7 @@
 @using Web.Shared.Models
 @using Web.Client.Components
 
-<div class="container-fluid" style="max-width: 50%;">
+<div class="container-fluid" style="max-width: 100%; float: left;">
     <h1 class="text-center">New Team</h1>
     @if (PokemonNames?.Count > 0)
     {
@@ -14,26 +14,12 @@
 </div>
 
 @code {
-    public TrainerModel trainer { get; set; } = new TrainerModel() { Lineups = new List<LineupModel>() };
+    public TrainerModel trainer { get; set; } = new TrainerModel();
     private AuthService Auth { get; set; }
     private PokemonService Poke { get; set; }
     public string trainerHandle = string.Empty;
 
     public List<CheckBox> PokemonNames { get; set; }
-
-    //protected override async Task OnParametersSetAsync()
-    //{
-    //    //await Task.Run(() => PokemonNames = new List<CheckBox>(){
-    //    //new CheckBox() { Text = "Charizard", Checked = false },
-    //    //new CheckBox() { Text = "Articuno", Checked = false },
-    //    //new CheckBox() { Text = "Beedrill", Checked = false },
-    //    //new CheckBox() { Text = "Vulpix", Checked = false },
-    //    //new CheckBox() { Text = "Raticate", Checked = false },
-    //    //new CheckBox() { Text = "Pidgeotto", Checked = false },
-    //    //new CheckBox() { Text = "Crobat", Checked = false },
-    //    //new CheckBox() { Text = "Houndoom", Checked = false }
-    //    //});
-    //}
 
     // set trainer.team to selected team
 

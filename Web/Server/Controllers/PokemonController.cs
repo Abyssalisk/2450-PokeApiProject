@@ -88,7 +88,7 @@ namespace Web.Server.Controllers
         [HttpGet] // https://localhost:44392/api/pokemon?name=charizard
         public async Task<PokemonModel> GetPokemon([FromQuery] string name)
         {
-            var obj = await DataFetcher.GetNamedApiObject<Pokemon>(name);
+            var obj = await DataFetcher.GetNamedApiObject<Pokemon>(name.ToLower()); // wrapper can't handle any uppercase letters, wah wah
 
             // create PokemonModel from PokeApi.Pokemon
             var pokemon = new PokemonModel()
@@ -120,12 +120,12 @@ namespace Web.Server.Controllers
             {
                 var info = await GetAdditionInfo(m.ResourceUri);
 
-                if (info != null)
+                if (info != null && info.Count > 0)
                 {
-                    m.Id = info.ContainsKey("id") ? int.Parse(info["id"].ToString()) : 0;
-                    m.Damage = info.ContainsKey("damage") ? int.Parse(info["damage"].ToString()) : 0;
-                    m.Category = info.ContainsKey("category") ? info["category"].ToString() : string.Empty;
-                    m.Type = info.ContainsKey("type") ? ((ExpandoObject)info["type"]).First().Value.ToString() : string.Empty;
+                    m.Id = info.ContainsKey("id") ? int.Parse(info?["id"].ToString()) : 0;
+                    m.Damage = info.ContainsKey("power") && info?["power"] != null ? int.Parse(info?["power"].ToString()) : 0;
+                    m.Category = info.ContainsKey("damage_class") && info?["damage_class"] != null ? ((ExpandoObject)info?["damage_class"]).First().Value.ToString() : string.Empty;
+                    m.Type = info.ContainsKey("type") ? ((ExpandoObject)info?["type"]).First().Value.ToString() : string.Empty;
                 }
             });
 
