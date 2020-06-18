@@ -185,15 +185,30 @@ namespace Web.Server.Controllers
         public List<string> GetAllPokemonNames()
         {
             var names = new List<string>();
-            using (TextFieldParser parser = new TextFieldParser(Environment.CurrentDirectory + @"\Data\PokemonNames.csv"))
+            //using (TextFieldParser parser = new TextFieldParser(Environment.CurrentDirectory + @"\Data\PokemonNames.csv"))
+            //using (TextFieldParser parser = new TextFieldParser(ApplicationDeployment.CurrentDeployment.DataDirectory + @"\Data\PokemonNames.csv"))
+            //{
+            //    parser.TextFieldType = FieldType.Delimited;
+            //    parser.SetDelimiters(",");
+            //    while (!parser.EndOfData)
+            //    {
+            //        names = new List<string>(parser.ReadFields());
+            //    }
+            //}
+
+            var con = new DBConnect().MyConnection;
+            con.Open();
+            var querystring = $"SELECT FileContent FROM sql3346222.Files WHERE FileName='AllPokemonGen1CSV'";
+            MySqlCommand cmd = new MySqlCommand(querystring, con);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+
+            while (rdr.Read())
             {
-                parser.TextFieldType = FieldType.Delimited;
-                parser.SetDelimiters(",");
-                while (!parser.EndOfData)
-                {
-                    names = new List<string>(parser.ReadFields());
-                }
+                names = rdr[0].ToString().Split(',').ToList();
             }
+            rdr.Close();
+            con.Close();
+
             return names;
         }
 
