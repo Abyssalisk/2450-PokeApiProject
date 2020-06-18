@@ -1,0 +1,127 @@
+﻿@inject NavigationManager navMan;
+@inject HttpClient client;
+
+@using Web.Shared.Models
+
+
+<h3>NewLineup</h3>
+<p>or create a team of preferrably all fire pokemon...</p>
+<br />
+<!-- Create new team Multiselect... -->
+<div class="multiselect">
+    <div id="checkboxes">
+        @if (ShowMessage)
+        {
+            <h4 style="color: red;">You must select 6 and only 6 pokemon</h4>
+        }
+
+        @foreach (var name in @PokemonNames)
+        {
+            <div>
+                <label for="@name.Text">
+                    @if (name.Checked)
+                    {
+                        <input type="checkbox" id="@name.Text" checked="checked" @onchange="@(() => name.Checked = !name.Checked)" />
+                    }
+                    else
+                    {
+                        <input type="checkbox" id="@name.Text" @onchange="@(() => name.Checked = !name.Checked)" />
+                    }
+                    @name.Text
+                </label>
+            </div>
+        }
+        @if (PokemonSelections.Count == 6)
+        {
+            <button class="btn btn-primary" @onclick="GenPokemon">Generate Pokemon Moves</button>
+
+            if (PokemonGenDone)
+            {
+                @foreach (var p in PokemonSelections)
+                {
+                    <p>@p.Name</p>
+                    @foreach (var m in p.MoveSelections)
+                    {
+                        <div>
+                            <label for="@m.Name">
+                                @if (m.Checked)
+                                {
+                                    <input type="checkbox" id="@m.Name" checked="checked" @onchange="@(() => m.Checked = !m.Checked)" />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" id="@m.Name" @onchange="@(() => m.Checked = !m.Checked)" />
+                                }
+                                @m.Name
+                            </label>
+                        </div>
+                    }
+                }
+            }
+        }
+    </div>
+</div>
+<br />
+<button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
+
+
+@code {
+
+    [Parameter]
+    public List<Web.Client.Components.NewTeamComponent.CheckBox> PokemonNames { get; set; }
+
+    public List<PokemonModel> PokemonSelections { get; set; }
+    public PokemonService Poke { get; set; }
+    public bool PokemonGenDone { get; set; }
+
+    private bool ShowMessage { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Poke = new PokemonService();
+        PokemonNames = new List<Web.Client.Components.NewTeamComponent.CheckBox>();
+    }
+
+    private void GenPokemon()
+    {
+        if (PokemonNames.Count(n => n.Checked == true) == 6)
+        {
+            PokemonNames.Where(n => n.Checked == true)
+        .Select(n => n.Text)
+        .ToList()
+        .ForEach(async n =>
+        {
+            var pokemon = await Poke.GetPokemon(client, n);
+            PokemonSelections.Add(pokemon);
+        });
+
+            PokemonSelections.ForEach(p =>
+            {
+                p.Moves.ForEach(m => { p.MoveSelections.Add((MoveCheckboxModel)m); });
+            });
+
+            PokemonGenDone = true;
+        }
+        else
+        {
+            ShowMessage = true;
+        }
+
+    }
+
+    private void SaveTeam()
+    {
+
+        var lineup = new LineupModel();
+
+        // six pokemon...
+        PokemonSelections.ForEach(ps =>
+        {
+            var pokemon = new PokemonModel() { Name = ps.Name };
+            lineup.Lineup.Add(pokemon);
+        });
+
+        navMan.NavigateTo("team");
+
+    }
+}

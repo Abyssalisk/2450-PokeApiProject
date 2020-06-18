@@ -45,7 +45,7 @@
         var cookie = await GetCookie();
         if (!string.IsNullOrEmpty(cookie))
         {
-            //Console.WriteLine(cookie);
+            //Console.WriteLine(cookie + " - navigating to team");
             navMan.NavigateTo("team");
         }
     }

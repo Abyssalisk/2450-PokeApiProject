@@ -4,13 +4,11 @@ using System.Text;
 
 namespace Web.Shared.Models
 {
-    public class MoveModel
+    public class PokemonType
     {
-        public int Id { get; set; }
         public string Name { get; set; }
-        public string Type { get; set; }
-        public int Damage { get; set; }
+        public List<string> Weaknesses { get; set; } = new List<string>();
         public string ResourceUri { get; set; }
-        public string Category { get; set; }
+
     }
 }

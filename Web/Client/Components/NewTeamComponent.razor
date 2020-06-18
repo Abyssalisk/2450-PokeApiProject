@@ -4,8 +4,8 @@
 @using Web.Shared.Models
 
 <div class="container-fluid" style="max-width: 50%;">
-    <h1 class="text-center">Team</h1>
-    @*<ExistingLineupComponent ExistingLineUps="@trainer.Lineups" />*@
+    <h1 class="text-center">New Team</h1>
+    <NewLineupComponent PokemonNames="@PokemonNames"/>
 </div>
 
 @code {
@@ -13,6 +13,17 @@
     private AuthService Auth { get; set; }
     private PokemonService Poke { get; set; }
     public string trainerHandle = string.Empty;
+
+    public List<CheckBox> PokemonNames { get; set; } = new List<CheckBox>(){
+        new CheckBox() { Text = "Charizard", Checked = false },
+        new CheckBox() { Text = "Articuno", Checked = false },
+        new CheckBox() { Text = "Beedrill", Checked = false },
+        new CheckBox() { Text = "Vulpix", Checked = false },
+        new CheckBox() { Text = "Raticate", Checked = false },
+        new CheckBox() { Text = "Pidgeotto", Checked = false },
+        new CheckBox() { Text = "Crobat", Checked = false },
+        new CheckBox() { Text = "Houndoom", Checked = false }
+    };
 
     // set trainer.team to selected team
 
@@ -31,5 +42,11 @@
             throw new Exception($"Failed to set TrainerHandle from cookie");
 
         trainer = await Poke.GetTrainer(client, trainerHandle);
-    } 
+    }
+
+    public class CheckBox
+    {
+        public bool Checked { get; set; }
+        public string Text { get; set; }
+    }
 }
