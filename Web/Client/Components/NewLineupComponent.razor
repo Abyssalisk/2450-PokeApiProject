@@ -100,7 +100,7 @@
         .ToList()
         .ForEach(async n =>
         {
-            var pokemon = await Poke.GetPokemon(client, n);
+            var pokemon = await Poke.GetPokemonByName(client, n);
             PokemonSelections.Add(pokemon);
         });
 

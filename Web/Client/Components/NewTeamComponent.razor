@@ -2,10 +2,11 @@
 @inject HttpClient client;
 @inject IJSRuntime JSRuntime;
 @using Web.Shared.Models
+@using Web.Client.Components
 
 <div class="container-fluid" style="max-width: 50%;">
     <h1 class="text-center">New Team</h1>
-    @if (PokemonNames != null && PokemonNames.Count > 0)
+    @if (PokemonNames?.Count > 0)
     {
         <NewLineupComponent PokemonNames="@PokemonNames" />
     }
@@ -20,53 +21,40 @@
 
     public List<CheckBox> PokemonNames { get; set; }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        await Task.Run(() => PokemonNames = new List<CheckBox>(){
-        new CheckBox() { Text = "Charizard", Checked = false },
-        new CheckBox() { Text = "Articuno", Checked = false },
-        new CheckBox() { Text = "Beedrill", Checked = false },
-        new CheckBox() { Text = "Vulpix", Checked = false },
-        new CheckBox() { Text = "Raticate", Checked = false },
-        new CheckBox() { Text = "Pidgeotto", Checked = false },
-        new CheckBox() { Text = "Crobat", Checked = false },
-        new CheckBox() { Text = "Houndoom", Checked = false }
-        });
-    }
+    //protected override async Task OnParametersSetAsync()
+    //{
+    //    //await Task.Run(() => PokemonNames = new List<CheckBox>(){
+    //    //new CheckBox() { Text = "Charizard", Checked = false },
+    //    //new CheckBox() { Text = "Articuno", Checked = false },
+    //    //new CheckBox() { Text = "Beedrill", Checked = false },
+    //    //new CheckBox() { Text = "Vulpix", Checked = false },
+    //    //new CheckBox() { Text = "Raticate", Checked = false },
+    //    //new CheckBox() { Text = "Pidgeotto", Checked = false },
+    //    //new CheckBox() { Text = "Crobat", Checked = false },
+    //    //new CheckBox() { Text = "Houndoom", Checked = false }
+    //    //});
+    //}
 
     // set trainer.team to selected team
 
     protected override void OnInitialized()
     {
-        trainer = new TrainerModel() { Lineups = new List<LineupModel>() };
+        trainer = new TrainerModel();
         Auth = new AuthService();
         Poke = new PokemonService();
+        PokemonNames = new List<CheckBox>();
     }
 
     protected override async Task OnInitializedAsync()
     {
+        var names = await Poke.GetAllPokemonNames(client);
+        names.ForEach(n => { PokemonNames.Add(new CheckBox() { Text = n, Checked = false }); });
         trainerHandle = await Auth.GetCookieAsync(JSRuntime, "Username");
 
         if (string.IsNullOrEmpty(trainerHandle))
             throw new Exception($"Failed to set TrainerHandle from cookie");
 
         trainer = await Poke.GetTrainer(client, trainerHandle);
-    }
-
-    public Task SetParameters()
-    {
-        var t = Task.Run(() => PokemonNames = new List<CheckBox>(){
-        new CheckBox() { Text = "Charizard", Checked = false },
-        new CheckBox() { Text = "Articuno", Checked = false },
-        new CheckBox() { Text = "Beedrill", Checked = false },
-        new CheckBox() { Text = "Vulpix", Checked = false },
-        new CheckBox() { Text = "Raticate", Checked = false },
-        new CheckBox() { Text = "Pidgeotto", Checked = false },
-        new CheckBox() { Text = "Crobat", Checked = false },
-        new CheckBox() { Text = "Houndoom", Checked = false }
-    }
-        );
-        return t;
     }
 
     public class CheckBox

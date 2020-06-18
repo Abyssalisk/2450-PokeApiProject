@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
@@ -13,6 +13,9 @@ using PokeAPI;
 using RestSharp;
 using Web.Server.Classes;
 using Web.Shared.Models;
+using Microsoft.VisualBasic.FileIO;
+using Web.Client;
+using System;
 
 namespace Web.Server.Controllers
 {
@@ -30,9 +33,16 @@ namespace Web.Server.Controllers
             if (id == 3) return new PokemonModel() { Name = "Articuno" };
             return new PokemonModel() { Name = "SomeOtherPokemon" };
         }
+        
+        [HttpGet("allnames")] // https://localhost:44392/api/pokemon/allnames
+        public List<string> AllPokemonNames()
+        {
+            var names = GetAllPokemonNames();
+            return names;
+        }
 
-        [HttpGet("lineup")] // https://localhost:44392/api/pokemon/trainer/srosy
-        public void NewLineup([FromQuery] string trainername, [FromQuery] string lineupJson)
+        [HttpPost("lineup")] // https://localhost:44392/api/pokemon/lineup?trainername=srosy
+        public void NewLineup([FromQuery] string trainername, [FromBody] string lineupJson)
         {
             CreateLineupDB(trainername, lineupJson);
         }
@@ -94,7 +104,6 @@ namespace Web.Server.Controllers
                 SpecialAttack = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("special-attack")).Select(s => s.BaseValue).FirstOrDefault(),
                 SpecialDefense = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("special-defense")).Select(s => s.BaseValue).FirstOrDefault(),
                 Speed = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("speed")).Select(s => s.BaseValue).FirstOrDefault()
-
             };
 
             // add list of available moves to pokemon
@@ -171,6 +180,21 @@ namespace Web.Server.Controllers
         {
             //todo @derek
             return null;
+        }
+
+        public List<string> GetAllPokemonNames()
+        {
+            var names = new List<string>();
+            using (TextFieldParser parser = new TextFieldParser(Environment.CurrentDirectory + @"\Data\PokemonNames.csv"))
+            {
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
+                while (!parser.EndOfData)
+                {
+                    names = new List<string>(parser.ReadFields());
+                }
+            }
+            return names;
         }
 
         public async Task<IDictionary<string, object>> GetAdditionInfo(string uri)

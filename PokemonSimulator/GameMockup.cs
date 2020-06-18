@@ -7,7 +7,7 @@ namespace PokemonSimulator
 {
     class GameMockup
     {
-        public static void Main(string[] args)
+        public static void Main_Other(string[] args)
         {
             //Tie this to the stuff to get real things.
             Trainer you = new Trainer();
