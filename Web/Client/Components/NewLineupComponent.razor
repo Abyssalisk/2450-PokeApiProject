@@ -2,6 +2,7 @@
 @inject HttpClient client;
 
 @using Web.Shared.Models
+@using Web.Client.Components
 
 
 <h3>NewLineup</h3>
@@ -15,23 +16,26 @@
             <h4 style="color: red;">You must select 6 and only 6 pokemon</h4>
         }
 
-        @foreach (var name in @PokemonNames)
+        @if (PokemonNames?.Count > 0)
         {
-            <div>
-                <label for="@name.Text">
-                    @if (name.Checked)
-                    {
-                        <input type="checkbox" id="@name.Text" checked="checked" @onchange="@(() => name.Checked = !name.Checked)" />
-                    }
-                    else
-                    {
-                        <input type="checkbox" id="@name.Text" @onchange="@(() => name.Checked = !name.Checked)" />
-                    }
-                    @name.Text
-                </label>
-            </div>
+            @foreach (var name in @PokemonNames)
+            {
+                <div>
+                    <label for="@name.Text">
+                        @if (name.Checked)
+                        {
+                            <input type="checkbox" id="@name.Text" checked="checked" @onchange="@(() => name.Checked = !name.Checked)" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" id="@name.Text" @onchange="@(() => name.Checked = !name.Checked)" />
+                        }
+                        @name.Text
+                    </label>
+                </div>
+            }
         }
-        @if (PokemonSelections.Count == 6)
+        @if (PokemonSelections?.Count == 6)
         {
             <button class="btn btn-primary" @onclick="GenPokemon">Generate Pokemon Moves</button>
 
@@ -68,7 +72,7 @@
 @code {
 
     [Parameter]
-    public List<Web.Client.Components.NewTeamComponent.CheckBox> PokemonNames { get; set; }
+    public List<NewTeamComponent.CheckBox> PokemonNames { get; set; }
 
     public List<PokemonModel> PokemonSelections { get; set; }
     public PokemonService Poke { get; set; }
@@ -76,10 +80,15 @@
 
     private bool ShowMessage { get; set; }
 
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Task.Run(() => PokemonSelections = new List<PokemonModel>());
+    }
+
     protected override void OnInitialized()
     {
         Poke = new PokemonService();
-        PokemonNames = new List<Web.Client.Components.NewTeamComponent.CheckBox>();
     }
 
     private void GenPokemon()
