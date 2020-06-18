@@ -8,6 +8,7 @@ namespace PokemonSimulator
 {
     public class Program
     {
+        [Obsolete]
         static void Main(string[] args)
         {
             var loginStart = new UserAuthAndLogin();
