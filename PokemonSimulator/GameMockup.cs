@@ -10,6 +10,8 @@ namespace PokemonSimulator
         public static void Main(string[] args)
         {
             //Tie this to the stuff to get real things.
+            //UserAuthAndLogin login = new UserAuthAndLogin();
+            
             Trainer you = new Trainer();
             Trainer enemy = new Trainer();
             do
@@ -54,7 +56,26 @@ namespace PokemonSimulator
                 while (gaming)
                 {
                     Console.WriteLine("Select move: (1 - 4) " + string.Join(", ", yours.Moves.Select(x => x.Name)) + " or switch pokemon (5)");
-                    int yourMovePick = int.Parse(Console.ReadLine()) - 1;
+                    int yourMovePick = 0;
+                    do
+                    {
+                        if (int.TryParse(Console.ReadLine(), out int tryParse))
+                        {
+                            if (tryParse < 6 && tryParse > 0)
+                            {
+                                yourMovePick = tryParse - 1;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Hey! Pick a move (1 - 4) or switch pokemon (5).");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Hey! Thats not a number, pick a move (1 - 4) or switch pokemon (5).");
+                        }
+                    } while (true);
                     int enemiesMovePick = Grand.rand.Next(0, 4);
                     if (yourMovePick != 4)
                     {
