@@ -30,6 +30,12 @@ namespace Web.Client.Services
 
         public PokemonService() { }
 
+        public async Task<List<string>> GetAllPokemonNames(HttpClient client)
+        {
+            var result = await client.GetFromJsonAsync<List<string>>($"api/pokemon/allnames");
+            return result;
+        }
+
         public async Task<TrainerModel> GetTrainer(HttpClient client, string trainerHandle)
         {
             var result = await client.GetFromJsonAsync<TrainerModel>($"api/pokemon/trainer/{trainerHandle}");
@@ -47,7 +53,7 @@ namespace Web.Client.Services
             return result;
         }
 
-        public async Task<PokemonModel> GetPokemon(HttpClient client, string pokemonname)
+        public async Task<PokemonModel> GetPokemonByName(HttpClient client, string pokemonname)
         {
             var result = await client.GetFromJsonAsync<PokemonModel>($"api/pokemon?name={pokemonname}");
             return result;

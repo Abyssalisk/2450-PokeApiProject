@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
@@ -13,6 +13,9 @@ using PokeAPI;
 using RestSharp;
 using Web.Server.Classes;
 using Web.Shared.Models;
+using Microsoft.VisualBasic.FileIO;
+using Web.Client;
+using System;
 
 namespace Web.Server.Controllers
 {
@@ -30,9 +33,16 @@ namespace Web.Server.Controllers
             if (id == 3) return new PokemonModel() { Name = "Articuno" };
             return new PokemonModel() { Name = "SomeOtherPokemon" };
         }
+        
+        [HttpGet("allnames")] // https://localhost:44392/api/pokemon/allnames
+        public List<string> AllPokemonNames()
+        {
+            var names = GetAllPokemonNames();
+            return names;
+        }
 
-        [HttpGet("lineup")] // https://localhost:44392/api/pokemon/trainer/srosy
-        public void NewLineup([FromQuery] string trainername, [FromQuery] string lineupJson)
+        [HttpPost("lineup")] // https://localhost:44392/api/pokemon/lineup?trainername=srosy
+        public void NewLineup([FromQuery] string trainername, [FromBody] string lineupJson)
         {
             CreateLineupDB(trainername, lineupJson);
         }
@@ -78,7 +88,7 @@ namespace Web.Server.Controllers
         [HttpGet] // https://localhost:44392/api/pokemon?name=charizard
         public async Task<PokemonModel> GetPokemon([FromQuery] string name)
         {
-            var obj = await DataFetcher.GetNamedApiObject<Pokemon>(name);
+            var obj = await DataFetcher.GetNamedApiObject<Pokemon>(name.ToLower()); // wrapper can't handle any uppercase letters, wah wah
 
             // create PokemonModel from PokeApi.Pokemon
             var pokemon = new PokemonModel()
@@ -94,7 +104,6 @@ namespace Web.Server.Controllers
                 SpecialAttack = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("special-attack")).Select(s => s.BaseValue).FirstOrDefault(),
                 SpecialDefense = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("special-defense")).Select(s => s.BaseValue).FirstOrDefault(),
                 Speed = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("speed")).Select(s => s.BaseValue).FirstOrDefault()
-
             };
 
             // add list of available moves to pokemon
@@ -111,12 +120,12 @@ namespace Web.Server.Controllers
             {
                 var info = await GetAdditionInfo(m.ResourceUri);
 
-                if (info != null)
+                if (info != null && info.Count > 0)
                 {
-                    m.Id = info.ContainsKey("id") ? int.Parse(info["id"].ToString()) : 0;
-                    m.Damage = info.ContainsKey("damage") ? int.Parse(info["damage"].ToString()) : 0;
-                    m.Category = info.ContainsKey("category") ? info["category"].ToString() : string.Empty;
-                    m.Type = info.ContainsKey("type") ? ((ExpandoObject)info["type"]).First().Value.ToString() : string.Empty;
+                    m.Id = info.ContainsKey("id") ? int.Parse(info?["id"].ToString()) : 0;
+                    m.Damage = info.ContainsKey("power") && info?["power"] != null ? int.Parse(info?["power"].ToString()) : 0;
+                    m.Category = info.ContainsKey("damage_class") && info?["damage_class"] != null ? ((ExpandoObject)info?["damage_class"]).First().Value.ToString() : string.Empty;
+                    m.Type = info.ContainsKey("type") ? ((ExpandoObject)info?["type"]).First().Value.ToString() : string.Empty;
                 }
             });
 
@@ -171,6 +180,36 @@ namespace Web.Server.Controllers
         {
             //todo @derek
             return null;
+        }
+
+        public List<string> GetAllPokemonNames()
+        {
+            var names = new List<string>();
+            //using (TextFieldParser parser = new TextFieldParser(Environment.CurrentDirectory + @"\Data\PokemonNames.csv"))
+            //using (TextFieldParser parser = new TextFieldParser(ApplicationDeployment.CurrentDeployment.DataDirectory + @"\Data\PokemonNames.csv"))
+            //{
+            //    parser.TextFieldType = FieldType.Delimited;
+            //    parser.SetDelimiters(",");
+            //    while (!parser.EndOfData)
+            //    {
+            //        names = new List<string>(parser.ReadFields());
+            //    }
+            //}
+
+            var con = new DBConnect().MyConnection;
+            con.Open();
+            var querystring = $"SELECT FileContent FROM sql3346222.Files WHERE FileName='AllPokemonGen1CSV'";
+            MySqlCommand cmd = new MySqlCommand(querystring, con);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+
+            while (rdr.Read())
+            {
+                names = rdr[0].ToString().Split(',').ToList();
+            }
+            rdr.Close();
+            con.Close();
+
+            return names;
         }
 
         public async Task<IDictionary<string, object>> GetAdditionInfo(string uri)

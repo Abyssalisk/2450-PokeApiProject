@@ -34,7 +34,6 @@ namespace PokemonSimulator
 
             // Begin Console Program
             Console.WriteLine("Welcome to Pokemon Battle Simulator Console Version!");
-            Connection = new DBconnect();
 
             Console.WriteLine("Are you a new trainer? (y/n)");
             var newUser = Console.ReadLine();
