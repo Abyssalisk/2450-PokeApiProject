@@ -16,6 +16,8 @@ using Web.Shared.Models;
 using Microsoft.VisualBasic.FileIO;
 using Web.Client;
 using System;
+using System.Net.Http;
+using System.Net;
 
 namespace Web.Server.Controllers
 {
@@ -33,7 +35,7 @@ namespace Web.Server.Controllers
             if (id == 3) return new PokemonModel() { Name = "Articuno" };
             return new PokemonModel() { Name = "SomeOtherPokemon" };
         }
-        
+
         [HttpGet("allnames")] // https://localhost:44392/api/pokemon/allnames
         public List<string> AllPokemonNames()
         {
@@ -41,10 +43,20 @@ namespace Web.Server.Controllers
             return names;
         }
 
-        [HttpPost("lineup")] // https://localhost:44392/api/pokemon/lineup?trainername=srosy
-        public void NewLineup([FromQuery] string trainername, [FromBody] string lineupJson)
+        [HttpPost("lineup")] // https://localhost:44392/api/pokemon/lineup
+        public HttpResponseMessage UpdateLineup([FromBody] TrainerModel trainer)
         {
-            CreateLineupDB(trainername, lineupJson);
+            UpdateLineups(trainer);
+            return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
+        }
+
+        [HttpPost("trainer/update")] // https://localhost:44392/api/pokemon/lineup?trainername=srosy
+        public HttpResponseMessage UpdateTrainer([FromBody] TrainerModel trainer)
+        {
+            //CreateLineupDB(trainername, lineupJson);
+            var response = new HttpResponseMessage();
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
         }
 
         [HttpGet("trainer/{name}")] // https://localhost:44392/api/pokemon/trainer/srosy
@@ -116,7 +128,8 @@ namespace Web.Server.Controllers
                         ResourceUri = m.Url.AbsoluteUri.ToString()
                     });
             });
-            pokemon.Moves.ForEach(async m =>
+
+            foreach (var m in pokemon.Moves)
             {
                 var info = await GetAdditionInfo(m.ResourceUri);
 
@@ -127,7 +140,9 @@ namespace Web.Server.Controllers
                     m.Category = info.ContainsKey("damage_class") && info?["damage_class"] != null ? ((ExpandoObject)info?["damage_class"]).First().Value.ToString() : string.Empty;
                     m.Type = info.ContainsKey("type") ? ((ExpandoObject)info?["type"]).First().Value.ToString() : string.Empty;
                 }
-            });
+            }
+
+            pokemon.Moves.RemoveAll(m => m.Damage == 0); // get rid of moves without damage
 
             // add any types to the pokemon
             obj.Types.ToList().ForEach(t =>
@@ -142,13 +157,19 @@ namespace Web.Server.Controllers
             return pokemon;
         }
 
-        public void CreateLineupDB(string trainername, string lineupJson)
+        public void UpdateLineups(TrainerModel trainer)
         {
             var con = new DBConnect().MyConnection;
             con.Open();
-            var querystring = $"INSERT INTO sql3346222.userCredentials(TrainerName, Team) VALUES ('{trainername}', '{lineupJson}')";
-            MySqlCommand cmd = new MySqlCommand(querystring, con);
-            cmd.ExecuteNonQuery();
+
+            var json = JsonConvert.SerializeObject(trainer.Team);
+            var querystring = $"UPDATE sql3346222.userCredentials SET CurrentLineup = '{json}' WHERE TrainerName= '{trainer.Handle}';";
+            new MySqlCommand(querystring, con).ExecuteNonQuery();
+
+            json = JsonConvert.SerializeObject(trainer.Lineups);
+            querystring = $"UPDATE sql3346222.userCredentials SET Lineups = '{json}' WHERE TrainerName= '{trainer.Handle}';";
+            new MySqlCommand(querystring, con).ExecuteNonQuery();
+
             con.Close();
         }
 
@@ -170,6 +191,7 @@ namespace Web.Server.Controllers
                 trainer.Id = int.Parse(rdr[0].ToString());
                 trainer.HighScore = int.Parse(rdr[5].ToString());
                 trainer.Lineups = Lineup.DeserializeLineupList(rdr[4].ToString());
+                trainer.Team = Lineup.DeserializeLineup(rdr[6].ToString());
             }
             rdr.Close();
             con.Close();
