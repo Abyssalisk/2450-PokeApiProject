@@ -11,7 +11,7 @@ using PokeAPI;
 using System;
 using System.Collections.Generic;
 using PokeAPI;
-using Web.Shared.Models
+using Web.Shared.Models;
 
 namespace PokemonSimulator
 {
@@ -107,9 +107,9 @@ namespace PokemonSimulator
         public new string ToString()
         {
             return
-                $" species\' is {Species}, types are {Type.ToString()}, stats are BaseHP:{BaseHP}" +
-                $" BaseSpeed:{BaseSpeed} BaseAttack:{BaseAttack} BaseDefense:{BaseDefense}" +
-                $" BaseSpecialAttack:{BaseSpecialAttack} BaseSpecialDefense:{BaseSpecialDefense},";
+                $" species\' is {Species}, types are {string.Join(", ", Types.Select(x => x.Name))}, stats are BaseHP:{BaseHP}" +
+                $" BaseSpeed:{Speed} BaseAttack:{Attack} BaseDefense:{Defense}" +
+                $" BaseSpecialAttack:{SpecialAttack} BaseSpecialDefense:{SpecialDefense},";
         }
         #endregion
 
