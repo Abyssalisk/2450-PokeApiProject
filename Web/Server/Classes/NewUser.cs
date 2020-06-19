@@ -18,7 +18,7 @@ namespace Web.Server.Classes
 
             try
             {
-                Password = UserPasswordHash(Password);
+                Password = EncryptPassword(Password);
                 InsertDBcredentials(TrainerName, Password, Email, con);
                 return "account created";
             }
@@ -30,12 +30,9 @@ namespace Web.Server.Classes
         }
 
         //This is a private helper method that uses hashing alg to hash the nwe Password
-        public static string UserPasswordHash(string thePass)
+        public static string EncryptPassword(string thePass)
         {
-            string Hashedpass;
-            var sendToHashPasswordAlg = new Encryption(thePass);
-            Hashedpass = sendToHashPasswordAlg.EncryptedPassword;
-            return Hashedpass;
+            return new Encryption(thePass).EncryptedPassword;
         }
         //checks to see if username is already taken
         public static bool UserNameValidation(string userName, MySqlConnection con)
@@ -57,23 +54,13 @@ namespace Web.Server.Classes
 
             return !returnedQuery.Equals(userName);
         }
-        //This method inserts the user login credentials into the DB
-        public static void InsertDBcredentials(string name, string passAfterItHashed, string Email, MySqlConnection connection)
-        {
-            //Opens a new connection to MySql DB
-            connection.Open();
-            //INSERT query
-            string plainTextQuery = "INSERT INTO sql3346222.userCredentials(TrainerName, Password, Email) VALUES('" + name +
-                "','" + passAfterItHashed + "','" + Email + "');";
-            //execute the query
-            MySqlCommand query = new MySqlCommand(plainTextQuery, connection);
-            MySqlDataReader rdr = query.ExecuteReader();
 
-            while (rdr.Read())
-            {
-                Console.WriteLine(rdr[0] + " -- " + rdr[1]);
-            }
-            rdr.Close();
+        //This method inserts the user login credentials into the DB
+        public static void InsertDBcredentials(string name, string encryptedPass, string email, MySqlConnection connection)
+        {
+            connection.Open();
+            var query = $"INSERT INTO sql3346222.userCredentials(TrainerName, Password, Email, HighScore) VALUES('{name}', '{encryptedPass}', '{email}', 0);";
+            new MySqlCommand(query, connection).ExecuteNonQuery();
             connection.Close();
         }
     }

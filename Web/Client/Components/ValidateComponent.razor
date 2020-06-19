@@ -41,6 +41,7 @@
     protected override void OnInitialized()
     {
         Message = $"Code emailed to {Model.Email}";
+        auth = new AuthService();
     }
 
     private void ValidateCode()
@@ -51,7 +52,6 @@
             StateHasChanged();
 
             CreateAccountModel.Email = Model.Email;
-            auth = new AuthService();
             auth.CreateAccount(client, CreateAccountModel);
             navMan.NavigateTo("login");
         }
