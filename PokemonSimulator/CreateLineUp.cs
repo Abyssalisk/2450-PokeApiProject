@@ -36,6 +36,7 @@ namespace PokemonSimulator
                 ValidPokemon = false;
             }
             AddPokemonToDB();
+            var Lineup = new TrainerLineUp(GhostTrainer.UserId, GhostTrainer.TrainerName, Con);
         }
 
         public void ReadName()
@@ -120,7 +121,7 @@ namespace PokemonSimulator
                 +"','"+MovesCSVArray[1]+"','"+ PokemonArray[2] + "','" + MovesCSVArray[2] + "','" + PokemonArray[3] +
                 "','" + MovesCSVArray[3] + "','" + PokemonArray[4]+ "','" + MovesCSVArray[4] +
                  "','" + PokemonArray[5] + "','" + MovesCSVArray[5] + "');";
-            Console.WriteLine(insertPokemonQuery);
+
             Con.Open();
             MySqlCommand cmd = new MySqlCommand(insertPokemonQuery, Con);
             using (MySqlDataReader rdr = cmd.ExecuteReader())

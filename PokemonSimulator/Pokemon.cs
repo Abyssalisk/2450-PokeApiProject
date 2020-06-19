@@ -23,17 +23,17 @@ namespace PokemonSimulator
 
         public string Name { get; set; }
         public string Species { get; set; }
-        public PokemonType Type { get; private set; }
+        public PokemonType Type { get;  set; }
 
-        public int BaseHP { get; private set; }
-        public int BaseSpeed { get; private set; }
-        public int BaseAttack { get; private set; }
-        public int BaseDefense { get; private set; }
-        public int BaseSpecialAttack { get; private set; }
-        public int BaseSpecialDefense { get; private set; }
+        public int BaseHP { get; set; }
+        public int BaseSpeed { get;  set; }
+        public int BaseAttack { get; set; }
+        public int BaseDefense { get; set; }
+        public int BaseSpecialAttack { get; set; }
+        public int BaseSpecialDefense { get;  set; }
         public List<string> TypeWeaknesses { get; set; }
         public List<Move> Moves { get; set; }
-        public int ActingHP { get; private set; }
+        public int ActingHP { get;  set; }
         public bool IsAlive { get => ActingHP > 0; }
 
         #region Ctors
