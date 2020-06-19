@@ -26,29 +26,32 @@ namespace PokemonSimulator
         {
             List<string> value = new List<string>();
 
-            if(battletypes.TypeMapSuper.TryGetValue(MoveType.Type.ToString(), out value))
+            if (battletypes.TypeMapSuper.TryGetValue(MoveType.Type.ToString(), out value))
             {
-                if(value.Contains(PokemonType.Types.ToString()))
+                if (value.Contains(PokemonType.Types.ToString()))
                 {
                     SuperEffectiveDamage();
                 }
-            }else if(battletypes.TypeMapNotVery.TryGetValue(MoveType.Type.ToString(), out value))
+            }
+            else if (battletypes.TypeMapNotVery.TryGetValue(MoveType.Type.ToString(), out value))
             {
-                if(value.Contains(PokemonType.Types.ToString()))
+                if (value.Contains(PokemonType.Types.ToString()))
                 {
                     NotVeryEffectiveDamage();
                 }
             }
         }
-               
+        /// <summary>
+        /// cast as float and divide by 2
+        /// </summary>
         public void SuperEffectiveDamage()
         {
-            DamageModifier = 2;
+            DamageModifier = 4;
         }
 
         public void NotVeryEffectiveDamage()
         {
-            DamageModifier = 0;
+            DamageModifier = 1;
         }
     }
 }

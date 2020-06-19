@@ -76,7 +76,7 @@ namespace PokemonSimulator
             Con.Close();
 
             //Print Pokemon
-            tempLineUp.ForEach(p => { Console.WriteLine(p.Species); });
+            tempLineUp.ForEach((Action<Pokemon>)(p => { Console.WriteLine((string)p.Species); }));
 
             Console.WriteLine("Use this lineup? (y/n)");
             var choice = Console.ReadLine();

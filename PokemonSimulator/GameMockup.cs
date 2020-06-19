@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PokeAPI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,12 +8,14 @@ namespace PokemonSimulator
 {
     class GameMockup
     {
+        static TypeWeaknessMap twm = new TypeWeaknessMap();
         public static void Main_Other(string[] args)
         {
             //Tie this to the stuff to get real things.
-            //UserAuthAndLogin login = new UserAuthAndLogin();
-            
-            Trainer you = new Trainer();
+            UserAuthAndLogin login = new UserAuthAndLogin();
+            TrainerLineUp yourLineUp = new TrainerLineUp(login.UserID, login.TrainerName, login.Connection.myConnection);
+            Trainer you = yourLineUp.GhostTrainer;
+            //Trainer you = new Trainer();
             Trainer enemy = new Trainer();
             do
             {
@@ -36,7 +39,6 @@ namespace PokemonSimulator
                     }
                 } while (true);
                 Pokemon enemies = enemy.Pokemon[Grand.rand.Next(0, enemy.Pokemon.Count)];
-                PrintYou("You: ", $" Go {yours.Species}!");
                 void PrintYou(string pre, string text)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
@@ -51,6 +53,53 @@ namespace PokemonSimulator
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine(text);
                 }
+                void Attack(Pokemon attack, Pokemon defend, int moveIndex, bool isEnemyAttacking)
+                {
+                    PrintEnemy($"{attack.Species} ", $"used {attack.Moves[moveIndex].Name}!");
+                    int damage = attack.Moves[moveIndex].Damage;
+                    //double modifier = PokemonType.CalculateDamageMultiplier(attack.Type, defend.Type);
+                    double modifier = 1d;
+                    for (int i = 0; i < attack.Types.Count; i++)
+                    {
+                        for (int j = 0; j < defend.Types.Count; j++)
+                        {
+                            modifier *= PokemonType.CalculateDamageMultiplier(attack.Types[i], defend.Types[j]);
+                        }
+                    }
+                    int final = 0;
+                    if (attack.Moves[moveIndex].Category == "special")
+                    {
+                        final = (int)(((double)damage * (double)modifier * (double)attack.SpecialAttack) / (double)defend.SpecialDefense);
+                    }
+                    else
+                    {
+                        final = (int)(((double)damage * (double)modifier * (double)attack.Attack) / (double)defend.Defense);
+                    }
+                    if (modifier > 1)
+                    {
+                        if (isEnemyAttacking)
+                        {
+                            PrintEnemy("", $"Your enemy's pokemon's attack was super effective! It hit for {final} damage!");
+                        }
+                        else
+                        {
+                            PrintYou("", $"Your pokemon's attack was super effective! It hit for {final} damage!");
+                        }
+                    }
+                    else
+                    {
+                        if (isEnemyAttacking)
+                        {
+                            PrintEnemy("", $"Your enemy's pokemon's attack hit for {final} damage.");
+                        }
+                        else
+                        {
+                            PrintYou("", $"Your pokemon's attack hit for {final} damage!");
+                        }
+                    }
+                    defend.ModifyHealth(-final);
+                }
+                PrintYou("You: ", $" Go {yours.Species}!");
                 PrintEnemy("Enemy: ", $" Go {enemies.Species}!");
                 bool gaming = true;
                 while (gaming)
@@ -80,64 +129,20 @@ namespace PokemonSimulator
                     if (yourMovePick != 4)
                     {
                         //you and your enemy hit eachother based on speed.
-                        if (enemies.BaseSpeed > yours.BaseSpeed)
+                        if (enemies.Speed > yours.Speed)
                         {
-                            PrintEnemy($"{enemies.Species} ", $"used {enemies.Moves[enemiesMovePick].Name}!");
-                            int damage = int.Parse(enemies.Moves[enemiesMovePick].Damage);
-                            int modifier = (yours.TypeWeaknesses.Count(x => x == enemies.Moves[enemiesMovePick].Type) + 1);
-                            if (modifier > 1)
-                            {
-                                PrintEnemy("", $"Your enemy's pokemon's attack was super effective! It hit for {damage * modifier} damage!");
-                            }
-                            else
-                            {
-                                PrintEnemy("", $"Your enemy's pokemon's attack hit for {damage * modifier} damage.");
-                            }
-                            yours.ModifyHealth(-damage * modifier);
+                            Attack(enemies, yours, enemiesMovePick, true);
                             if (yours.IsAlive)
                             {
-                                PrintYou($"{yours.Species} ", $"used {yours.Moves[yourMovePick].Name}!");
-                                damage = int.Parse(yours.Moves[yourMovePick].Damage);
-                                modifier = (enemies.TypeWeaknesses.Count(x => x == yours.Moves[yourMovePick].Type) + 1);
-                                if (modifier > 1)
-                                {
-                                    PrintYou("", $"Your pokemon's attack was super effective! It hit for {damage * modifier} damage!");
-                                }
-                                else
-                                {
-                                    PrintYou("", $"Your pokemon's attack hit for {damage * modifier} damage!");
-                                }
-                                enemies.ModifyHealth(-damage * modifier);
+                                Attack(yours, enemies, yourMovePick, false);
                             }
                         }
-                        else if (yours.BaseSpeed > enemies.BaseSpeed)
+                        else if (yours.Speed > enemies.Speed)
                         {
-                            PrintYou($"{yours.Species} ", $"used {yours.Moves[yourMovePick].Name}!");
-                            int damage = int.Parse(yours.Moves[yourMovePick].Damage);
-                            int modifier = (enemies.TypeWeaknesses.Count(x => x == yours.Moves[yourMovePick].Type) + 1);
-                            if (modifier > 1)
-                            {
-                                PrintYou("", $"Your pokemon's attack was super effective! It hit for {damage * modifier} damage!");
-                            }
-                            else
-                            {
-                                PrintYou("", $"Your pokemon's attack hit for {damage * modifier} damage!");
-                            }
-                            enemies.ModifyHealth(-damage * modifier);
+                            Attack(yours, enemies, enemiesMovePick, false);
                             if (enemies.IsAlive)
                             {
-                                PrintEnemy($"{enemies.Species} ", $"used {enemies.Moves[enemiesMovePick].Name}!");
-                                damage = int.Parse(enemies.Moves[enemiesMovePick].Damage);
-                                modifier = (yours.TypeWeaknesses.Count(x => x == enemies.Moves[enemiesMovePick].Type) + 1);
-                                if (modifier > 1)
-                                {
-                                    PrintEnemy("", $"Your enemy's pokemon's attack was super effective! It hit for {damage * modifier} damage!");
-                                }
-                                else
-                                {
-                                    PrintEnemy("", $"Your enemy's pokemon's attack hit for {damage * modifier} damage.");
-                                }
-                                yours.ModifyHealth(-damage * modifier);
+                                Attack(enemies, yours, yourMovePick, true);
                             }
                         }
                         else
@@ -147,63 +152,19 @@ namespace PokemonSimulator
                             {
                                 case 0:
                                     {
-                                        PrintEnemy($"{enemies.Species} ", $"used {enemies.Moves[enemiesMovePick].Name}!");
-                                        int damage = int.Parse(enemies.Moves[enemiesMovePick].Damage);
-                                        int modifier = (yours.TypeWeaknesses.Count(x => x == enemies.Moves[enemiesMovePick].Type) + 1);
-                                        if (modifier > 1)
-                                        {
-                                            PrintEnemy("", $"Your enemy's pokemon's attack was super effective! It hit for {damage * modifier} damage!");
-                                        }
-                                        else
-                                        {
-                                            PrintEnemy("", $"Your enemy's pokemon's attack hit for {damage * modifier} damage.");
-                                        }
-                                        yours.ModifyHealth(-damage * modifier);
+                                        Attack(enemies, yours, enemiesMovePick, true);
                                         if (yours.IsAlive)
                                         {
-                                            PrintYou($"{yours.Species} ", $"used {yours.Moves[yourMovePick].Name}!");
-                                            damage = int.Parse(yours.Moves[yourMovePick].Damage);
-                                            modifier = (enemies.TypeWeaknesses.Count(x => x == yours.Moves[yourMovePick].Type) + 1);
-                                            if (modifier > 1)
-                                            {
-                                                PrintYou("", $"Your pokemon's attack was super effective! It hit for {damage * modifier} damage!");
-                                            }
-                                            else
-                                            {
-                                                PrintYou("", $"Your pokemon's attack hit for {damage * modifier} damage!");
-                                            }
-                                            enemies.ModifyHealth(-damage * modifier);
+                                            Attack(yours, enemies, yourMovePick, false);
                                         }
                                     }
                                     break;
                                 case 1:
                                     {
-                                        PrintYou($"{yours.Species} ", $"used {yours.Moves[yourMovePick].Name}!");
-                                        int damage = int.Parse(yours.Moves[yourMovePick].Damage);
-                                        int modifier = (enemies.TypeWeaknesses.Count(x => x == yours.Moves[yourMovePick].Type) + 1);
-                                        if (modifier > 1)
-                                        {
-                                            PrintYou("", $"Your pokemon's attack was super effective! It hit for {damage * modifier} damage!");
-                                        }
-                                        else
-                                        {
-                                            PrintYou("", $"Your pokemon's attack hit for {damage * modifier} damage!");
-                                        }
-                                        enemies.ModifyHealth(-damage * modifier);
+                                        Attack(yours, enemies, enemiesMovePick, false);
                                         if (enemies.IsAlive)
                                         {
-                                            PrintEnemy($"{enemies.Species} ", $"used {enemies.Moves[enemiesMovePick].Name}!");
-                                            damage = int.Parse(enemies.Moves[enemiesMovePick].Damage);
-                                            modifier = (yours.TypeWeaknesses.Count(x => x == enemies.Moves[enemiesMovePick].Type) + 1);
-                                            if (modifier > 1)
-                                            {
-                                                PrintEnemy("", $"Your enemy's pokemon's attack was super effective! It hit for {damage * modifier} damage!");
-                                            }
-                                            else
-                                            {
-                                                PrintEnemy("", $"Your enemy's pokemon's attack hit for {damage * modifier} damage.");
-                                            }
-                                            yours.ModifyHealth(-damage * modifier);
+                                            Attack(enemies, yours, yourMovePick, true);
                                         }
                                     }
                                     break;
@@ -230,7 +191,8 @@ namespace PokemonSimulator
                                 break;
                             }
                         } while (true);
-                        yours.ModifyHealth(-int.Parse(enemies.Moves[enemiesMovePick].Damage) * (yours.TypeWeaknesses.Count(x => x == enemies.Moves[enemiesMovePick].Type) + 1));
+                        //yours.ModifyHealth(-int.Parse(enemies.Moves[enemiesMovePick].Damage) * (yours.TypeWeaknesses.Count(x => x == enemies.Moves[enemiesMovePick].Type) + 1));
+                        Attack(enemies, yours, enemiesMovePick, true);
                     }
                     else
                     {
