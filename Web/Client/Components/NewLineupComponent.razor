@@ -49,76 +49,77 @@ else
             </tbody>
         </table>
     }
-    @if (PokemonNameCheckedCount == 6)
+    @if (MayContinue)
     {
         <p>Select Moves for each pokemon</p>
-        if (PokemonGenDone && PokemonSelections?.Count == 6)
+        if (PokemonGenDone)
         {
-            <div class="table-responsive">
-                <table class="table">
+            <div class="container-fluid">
+                <div class="row text-center">
 
-                    <thead>
-                        <tr class="d-flex">
-                            <th class="col-1">Name</th>
-                            <th class="col-2">Move 1</th>
-                            <th class="col-2">Move 2</th>
-                            <th class="col-2">Move 3</th>
-                            <th class="col-2">Move 4</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach (var p in PokemonSelections)
-                        {
-                            <tr class="d-flex">
-                                <td class="col-1"><b>@p.Name</b></td>
-                                @for (int i = 0; i < 4; i++)
-                                {
-                                    var id = p.Name + "Move" + i; //https://stackoverflow.com/questions/49947790/blazor-onchange-event-with-select-dropdown
-                                    Console.WriteLine(p.Name + " - " + i);
-                                    <td class="col-2">
-                                        <select Id=@id class="form-group" style="width: inherit;">
-                                            @try
-                                            {
-                                                Console.WriteLine(p.Name + " - " + i + " - trying");
-                                                @foreach (var m in p.Moves)
-                                                {
-                                                    <option value="@m.Name">@m.Name (Type: @m.Type - Damage: @m.Damage - @m.Category)</option>
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                Console.WriteLine(ex.Message);
-                                            }
-
-                                        </select>
-                                    </td>
+                    @for (int i = 0; i < PokemonSelections.Count; i++)
+                    {
+                        var pokeIndex = i; // I would just reference i and j, but it breaks for whatever reason unless I make a local reference. Took hours to figure this out.
+                        var p = PokemonSelections[pokeIndex];
+                        <div class="col">
+                            <div class="row-fluid">
+                                @{
+                                    var capatalizedName = char.ToUpper(p.Name[0]) + p.Name.Substring(1);
                                 }
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                                <strong>@(capatalizedName)</strong>
+                            </div>
+
+                            <EditForm Model=@p.Moves>
+                                <DataAnnotationsValidator />
+                                <ValidationSummary />
+                                @for (int j = 0; j < 4; j++)
+                                {
+                                    var moveIndex = j;
+                                    <div class="col">
+                                        <InputSelect class="form-group form-control" style="width: inherit;" @bind-Value="@PokemonSelections[pokeIndex].MoveSelections[moveIndex].Name">
+                                            <option selected>select a move</option>
+                                            @foreach (var m in p.Moves)
+                                                                {
+                                                <option value="@m.Name">
+                                                    @m.Name (Type: @m.Type - Damage: @m.Damage - @m.Category)
+                                                </option>
+                                                                }
+                                        </InputSelect>
+                                    </div>
+                                }
+                            </EditForm>
+                        </div>
+                    }
+
+                </div>
+                <br />
+                <button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
             </div>
         }
+        else
+        {
+            <h4 style="color: red;">You must select 6 pokemon</h4>
+        }
     }
-    <br />
-    <button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
 }
 
 @code {
 
     [Parameter]
-    public List<NewTeamComponent.CheckBox> PokemonNames { get; set; }
+    public List<NewTeam.CheckBox> PokemonNames { get; set; }
+
+    [Parameter]
+    public TrainerModel Trainer { get; set; }
 
     public List<PokemonModel> PokemonSelections { get; set; }
     public PokemonService Poke { get; set; }
     public bool PokemonGenDone { get; set; }
     public int PokemonNameCheckedCount { get; set; }
-    public int MoveCheckedCount { get; set; }
+    public int MoveCheckedCount { get; set; } // maybe obsolete
     private bool ShowMessage { get; set; }
+    private bool MayContinue { get; set; }
     private bool Loading { get; set; }
 
-    public MoveModel Model { get; set; } = new MoveModel();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -135,9 +136,9 @@ else
     private async Task GenPokemon()
     {
         Loading = true;
-        if (PokemonNames.Count(n => n.Checked == true) == 6)
+        if (PokemonNames.Count(n => n.Checked == true) >= 1) // == 6)
         {
-            Loading = true;
+            MayContinue = true;
 
             var names = PokemonNames.Where(n => n.Checked == true)
             .Select(n => n.Text)
@@ -146,9 +147,9 @@ else
             for (int i = 0; i < names.Length; i++)
             {
                 var pokemon = await Poke.GetPokemonByName(client, names[i]);
+                pokemon.MoveSelections = new List<MoveModel>() { new MoveModel(), new MoveModel(), new MoveModel(), new MoveModel() };
                 PokemonSelections.Add(pokemon);
             }
-
 
             PokemonGenDone = true;
             Loading = false;
@@ -158,22 +159,35 @@ else
         {
             ShowMessage = true;
         }
-
+        Loading = false;
     }
 
-    private void SaveTeam()
+    private void SaveMoveSelections()
     {
-
-        var lineup = new LineupModel();
-
-        // six pokemon...
-        PokemonSelections.ForEach(ps =>
+        PokemonSelections.ForEach(p =>
         {
-            var pokemon = new PokemonModel() { Name = ps.Name };
-            lineup.Lineup.Add(pokemon);
+            for (int i = 0; i < p.MoveSelections.Count; i++)
+            {
+                var move = p.Moves.Where(s => s.Name == p.MoveSelections[i].Name).Select(s => s).FirstOrDefault();
+                p.MoveSelections[i] = move;
+                p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
+            }
+            p.Moves.Clear();
         });
+    }
 
-        navMan.NavigateTo("team");
+    private async Task SaveTeam()
+    {
+        SaveMoveSelections();
+        var lineup = new LineupModel() { Lineup = PokemonSelections.ToList() };
 
+        if (!Trainer.Lineups.Contains(lineup))
+        {
+            Trainer.Lineups.Add(lineup);
+            Trainer.Team = lineup;
+
+            var success = await Poke.UpdateLineup(client, Trainer); //add lineup
+            navMan.NavigateTo("team");
+        }
     }
 }

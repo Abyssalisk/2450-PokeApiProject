@@ -12,5 +12,6 @@ namespace Web.Shared.Models
         public int Damage { get; set; }
         public string ResourceUri { get; set; }
         public string Category { get; set; }
+        public bool Seleted { get; set; }
     }
 }

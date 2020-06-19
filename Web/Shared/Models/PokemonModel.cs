@@ -19,8 +19,6 @@ namespace Web.Shared.Models
         public int Defense { get; set; }
         public int SpecialAttack { get; set; }
         public int SpecialDefense { get; set; }
-
-        //public MoveModel[] MoveSelections { get; set; } = new MoveModel[5]; // stores moves
-        public List<MoveModel> MoveSelections { get; set; } = new List<MoveModel>(); // stores moves
+        public List<MoveModel> MoveSelections { get; set; } = new List<MoveModel>() { new MoveModel(), new MoveModel(), new MoveModel(), new MoveModel() }; // stores moves
     }
 }

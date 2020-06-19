@@ -11,25 +11,33 @@ using PokeAPI;
 using System;
 using System.Collections.Generic;
 using PokeAPI;
+using Web.Shared.Models;
 
 namespace PokemonSimulator
 {
     public class Pokemon
     {
         public int Id { get; set; }
-        public string Name { get; set; }
         public string Species { get; set; }
-        public PokemonType Type { get; private set; }
-        public int BaseHP { get; private set; }
-        public int BaseSpeed { get; private set; }
-        public int BaseAttack { get; private set; }
-        public int BaseDefense { get; private set; }
-        public int BaseSpecialAttack { get; private set; }
-        public int BaseSpecialDefense { get; private set; }
-        public List<string> TypeWeaknesses { get; set; }
-        public List<Move> Moves { get; set; }
+        public int BaseHP { get; set; }
+        public int Speed { get; set; }
+        public List<PokemonType> Types { get; set; } = new List<PokemonType>();
+        public List<string> TypeWeaknesses { get; set; } = new List<string>();
+        public List<MoveModel> Moves { get; set; } = new List<MoveModel>();
+        public string BackImageUri { get; set; }
+        public string FrontImageUri { get; set; }
+        public int Attack { get; set; }
+        public int Defense { get; set; }
+        public int SpecialAttack { get; set; }
+        public int SpecialDefense { get; set; }
+
+        //public MoveModel[] MoveSelections { get; set; } = new MoveModel[5]; // stores moves
+        public List<MoveModel> MoveSelections { get; set; } = new List<MoveModel>(); // stores moves
         public int ActingHP { get; private set; }
         public bool IsAlive { get => ActingHP > 0; }
+
+
+
 
         #region Ctors
         //public Pokemon(API.PokemonBlueprint model)
@@ -76,11 +84,11 @@ namespace PokemonSimulator
         //}
         #endregion
         
-        public void RequestFieldChange(Pokemon proposedModel /*handle to conversation*/)
-        {
-            //notify server and opponent that your pokemon differs from the template.
-            throw new NotImplementedException();
-        }
+        //public void RequestFieldChange(Pokemon proposedModel /*handle to conversation*/)
+        //{
+        //    //notify server and opponent that your pokemon differs from the template.
+        //    throw new NotImplementedException();
+        //}
         /// <summary>
         /// Modifies the health by adding the value provided to the pokemon's current health value.
         /// </summary>
@@ -99,9 +107,9 @@ namespace PokemonSimulator
         public new string ToString()
         {
             return
-                $" species\' is {Species}, types are {Type.ToString()}, stats are BaseHP:{BaseHP}" +
-                $" BaseSpeed:{BaseSpeed} BaseAttack:{BaseAttack} BaseDefense:{BaseDefense}" +
-                $" BaseSpecialAttack:{BaseSpecialAttack} BaseSpecialDefense:{BaseSpecialDefense},";
+                $" species\' is {Species}, types are {string.Join(", ", Types.Select(x => x.Name))}, stats are BaseHP:{BaseHP}" +
+                $" BaseSpeed:{Speed} BaseAttack:{Attack} BaseDefense:{Defense}" +
+                $" BaseSpecialAttack:{SpecialAttack} BaseSpecialDefense:{SpecialDefense},";
         }
         #endregion
 

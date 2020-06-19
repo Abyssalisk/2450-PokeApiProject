@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Org.BouncyCastle.Asn1.Ocsp;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -30,9 +32,27 @@ namespace Web.Client.Services
 
         public PokemonService() { }
 
+
+        public async Task<bool> UpdateTrainer(HttpClient client, TrainerModel trainer)
+        {
+            var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/trainer/update", trainer);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> UpdateLineup(HttpClient client, TrainerModel trainer)
+        {
+            var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/lineup", trainer);
+            return result.IsSuccessStatusCode;
+        }
+
         public async Task<List<string>> GetAllPokemonNames(HttpClient client)
         {
             var result = await client.GetFromJsonAsync<List<string>>($"api/pokemon/allnames");
+            return result;
+        }
+
+        public async Task<List<TrainerModel>> GetElite4AndChampion(HttpClient client)
+        {
+            var result = await client.GetFromJsonAsync<List<TrainerModel>>($"api/pokemon/trainer/elite4");
             return result;
         }
 
