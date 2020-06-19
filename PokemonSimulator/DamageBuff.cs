@@ -10,7 +10,7 @@ namespace PokemonSimulator
 
         PokeAPI.Move MoveType;
         PokeAPI.Pokemon PokemonType;
-        int DamageModifier;
+        double DamageModifier;
 
         public DamageBuff(PokeAPI.Move movetype, PokeAPI.Pokemon pokemontype)
         {
@@ -48,7 +48,7 @@ namespace PokemonSimulator
 
         public void NotVeryEffectiveDamage()
         {
-            DamageModifier = 0;
+            DamageModifier = 0.5;
         }
     }
 }
