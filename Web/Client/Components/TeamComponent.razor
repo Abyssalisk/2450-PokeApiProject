@@ -24,11 +24,11 @@
                                 <label for="@lineup.Text">
                                     @if (lineup.Checked)
                                     {
-                                        <input type="checkbox" id="@lineup.Text" checked="checked" @onchange="@(() =>{ lineup.Checked = !lineup.Checked; SelectedLineup = !SelectedLineup; })" />
+                                        <input type="checkbox" id="@lineup.Text" checked="checked" @onchange="@(() =>{ lineup.Checked = false; SelectedLineup = !SelectedLineup; })" />
                                     }
                                     else
                                     {
-                                        <input type="checkbox" id="@lineup.Text" @onchange="@(() => { lineup.Checked = !lineup.Checked; SelectedLineup = !SelectedLineup; })" />
+                                        <input type="checkbox" id="@lineup.Text"  @onchange="@(() => { lineup.Checked = true; SelectedLineup = !SelectedLineup; })" />
                                     }
                                     <b>@index - </b>@lineup.Text
                                 </label>
@@ -41,7 +41,8 @@
             else if (SelectedLineup)
             {
                 <h4>You have selected: </h4>
-                <div class="jumbotron-fluid text-center"><h1>@Trainer.Lineups.FirstOrDefault(l => l.Checked == true).Text</h1></div>
+                <div class="jumbotron-fluid text-center"><h1>
+                    @Trainer.Lineups.FirstOrDefault(l => l.Checked == true).Text</h1></div>
                 <h4>Press continue to start</h4>
                 <br />
                 <button class="btn btn-primary text-center" @onclick="Start">Continue</button>
@@ -86,14 +87,17 @@
         {
             Trainer.Lineups.ForEach(l =>
             {
-                l.Lineup.ForEach(p =>
+                if (string.IsNullOrEmpty(l.Text))
                 {
-                    p.Name = char.ToUpper(p.Name[0]) + p.Name.Substring(1); // uppercase first letter
-                    if (!string.IsNullOrEmpty(l.Text))
-                        l.Text += $", {p.Name}";
-                    else
-                        l.Text += $"{p.Name}";
-                });
+                    l.Lineup.ForEach(p =>
+                    {
+                        p.Name = char.ToUpper(p.Name[0]) + p.Name.Substring(1); // uppercase first letter
+                        if (!string.IsNullOrEmpty(l.Text))
+                            l.Text += $", {p.Name}";
+                        else
+                            l.Text += $"{p.Name}";
+                    });
+                }
             });
         }
         Loading = false;

@@ -63,6 +63,8 @@ namespace Web.Server.Controllers
         public TrainerModel GetTrainer(string name)
         {
             var trainer = GetTrainerFromDB(name.Replace("\"", string.Empty));
+            if (trainer.Lineups == null) trainer.Lineups = new List<LineupModel>();
+            if (trainer.Team == null) trainer.Team = new LineupModel();
             return trainer;
         }
 
@@ -159,6 +161,9 @@ namespace Web.Server.Controllers
 
         public void UpdateLineups(TrainerModel trainer)
         {
+            if (trainer.Lineups.Any(l => l.Checked == true))
+                trainer.Lineups.Where(l => l.Checked == true).Select(l => l).ToList().ForEach(l => { l.Checked = false; }); // reset the check
+
             var con = new DBConnect().MyConnection;
             con.Open();
 
