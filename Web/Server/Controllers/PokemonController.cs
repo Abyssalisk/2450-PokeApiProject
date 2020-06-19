@@ -68,6 +68,14 @@ namespace Web.Server.Controllers
             return trainer;
         }
 
+        [HttpGet("trainer/elite4")] // https://localhost:44392/api/pokemon/trainer/elite4
+        public List<TrainerModel> GetElite4()
+        {
+            List<TrainerModel> elite4AndChampion = new List<TrainerModel>();
+            elite4AndChampion = GetElite4AndChampion();
+            return elite4AndChampion;
+        }
+
         // GET api/<PokemonController>/name
         [HttpGet("name/{name}")]
         public async Task<PokemonModel> GetName(string name)
@@ -157,6 +165,30 @@ namespace Web.Server.Controllers
             });
 
             return pokemon;
+        }
+
+        public List<TrainerModel> GetElite4AndChampion()
+        {
+            var elite4PlusChampionStrings = new List<string>();
+            var con = new DBConnect().MyConnection;
+            con.Open();
+            var query = "SELECT TrainerName FROM sql3346222.userCredentials ORDER BY HighScore DESC LIMIT 5;";
+            var rdr = new MySqlCommand(query, con).ExecuteReader();
+
+            while (rdr.Read())
+            {
+                elite4PlusChampionStrings.Add(rdr[0].ToString());
+            }
+            rdr.Close();
+            con.Close();
+
+            var elite4PlusChampion = new List<TrainerModel>();
+            elite4PlusChampionStrings.ForEach(t =>
+            {
+                elite4PlusChampion.Add(GetTrainerFromDB(t));
+            });
+
+            return elite4PlusChampion;
         }
 
         public void UpdateLineups(TrainerModel trainer)
