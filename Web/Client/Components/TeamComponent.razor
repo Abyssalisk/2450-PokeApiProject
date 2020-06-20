@@ -21,16 +21,21 @@
                         {
                             index++;
                             <div>
+
                                 <label for="@lineup.Text">
                                     @if (lineup.Checked)
                                     {
-                                        <input type="checkbox" id="@lineup.Text" checked="checked" @onchange="@(() =>{ lineup.Checked = false; SelectedLineup = !SelectedLineup; })" />
+                                        <input type="checkbox" value="true" id="@lineup.Text" checked="checked" @onchange="@(() =>{ lineup.Checked = false; SelectedLineup = !SelectedLineup; })" />
                                     }
                                     else
                                     {
-                                        <input type="checkbox" id="@lineup.Text"  @onchange="@(() => { lineup.Checked = true; SelectedLineup = !SelectedLineup; })" />
+                                        <input type="checkbox" value="false" id="@lineup.Text" @onchange="@(() => { lineup.Checked = true; SelectedLineup = !SelectedLineup; })" />
                                     }
                                     <b>@index - </b>@lineup.Text
+                                    @foreach (var p in lineup.Lineup)
+                                    {
+                                        <img src=@p.FrontImageUri style="height: 50px; width: 50px;" />
+                                    }
                                 </label>
                             </div>
                         }
