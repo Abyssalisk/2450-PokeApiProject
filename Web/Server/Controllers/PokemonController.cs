@@ -121,6 +121,7 @@ namespace Web.Server.Controllers
                 FrontImageUri = obj.Sprites.FrontMale,
 
                 BaseHP = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("hp")).Select(s => s.BaseValue).FirstOrDefault(),
+                BattleHP = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("hp")).Select(s => s.BaseValue).FirstOrDefault() * 10,
                 Attack = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("attack")).Select(s => s.BaseValue).FirstOrDefault(),
                 Defense = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("defense")).Select(s => s.BaseValue).FirstOrDefault(),
                 SpecialAttack = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("special-attack")).Select(s => s.BaseValue).FirstOrDefault(),
