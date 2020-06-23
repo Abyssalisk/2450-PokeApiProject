@@ -10,8 +10,10 @@ using System.Collections.Generic;
 using PokeAPI;
 using System;
 using System.Collections.Generic;
+
 using PokeAPI;
 using Web.Shared.Models;
+
 
 namespace PokemonSimulator
 {
@@ -34,6 +36,7 @@ namespace PokemonSimulator
         //public MoveModel[] MoveSelections { get; set; } = new MoveModel[5]; // stores moves
         public List<MoveModel> MoveSelections { get; set; } = new List<MoveModel>(); // stores moves
         public int ActingHP { get; private set; }
+
         public bool IsAlive { get => ActingHP > 0; }
 
 

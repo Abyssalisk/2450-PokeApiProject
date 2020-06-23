@@ -69,20 +69,21 @@ namespace PokemonSimulator
             {
                 while (reader.Read())
                 {
-                    for(int i = 0; i < 6; i++)
-                        tempLineUp.Add(new Pokemon() { Species = reader[i].ToString() });
+                    for (int i = 0; i < 6; i++)
+                    {
+                         Console.WriteLine( reader[i].ToString() );
+                    }
                 }
             }
             Con.Close();
-
-            //Print Pokemon
-            tempLineUp.ForEach((Action<Pokemon>)(p => { Console.WriteLine((string)p.Species); }));
 
             Console.WriteLine("Use this lineup? (y/n)");
             var choice = Console.ReadLine();
 
             if (choice.ToLower().Equals("y"))
             {
+                var loader = new LoadPokemonFromDB(UserID,Con);
+                tempLineUp = loader.LoadedLineUp;
                 GhostTrainer.Pokemon = tempLineUp;
             }
             if (choice.ToLower().Equals("n"))
@@ -107,5 +108,8 @@ namespace PokemonSimulator
                 return;
             }
         }
+
+    
+
     }
 }

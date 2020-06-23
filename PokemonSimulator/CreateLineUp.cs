@@ -30,11 +30,13 @@ namespace PokemonSimulator
             GhostTrainer = ghostTrainer;
             Con = con;
             ReturnedName = "-1";
-            while (LineupSize <= 6)
+            while (LineupSize < 6)
             {
                 PokeFinder();
+                ValidPokemon = false;
             }
             AddPokemonToDB();
+            var Lineup = new TrainerLineUp(GhostTrainer.UserId, GhostTrainer.TrainerName, Con);
         }
 
         public void ReadName()
@@ -45,8 +47,15 @@ namespace PokemonSimulator
 
         public void SearchPokemonAsync()
         {
-            Task<PokemonSpecies> p = DataFetcher.GetNamedApiObject<PokemonSpecies>(SearchedName);
-            ReturnedName = p.Result.Name.ToString();
+            try
+            {
+                Task<PokemonSpecies> p = DataFetcher.GetNamedApiObject<PokemonSpecies>(SearchedName.ToLower());
+                ReturnedName = p.Result.Name.ToString();
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                ReturnedName = "-1";
+            }
            
         }
 
@@ -82,15 +91,16 @@ namespace PokemonSimulator
                 if (choice.ToLower().Equals("y"))
                 {
                     Console.WriteLine(ReturnedName+" added!");
-                    LineupSize++;
 
                     var ChooseMoves = new MoveSelector2000(ReturnedName);
 
-                    AddPokemonToArray(ReturnedName);
-                    AddMovesToArray(ChooseMoves.Move1+","+ ChooseMoves.Move2+"," + ChooseMoves.Move3 + "," + ChooseMoves.Move4);
+                    PokemonArray[LineupSize] = ReturnedName;
+                    MovesCSVArray[LineupSize] = ChooseMoves.Move1+","+ ChooseMoves.Move2+"," + ChooseMoves.Move3 + "," + ChooseMoves.Move4;
+                    
                     Console.WriteLine("Lets add another Pokemon....");
+                    LineupSize++;
                     return true;
-
+                    
                 }
                 else if (choice.ToLower().Equals("n"))
                 {
@@ -106,12 +116,11 @@ namespace PokemonSimulator
 
         public void AddPokemonToDB()
         {
-            var insertPokemonQuery = "INSERT INTO sql3346222.TrainerLineup VALUES('"+GhostTrainer.UserId+"','" +
+            var insertPokemonQuery = "INSERT INTO sql3346222.TrainerLineup VALUES("+GhostTrainer.UserId+",'" +
                 GhostTrainer.TrainerName+"','"+PokemonArray[0]+"','"+MovesCSVArray[0]+"','"+PokemonArray[1]
                 +"','"+MovesCSVArray[1]+"','"+ PokemonArray[2] + "','" + MovesCSVArray[2] + "','" + PokemonArray[3] +
                 "','" + MovesCSVArray[3] + "','" + PokemonArray[4]+ "','" + MovesCSVArray[4] +
                  "','" + PokemonArray[5] + "','" + MovesCSVArray[5] + "');";
-            Console.WriteLine(insertPokemonQuery.ToString());
 
             Con.Open();
             MySqlCommand cmd = new MySqlCommand(insertPokemonQuery, Con);
@@ -126,72 +135,5 @@ namespace PokemonSimulator
 
         }
 
-        private void AddMovesToArray(string moves)
-        {
-            if (MovesCSVArray[0] == null)
-            {
-                MovesCSVArray[0] = moves;
-                return;
-            }
-            else if (MovesCSVArray[1] == null)
-            {
-                MovesCSVArray[1] = moves;
-                return;
-            }
-            else if (MovesCSVArray[2] == null)
-            {
-                MovesCSVArray[2] = moves;
-                return;
-            }
-            else if (MovesCSVArray[3] == null)
-            {
-                MovesCSVArray[3] = moves;
-                return;
-            }
-            else if (MovesCSVArray[4] == null)
-            {
-                MovesCSVArray[4] = moves;
-                return;
-            }
-            else if (MovesCSVArray[5] == null)
-            {
-                MovesCSVArray[5] = moves;
-                return;
-            }
-        }
-
-        private void AddPokemonToArray(string pokemon)
-        {
-            if (PokemonArray[0] == null)
-            {
-                MovesCSVArray[0] = pokemon;
-                return;
-            }
-            else if (PokemonArray[1] == null)
-            {
-                PokemonArray[1] = pokemon;
-                return; 
-            }
-            else if (PokemonArray[2] == null)
-            {
-                PokemonArray[2] = pokemon;
-                return;
-            }
-            else if (PokemonArray[3] == null)
-            {
-                PokemonArray[3] = pokemon;
-                return;
-            }
-            else if (PokemonArray[4] == null)
-            {
-                PokemonArray[4] = pokemon;
-                return;
-            }
-            else if (PokemonArray[5] == null)
-            {
-                PokemonArray[5] = pokemon;
-                return;
-            }
-        }
     }
 }
