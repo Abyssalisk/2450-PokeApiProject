@@ -4,16 +4,10 @@
 
 <TeamComponent />
 <button class="btn btn-primary" @onclick="CreateNewTeam">Create New Team</button>
-<button class="btn btn-primary" @onclick="StartBattles">Start</button>
 
 @code {
     private void CreateNewTeam()
     {
         navMan.NavigateTo("newTeam");
-    }
-
-    private void StartBattles()
-    {
-        navMan.NavigateTo("battle");
     }
 }

@@ -91,21 +91,21 @@ namespace PokemonSimulator
             }
         }
 
-        private void MakeNewPassword()
+        public void MakeNewPassword()
         {
             string newPass;
 
             Console.WriteLine("Enter new password: ");
             newPass = Console.ReadLine();
 
-            string Hashedpass;
-            var sendToHashPasswordAlg = new HashingAlg(newPass);
-            Hashedpass = sendToHashPasswordAlg.getHash();
-            Hashedpass = sendToHashPasswordAlg.addSecret(Hashedpass);
+            string Hashedpass = string.Empty;
+            //var sendToHashPasswordAlg = new HashingAlg(newPass);
+            //Hashedpass = sendToHashPasswordAlg.GetHashCode();
+           // Hashedpass = sendToHashPasswordAlg.addSecret(Hashedpass);
 
             Connection.Open();
             //INSERT query
-            string plainTextQuery = "UPDATE sql3346222.userCredentials SET Password=('"+Hashedpass+"')" +
+            string plainTextQuery = "UPDATE sql3346222.userCredentials SET Password=('" + Hashedpass + "')" +
                 " WHERE TrainerName = ('"+TrainerName+"');";
             //execute the query
             MySqlCommand query = new MySqlCommand(plainTextQuery, Connection);

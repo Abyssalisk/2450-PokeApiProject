@@ -8,6 +8,7 @@ namespace PokemonSimulator
     {
         public string Name { get; set; }
         public string Type { get; set; }
-        public int Damage { get; set; }
+        public string Damage { get; set; }
+        public bool IsPhysical { get; set; }
     }
 }

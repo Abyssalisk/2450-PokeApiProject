@@ -3,33 +3,121 @@
 @inject IJSRuntime JSRuntime;
 @using Web.Shared.Models
 
-<div class="container-fluid" style="max-width: 50%;">
-    <h1 class="text-center">Team</h1>
-    @*<ExistingLineupComponent ExistingLineUps="@trainer.Lineups" />*@
-</div>
+    <div class="container-fluid" style="max-width: 50%;">
+        <h1 class="text-center">Team</h1>
+        <p>Select a pokemon lineup or create a new one</p>
+        <br />
+        @{
+            if (!string.IsNullOrEmpty(Message))
+            {
+                <div class="jumbotron-fluid text-center" style="color: red;">@Message</div>
+            }
+            if (Trainer?.Lineups?.Count > 0 && !SelectedLineup)
+            {
+                <div class="multiselect">
+                    <div id="checkboxes">
+                        @{var index = 0;}
+                        @foreach (var lineup in Trainer.Lineups)
+                        {
+                            index++;
+                            <div>
+
+                                <label for="@lineup.Text">
+                                    @if (lineup.Checked)
+                                    {
+                                        <input type="checkbox" value="true" id="@lineup.Text" checked="checked" @onchange="@(() =>{ lineup.Checked = false; SelectedLineup = !SelectedLineup; })" />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" value="false" id="@lineup.Text" @onchange="@(() => { lineup.Checked = true; SelectedLineup = !SelectedLineup; })" />
+                                    }
+                                    <b>@index - </b>@lineup.Text
+                                    @foreach (var p in lineup.Lineup)
+                                    {
+                                        <img src=@p.FrontImageUri style="height: 50px; width: 50px;" />
+                                    }
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            }
+            else if (SelectedLineup)
+            {
+                <h4>You have selected: </h4>
+                <div class="jumbotron-fluid text-center"><h1>
+                    @Trainer.Lineups.FirstOrDefault(l => l.Checked == true).Text</h1></div>
+                <h4>Press continue to start</h4>
+                <br />
+                <button class="btn btn-primary text-center" @onclick="Start">Continue</button>
+            }
+            else if (Loading)
+            {
+                <div class="jumbotron-fluid text-center">Loading...</div>
+            }
+            else
+            {
+                <div class="jumbotron-fluid text-center">NO PREVIOUS TEAMS</div>
+            }
+        }
+    </div>
 
 @code {
-    public TrainerModel trainer { get; set; } = new TrainerModel() { Lineups = new List<LineupModel>() };
+
+    public TrainerModel Trainer { get; set; }
     private AuthService Auth { get; set; }
     private PokemonService Poke { get; set; }
+    private bool Loading { get; set; }
+    private string Message { get; set; }
     public string trainerHandle = string.Empty;
 
-    // set trainer.team to selected team
+    public bool SelectedLineup { get; set; }
 
     protected override void OnInitialized()
     {
-        trainer = new TrainerModel() { Lineups = new List<LineupModel>() };
+        Loading = true;
         Auth = new AuthService();
         Poke = new PokemonService();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        trainerHandle = await Auth.GetCookieAsync(JSRuntime, "Username");
-
+        trainerHandle = await Task.Run(async () => await Auth.GetCookieAsync(JSRuntime, "Username"));
         if (string.IsNullOrEmpty(trainerHandle))
             throw new Exception($"Failed to set TrainerHandle from cookie");
+        Trainer = await Poke.GetTrainer(client, trainerHandle);
 
-        trainer = await Poke.GetTrainer(client, trainerHandle);
-    } 
+        if (Trainer.Lineups.Any())
+        {
+            Trainer.Lineups.ForEach(l =>
+            {
+                if (string.IsNullOrEmpty(l.Text))
+                {
+                    l.Lineup.ForEach(p =>
+                    {
+                        p.Name = char.ToUpper(p.Name[0]) + p.Name.Substring(1); // uppercase first letter
+                        if (!string.IsNullOrEmpty(l.Text))
+                            l.Text += $", {p.Name}";
+                        else
+                            l.Text += $"{p.Name}";
+                    });
+                }
+            });
+        }
+        Loading = false;
+    }
+
+    private async Task Start()
+    {
+        var lineup = Trainer.Lineups.FirstOrDefault(l => l.Checked == true);
+        Trainer.Team = lineup;
+        var success = await Poke.UpdateLineup(client, Trainer);
+        if (success)
+            navMan.NavigateTo("battle");
+        else
+        {
+            Message = "Failed set selected lineup as team.";
+        }
+    }
 }
