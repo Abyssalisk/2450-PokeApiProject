@@ -41,22 +41,36 @@ namespace PokemonSimulator
                         Pokemon temp = new Pokemon();
 
                         temp.Species = reader[i].ToString();
-                        Console.Write(reader[i].ToString());
+                        Console.WriteLine(reader[i].ToString());
 
                         temp.Moves = AddMoves(reader[i+1].ToString());
-                        //Task<PokeAPI.> p = DataFetcher.GetNamedApiObject<PokeAPI.Stat>(temp.Species);
-                        //temp.BaseHP = p.Result.
+                        Task < PokeAPI.Pokemon> p = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(temp.Species);
+                       
+                        PokeAPI.PokemonStats[] stats;
+                        PokeAPI.PokemonTypeMap[] type;
+                        stats = p.Result.Stats;
+                        type = p.Result.Types;
+
+                        temp.Type = type[0].Type.Name;
+                        temp.BaseHP = stats[0].BaseValue;
+                        temp.ActingHP = temp.BaseHP;
+                        temp.BaseAttack = stats[1].BaseValue;
+                        temp.BaseDefense = stats[2].BaseValue;
+                        temp.BaseSpecialAttack = stats[3].BaseValue;
+                        temp.BaseSpecialDefense = stats[4].BaseValue;
+                        temp.BaseSpeed = stats[5].BaseValue;
+                        
                         tempLineUp.Add(temp);
                         i++;
                     }
                 }
             }
             Con.Close();
+            LoadedLineUp = tempLineUp;
         }
 
         public List<Move> AddMoves(string movescsv)
         {
-            Console.WriteLine(movescsv);
             List<Move> tempMovesList = new List<Move>();
 
             for (int i = 0; i < 4; i++)
@@ -73,7 +87,6 @@ namespace PokemonSimulator
                     tempMove.Name = movescsv;
                 }
 
-                Console.WriteLine(tempMove.Name);
                 Task<PokeAPI.Move> p = DataFetcher.GetNamedApiObject<PokeAPI.Move>(tempMove.Name.ToString());
                 tempMove.Type = p.Result.Type.ToString();
                 tempMove.Damage = (int)p.Result.Power;
