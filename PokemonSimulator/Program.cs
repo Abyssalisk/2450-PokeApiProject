@@ -18,9 +18,6 @@ namespace PokemonSimulator
             CurrentTrainer.TrainerName = loginStart.TrainerName;
 
             var Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
-            //DBconnect con = new DBconnect();
-            //var CurrentTrainer = new Trainer() { TrainerName = "Misty", UserId = 10 };
-            //var lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, con.myConnection);
 
             while (Lineup.LoopStuck == true)
             {
@@ -52,6 +49,8 @@ namespace PokemonSimulator
 
             EliteTrainerOne.Pokemon = EliteLoader.OpponentLineUp;
             EliteTrainerOne.TrainerName = EliteLoader.OpponentName;
+
+            GameMockup.GameEngine(CurrentTrainer,EliteTrainerOne);
         }
        
     }

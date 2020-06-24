@@ -20,7 +20,6 @@ namespace PokemonSimulator
 
         public string FindOpponent(int rank, MySqlConnection con)
         {
-            FindOpponent(rank, con);
             string query = "SELECT TrainerName FROM sql3346222.EliteFour WHERE(Rank = " + rank + ");";
             string returnedQuery = "";
 

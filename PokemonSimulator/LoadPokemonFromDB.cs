@@ -25,6 +25,7 @@ namespace PokemonSimulator
         public LoadPokemonFromDB(string trainername, MySqlConnection con)
         {
             LoadedLineUp = new List<Pokemon>();
+            TrainerName = "";
             TrainerName = trainername;
             Con = con;
             LoadPokemonTeam(true);
@@ -87,7 +88,7 @@ namespace PokemonSimulator
             var tempLineUp = new List<Pokemon>();
             var getPokemonQuery = "SELECT `Pokemon1`,`MovesCSV1`,`Pokemon2`,`MovesCSV2`,`Pokemon3`,`MovesCSV3`" +
                 ",`Pokemon4`,`MovesCSV4`,`Pokemon5`,`MovesCSV5`,`Pokemon6`,`MovesCSV6`" +
-                " FROM sql3346222.EliteFour WHERE(TrainerName = " + TrainerName + ");";
+                " FROM sql3346222.EliteFour WHERE(TrainerName = '" + TrainerName + "');";
 
             //Get pokemon from DB
             Con.Open();
