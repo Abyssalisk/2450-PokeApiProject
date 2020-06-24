@@ -55,7 +55,14 @@ namespace PokemonSimulator
                 }
                 void Attack(Pokemon attack, Pokemon defend, int moveIndex, bool isEnemyAttacking)
                 {
-                    PrintEnemy($"{attack.Species} ", $"used {attack.ConsoleMoves[moveIndex].Name}!");
+                    if (isEnemyAttacking)
+                    {
+                        PrintEnemy($"{attack.Species} ", $"used {attack.ConsoleMoves[moveIndex].Name}!");
+                    }
+                    else
+                    {
+                        PrintYou($"{attack.Species} ", $"used {attack.ConsoleMoves[moveIndex].Name}!");
+                    }
                     int damage = attack.ConsoleMoves[moveIndex].Damage;
                     //double modifier = PokemonType.CalculateDamageMultiplier(attack.Type, defend.Type);
                     double modifier = 1d;
@@ -99,8 +106,8 @@ namespace PokemonSimulator
                     }
                     defend.ModifyHealth(-final);
                 }
-                PrintYou("You: ", $" Go {yours.Species}!");
-                PrintEnemy("Enemy: ", $" Go {enemies.Species}!");
+                PrintYou("You: ", $"Go {yours.Species}!");
+                PrintEnemy("Enemy: ", $"Go {enemies.Species}!");
                 bool gaming = true;
                 while (gaming)
                 {
@@ -173,17 +180,19 @@ namespace PokemonSimulator
                     }
                     else if (yourMovePick == 4)
                     {
-                        Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + String.Format("0:P2", ((float)x.ActingHP / (float)x.BaseHP)) + "%HP")));
+                        Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
                         int pokePick = int.Parse(Console.ReadLine()) - 1;
                         do
                         {
                             if (you.Pokemon[pokePick] == yours)
                             {
                                 Console.WriteLine("That pokemon is already out! Pick a different one. (1 - 6)");
+                                pokePick = int.Parse(Console.ReadLine()) - 1;
                             }
                             else if (!you.Pokemon[pokePick].IsAlive)
                             {
                                 Console.WriteLine("That pokemon has been knocked out! Pick a different one. (1 - 6)");
+                                pokePick = int.Parse(Console.ReadLine()) - 1;
                             }
                             else
                             {
@@ -198,24 +207,27 @@ namespace PokemonSimulator
                     {
                         throw new InvalidOperationException();
                     }
-                    if (!enemies.IsAlive)
+                    if (!enemies.IsAlive && enemy.Pokemon.Any(x => x.IsAlive))
                     {
                         IEnumerable<Pokemon> temp = enemy.Pokemon.Where(x => x.IsAlive);
                         enemies = temp.ElementAtOrDefault(Grand.rand.Next(0, temp.Count()));
+                        PrintEnemy("Enemy: ", $"Go {enemies.Species}!");
                     }
-                    if (!yours.IsAlive)
+                    if (!yours.IsAlive && you.Pokemon.Any(x => x.IsAlive))
                     {
-                        PrintYou($"{yours.Species} ", "was knocked out! Choose a new pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + ((float)x.ActingHP / (float)x.BaseHP) + "%HP")));
+                        PrintYou($"{yours.Species} ", "was knocked out! Choose a new pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
                         int pokePick = int.Parse(Console.ReadLine()) - 1;
                         do
                         {
                             if (you.Pokemon[pokePick] == yours)
                             {
                                 Console.WriteLine("That pokemon is already out! Pick a different one. (1 - 6)");
+                                pokePick = int.Parse(Console.ReadLine()) - 1;
                             }
                             else if (!you.Pokemon[pokePick].IsAlive)
                             {
                                 Console.WriteLine("That pokemon has been knocked out! Pick a different one. (1 - 6)");
+                                pokePick = int.Parse(Console.ReadLine()) - 1;
                             }
                             else
                             {
@@ -223,16 +235,17 @@ namespace PokemonSimulator
                                 break;
                             }
                         } while (true);
+                        PrintYou("You: ", $"Go {yours.Species}!");
                     }
                     if (!enemy.Pokemon.Any(x => x.IsAlive))
                     {
-                        //PrintYou("You win! ", "Would you like to play again? (Y/N)");
+                        PrintYou("You win! ", "");
                         return true;
                         //gaming = false;
                     }
                     else if (!you.Pokemon.Any(x => x.IsAlive))
                     {
-                        //PrintEnemy("You lose. ", "Would you like to play again? (Y/N)");
+                        PrintEnemy("You lose. ", "");
                         return false;
                         //gaming = false;
                     }
