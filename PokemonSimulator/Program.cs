@@ -11,13 +11,13 @@ namespace PokemonSimulator
         [Obsolete]
         static void Main(string[] args)
         {
-            var loginStart = new UserAuthAndLogin();
+            UserAuthAndLogin loginStart = new UserAuthAndLogin();
             System.GC.Collect();
-            var CurrentTrainer = new Trainer();
+            Trainer CurrentTrainer = new Trainer();
             CurrentTrainer.UserId = loginStart.UserID;
             CurrentTrainer.TrainerName = loginStart.TrainerName;
 
-            var Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
+            TrainerLineUp Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
             //DBconnect con = new DBconnect();
             //var CurrentTrainer = new Trainer() { TrainerName = "Misty", UserId = 10 };
             //var lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, con.myConnection);
@@ -42,12 +42,13 @@ namespace PokemonSimulator
                     Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
                 }
             }
+            TrainerLineUp DupeLineUp = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
 
             CurrentTrainer = Lineup.GhostTrainer;
             System.GC.Collect();
 
-            Console.WriteLine("Let's Battle! ");
-        }
-       
+            //Console.WriteLine("Let's Battle! ");
+            GameMockup.GameEngine(CurrentTrainer, DupeLineUp.GhostTrainer);
+        }      
     }
 }
