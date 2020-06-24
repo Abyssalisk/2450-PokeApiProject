@@ -43,22 +43,25 @@ namespace PokemonSimulator
                         temp.Species = reader[i].ToString();
                         Console.WriteLine(reader[i].ToString());
 
-                        temp.Moves = AddMoves(reader[i+1].ToString());
+                        temp.ConsoleMoves = AddMoves(reader[i+1].ToString());
                         Task < PokeAPI.Pokemon> p = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(temp.Species);
                        
                         PokeAPI.PokemonStats[] stats;
                         PokeAPI.PokemonTypeMap[] type;
+
                         stats = p.Result.Stats;
                         type = p.Result.Types;
+                        
+                        for(int j = 0;j<type.Length;j++)
+                            temp.ConsoleTypes.Add(type[j].Type.Name);
 
-                        temp.Type = type[0].Type.Name;
                         temp.BaseHP = stats[0].BaseValue;
                         temp.ActingHP = temp.BaseHP;
-                        temp.BaseAttack = stats[1].BaseValue;
-                        temp.BaseDefense = stats[2].BaseValue;
-                        temp.BaseSpecialAttack = stats[3].BaseValue;
-                        temp.BaseSpecialDefense = stats[4].BaseValue;
-                        temp.BaseSpeed = stats[5].BaseValue;
+                        temp.Attack = stats[1].BaseValue;
+                        temp.Defense = stats[2].BaseValue;
+                        temp.SpecialAttack = stats[3].BaseValue;
+                        temp.SpecialDefense = stats[4].BaseValue;
+                        temp.Speed = stats[5].BaseValue;
                         
                         tempLineUp.Add(temp);
                         i++;

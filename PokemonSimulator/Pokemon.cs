@@ -23,9 +23,11 @@ namespace PokemonSimulator
         public string Species { get; set; }
         public int BaseHP { get; set; }
         public int Speed { get; set; }
+        public List<string> ConsoleTypes { get; set; }
         public List<PokemonType> Types { get; set; } = new List<PokemonType>();
         public List<string> TypeWeaknesses { get; set; } = new List<string>();
         public List<MoveModel> Moves { get; set; } = new List<MoveModel>();
+        public List<Move> ConsoleMoves { get; set; }
         public string BackImageUri { get; set; }
         public string FrontImageUri { get; set; }
         public int Attack { get; set; }
@@ -35,7 +37,7 @@ namespace PokemonSimulator
 
         //public MoveModel[] MoveSelections { get; set; } = new MoveModel[5]; // stores moves
         public List<MoveModel> MoveSelections { get; set; } = new List<MoveModel>(); // stores moves
-        public int ActingHP { get; private set; }
+        public int ActingHP { get; set; }
 
         public bool IsAlive { get => ActingHP > 0; }
 

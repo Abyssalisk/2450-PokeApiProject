@@ -10,7 +10,7 @@ namespace PokemonSimulator
 
         PokeAPI.Move MoveType;
         PokeAPI.Pokemon PokemonType;
-        double DamageModifier;
+        public double DamageModifier;
 
         public DamageBuff(PokeAPI.Move movetype, PokeAPI.Pokemon pokemontype)
         {
