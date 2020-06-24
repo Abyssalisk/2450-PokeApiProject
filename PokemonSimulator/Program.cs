@@ -8,19 +8,17 @@ namespace PokemonSimulator
 {
     public class Program
     {
-        [Obsolete]
         static void Main(string[] args)
         {
             UserAuthAndLogin loginStart = new UserAuthAndLogin();
             System.GC.Collect();
-            Trainer currentTrainer = new Trainer();
-            currentTrainer.UserId = loginStart.UserID;
-            currentTrainer.TrainerName = loginStart.TrainerName;
 
-            TrainerLineUp lineup = new TrainerLineUp(currentTrainer.UserId, currentTrainer.TrainerName, loginStart.Connection.myConnection);
-            //DBconnect con = new DBconnect();
-            //var CurrentTrainer = new Trainer() { TrainerName = "Misty", UserId = 10 };
-            //var lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, con.myConnection);
+            Trainer CurrentTrainer = new Trainer();
+            CurrentTrainer.UserId = loginStart.UserID;
+            CurrentTrainer.TrainerName = loginStart.TrainerName;
+
+            var Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
+
 
             while (lineup.LoopStuck == true)
             {
@@ -46,9 +44,17 @@ namespace PokemonSimulator
             Trainer dupe = new Trainer(currentTrainer);
             System.GC.Collect();
 
-            //Console.WriteLine("Let's Battle! ");
-            GameMockup.GameEngine(currentTrainer, dupe);
-            Console.ReadLine();
-        }      
+
+            Console.WriteLine("Let's Battle! ");
+            Trainer EliteTrainerOne = new Trainer();
+            LoadOpponent EliteLoader = new LoadOpponent(1,loginStart.Connection.myConnection);
+
+            EliteTrainerOne.Pokemon = EliteLoader.OpponentLineUp;
+            EliteTrainerOne.TrainerName = EliteLoader.OpponentName;
+
+            GameMockup.GameEngine(CurrentTrainer,EliteTrainerOne);
+        }
+       
+
     }
 }
