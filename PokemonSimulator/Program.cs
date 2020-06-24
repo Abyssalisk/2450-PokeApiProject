@@ -8,18 +8,19 @@ namespace PokemonSimulator
 {
     public class Program
     {
-        [Obsolete]
         static void Main(string[] args)
         {
-            var loginStart = new UserAuthAndLogin();
+            UserAuthAndLogin loginStart = new UserAuthAndLogin();
             System.GC.Collect();
+
             Trainer CurrentTrainer = new Trainer();
             CurrentTrainer.UserId = loginStart.UserID;
             CurrentTrainer.TrainerName = loginStart.TrainerName;
 
             var Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
 
-            while (Lineup.LoopStuck == true)
+
+            while (lineup.LoopStuck == true)
             {
                 Console.WriteLine("Would you like to leave? type 'exit'\nOr press any key to continue");
                 string exitChoice = Console.ReadLine();
@@ -32,16 +33,17 @@ namespace PokemonSimulator
                 {
                     loginStart = new UserAuthAndLogin();
                     System.GC.Collect();
-                    CurrentTrainer = new Trainer();
-                    CurrentTrainer.UserId = loginStart.UserID;
-                    CurrentTrainer.TrainerName = loginStart.TrainerName;
+                    currentTrainer = new Trainer();
+                    currentTrainer.UserId = loginStart.UserID;
+                    currentTrainer.TrainerName = loginStart.TrainerName;
 
-                    Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
+                    lineup = new TrainerLineUp(currentTrainer.UserId, currentTrainer.TrainerName, loginStart.Connection.myConnection);
                 }
             }
-
-            CurrentTrainer = Lineup.GhostTrainer;
+            currentTrainer = lineup.GhostTrainer;
+            Trainer dupe = new Trainer(currentTrainer);
             System.GC.Collect();
+
 
             Console.WriteLine("Let's Battle! ");
             Trainer EliteTrainerOne = new Trainer();
@@ -53,5 +55,6 @@ namespace PokemonSimulator
             GameMockup.GameEngine(CurrentTrainer,EliteTrainerOne);
         }
        
+
     }
 }

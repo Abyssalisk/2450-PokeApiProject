@@ -13,7 +13,7 @@ namespace PokemonSimulator
         public Trainer GhostTrainer { get; set; }
         public Boolean LoopStuck = false;
 
-        public TrainerLineUp(int userID, string trainerName, MySqlConnection con)
+        public TrainerLineUp(int userID, string trainerName, MySqlConnection con, bool getEliteTable = false)
         {
             UserID = userID;
             TrainerName = trainerName;
