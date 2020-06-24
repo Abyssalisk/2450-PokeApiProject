@@ -13,7 +13,7 @@ namespace PokemonSimulator
         {
             var loginStart = new UserAuthAndLogin();
             System.GC.Collect();
-            var CurrentTrainer = new Trainer();
+            Trainer CurrentTrainer = new Trainer();
             CurrentTrainer.UserId = loginStart.UserID;
             CurrentTrainer.TrainerName = loginStart.TrainerName;
 
@@ -47,6 +47,11 @@ namespace PokemonSimulator
             System.GC.Collect();
 
             Console.WriteLine("Let's Battle! ");
+            Trainer EliteTrainerOne = new Trainer();
+            LoadOpponent EliteLoader = new LoadOpponent(1,loginStart.Connection.myConnection);
+
+            EliteTrainerOne.Pokemon = EliteLoader.OpponentLineUp;
+            EliteTrainerOne.TrainerName = EliteLoader.OpponentName;
         }
        
     }

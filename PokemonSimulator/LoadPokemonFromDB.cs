@@ -10,14 +10,24 @@ namespace PokemonSimulator
     class LoadPokemonFromDB
     {
         public int TrainerId { get; set; }
+        public string TrainerName { get; set; }
         public MySqlConnection Con { get; set; }
 
         public List<Pokemon> LoadedLineUp { get; set; }
         public LoadPokemonFromDB(int trainerId, MySqlConnection con)
         {
+            LoadedLineUp = new List<Pokemon>();
             TrainerId = trainerId;
             Con = con;
             LoadPokemonTeam();
+        }
+
+        public LoadPokemonFromDB(string trainername, MySqlConnection con)
+        {
+            LoadedLineUp = new List<Pokemon>();
+            TrainerName = trainername;
+            Con = con;
+            LoadPokemonTeam(true);
         }
 
         public void LoadPokemonTeam()
@@ -46,8 +56,8 @@ namespace PokemonSimulator
                         temp.ConsoleMoves = AddMoves(reader[i+1].ToString());
                         Task < PokeAPI.Pokemon> p = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(temp.Species);
                        
-                        PokeAPI.PokemonStats[] stats;
-                        PokeAPI.PokemonTypeMap[] type;
+                        PokeAPI.PokemonStats[] stats = new PokemonStats[10];
+                        PokeAPI.PokemonTypeMap[] type = new PokemonTypeMap[10];
 
                         stats = p.Result.Stats;
                         type = p.Result.Types;
@@ -63,6 +73,58 @@ namespace PokemonSimulator
                         temp.SpecialDefense = stats[4].BaseValue;
                         temp.Speed = stats[5].BaseValue;
                         
+                        tempLineUp.Add(temp);
+                        i++;
+                    }
+                }
+            }
+            Con.Close();
+            LoadedLineUp = tempLineUp;
+        }
+
+        public void LoadPokemonTeam(Boolean x)
+        {
+            var tempLineUp = new List<Pokemon>();
+            var getPokemonQuery = "SELECT `Pokemon1`,`MovesCSV1`,`Pokemon2`,`MovesCSV2`,`Pokemon3`,`MovesCSV3`" +
+                ",`Pokemon4`,`MovesCSV4`,`Pokemon5`,`MovesCSV5`,`Pokemon6`,`MovesCSV6`" +
+                " FROM sql3346222.EliteFour WHERE(TrainerName = " + TrainerName + ");";
+
+            //Get pokemon from DB
+            Con.Open();
+            MySqlCommand cmd = new MySqlCommand(getPokemonQuery, Con);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+
+                    for (int i = 0; i < 12; i++)
+                    {
+                        Console.WriteLine("Loading........");
+                        Pokemon temp = new Pokemon();
+
+                        temp.Species = reader[i].ToString();
+                        Console.WriteLine(reader[i].ToString());
+
+                        temp.ConsoleMoves = AddMoves(reader[i + 1].ToString());
+                        Task<PokeAPI.Pokemon> p = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(temp.Species);
+
+                        PokeAPI.PokemonStats[] stats = new PokemonStats[10];
+                        PokeAPI.PokemonTypeMap[] type = new PokemonTypeMap[10];
+
+                        stats = p.Result.Stats;
+                        type = p.Result.Types;
+
+                        for (int j = 0; j < type.Length; j++)
+                            temp.ConsoleTypes.Add(type[j].Type.Name);
+
+                        temp.BaseHP = stats[0].BaseValue;
+                        temp.ActingHP = temp.BaseHP;
+                        temp.Attack = stats[1].BaseValue;
+                        temp.Defense = stats[2].BaseValue;
+                        temp.SpecialAttack = stats[3].BaseValue;
+                        temp.SpecialDefense = stats[4].BaseValue;
+                        temp.Speed = stats[5].BaseValue;
+
                         tempLineUp.Add(temp);
                         i++;
                     }

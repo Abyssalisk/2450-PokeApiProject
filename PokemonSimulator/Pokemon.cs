@@ -23,7 +23,7 @@ namespace PokemonSimulator
         public string Species { get; set; }
         public int BaseHP { get; set; }
         public int Speed { get; set; }
-        public List<string> ConsoleTypes { get; set; }
+        public List<string> ConsoleTypes { get; set; } = new List<string>();
         public List<PokemonType> Types { get; set; } = new List<PokemonType>();
         public List<string> TypeWeaknesses { get; set; } = new List<string>();
         public List<MoveModel> Moves { get; set; } = new List<MoveModel>();
