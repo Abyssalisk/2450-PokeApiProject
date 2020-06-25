@@ -156,10 +156,18 @@ namespace PokemonSimulator
                 Task<PokeAPI.Move> p = DataFetcher.GetNamedApiObject<PokeAPI.Move>(tempMove.Name.ToString());
                 tempMove.Type = p.Result.Type.ToString();
                 tempMove.Damage = (int)p.Result.Power;
+                
+                string damagetype = p.Result.DamageClass.Name;
+                
+                if (damagetype == "physical")
+                    tempMove.IsPhysical = true;
+                else
+                    tempMove.IsPhysical = false;
+
                 tempMovesList.Add(tempMove);
             }
 
-                return tempMovesList;
+            return tempMovesList;
         }
     }
 }
