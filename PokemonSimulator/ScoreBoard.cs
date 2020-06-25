@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PokemonSimulator
@@ -55,22 +56,20 @@ namespace PokemonSimulator
 
         public void PokeExtractor()
         {
-            int i = 0;
-            foreach(Pokemon pokemon in GhostTrainer.Pokemon)
+            for (int i = 0; i < GhostTrainer.Pokemon.Count; i++)
             {
-                Pokemon[i] = pokemon.Species;
-                MovesCSV[i] = MakeCSV(pokemon.ConsoleMoves);
-                i++;
+                Pokemon[i] = GhostTrainer.Pokemon[i].Species;
+                MovesCSV[i] = string.Join(',', GhostTrainer.Pokemon[i].ConsoleMoves.Select(x => x.Name));/*MakeCSV(pokemon.ConsoleMoves);*/
             }
         }
 
-        public string MakeCSV(List<Move> moves)
-        {
-            string csv = null;
-            foreach (Move element in moves)
-                csv += element + ",";
-            csv.Remove(csv.Length-2);
-            return csv;
-        }
+        //public string MakeCSV(List<Move> moves)
+        //{
+        //    string csv = null;
+        //    foreach (Move element in moves)
+        //        csv += element.Name + ",";
+        //    csv.Remove(csv.Length-2);
+        //    return csv;
+        //}
     }
 }

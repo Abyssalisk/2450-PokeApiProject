@@ -8,6 +8,9 @@ using PokeAPI;
 
 namespace PokemonSimulator
 {
+    /// <summary>
+    /// Author: Not Samuel Gardner; Derek I think.
+    /// </summary>
     class LoadPokemonFromDB
     {
         public int TrainerId { get; set; }
@@ -21,7 +24,7 @@ namespace PokemonSimulator
             TrainerName = string.Empty;
             TrainerId = trainerId;
             Con = con;
-            LoadPokemonTeam();
+            LoadData();
         }
 
         public LoadPokemonFromDB(string trainername, MySqlConnection con)
@@ -29,10 +32,13 @@ namespace PokemonSimulator
             LoadedLineUp = new List<Pokemon>();
             TrainerName = trainername;
             Con = con;
-            LoadPokemonTeam(/*true*/);
+            LoadData(/*true*/);
         }
 
-        public void LoadPokemonTeam()
+        /// <summary>
+        /// Author: Samuel Gardner
+        /// </summary>
+        public void LoadData()
         {
             var tempLineUp = new List<Pokemon>();
             var getPokemonQuery = (TrainerName == string.Empty ? "SELECT `Pokemon1`,`MovesCSV1`,`Pokemon2`,`MovesCSV2`,`Pokemon3`,`MovesCSV3`" +
@@ -66,9 +72,11 @@ namespace PokemonSimulator
                             //this record is a moves.
                             tempGetMove = reader.GetString(i).Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x =>
                             {
-                                Console.WriteLine($"Starting request for move: {x}...");
-                                return DataFetcher.GetNamedApiObject<PokeAPI.Move>(x);
+                                string cleaned = x.Trim().ToLower();
+                                Console.WriteLine($"Starting request for move: {cleaned}...");
+                                return DataFetcher.GetNamedApiObject<PokeAPI.Move>(cleaned);
                             }).ToList();
+                            //tempGetMove = GetMovesAsync(reader.GetString(i).Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray());
                             //tempGetMove.ForEach(x =>
                             //{
                             //    x.Start();
@@ -131,6 +139,8 @@ namespace PokemonSimulator
                         TypeWeaknesses = null
                     });
                 }
+
+                #region Old
                 //while (reader.Read())
                 //{
 
@@ -166,11 +176,14 @@ namespace PokemonSimulator
                 //        i++;
                 //    }
                 //}
+                #endregion
+
             }
             Con.Close();
             LoadedLineUp = tempLineUp;
         }
 
+        #region Duplicate of LoadPokemonTeam (Above method covers the differences this one had).
         //public void LoadPokemonTeam(Boolean x)
         //{
         //    var tempLineUp = new List<Pokemon>();
@@ -222,40 +235,43 @@ namespace PokemonSimulator
         //    Con.Close();
         //    LoadedLineUp = tempLineUp;
         //}
+        #endregion
 
-        public List<Move> AddMoves(string movescsv)
-        {
-            List<Move> tempMovesList = new List<Move>();
+        #region Covered by the LoadData
+        //public List<Task<PokeAPI.Move>> GetMovesAsync(params string[] moves)
+        //{
+        //    List<Move> tempMovesList = new List<Move>();
 
-            for (int i = 0; i < 4; i++)
-            {
-                Move tempMove = new Move();
-                if (movescsv.Contains(","))
-                {
-                    tempMove.Name = movescsv.Substring(movescsv.LastIndexOf(","), movescsv.Length - movescsv.LastIndexOf(","));
-                    tempMove.Name = tempMove.Name.Remove(0, 1);
-                    movescsv = movescsv.Remove(movescsv.LastIndexOf(","), movescsv.Length - movescsv.LastIndexOf(","));
-                }
-                else
-                {
-                    tempMove.Name = movescsv;
-                }
+        //    for (int i = 0; i < 4; i++)
+        //    {
+        //        Move tempMove = new Move();
+        //        if (moves.Contains(","))
+        //        {
+        //            tempMove.Name = moves.Substring(moves.LastIndexOf(","), moves.Length - moves.LastIndexOf(","));
+        //            tempMove.Name = tempMove.Name.Remove(0, 1);
+        //            moves = moves.Remove(moves.LastIndexOf(","), moves.Length - moves.LastIndexOf(","));
+        //        }
+        //        else
+        //        {
+        //            tempMove.Name = moves;
+        //        }
 
-                Task<PokeAPI.Move> p = DataFetcher.GetNamedApiObject<PokeAPI.Move>(tempMove.Name.ToString());
-                tempMove.Type = p.Result.Type.Name.ToString();
-                tempMove.Damage = (int)p.Result.Power;
+        //        Task<PokeAPI.Move> p = DataFetcher.GetNamedApiObject<PokeAPI.Move>(tempMove.Name.ToString());
+        //        tempMove.Type = p.Result.Type.Name.ToString();
+        //        tempMove.Damage = (int)p.Result.Power;
 
-                string damagetype = p.Result.DamageClass.Name;
+        //        string damagetype = p.Result.DamageClass.Name;
 
-                if (damagetype == "physical")
-                    tempMove.IsPhysical = true;
-                else
-                    tempMove.IsPhysical = false;
+        //        if (damagetype == "physical")
+        //            tempMove.IsPhysical = true;
+        //        else
+        //            tempMove.IsPhysical = false;
 
-                tempMovesList.Add(tempMove);
-            }
+        //        tempMovesList.Add(tempMove);
+        //    }
 
-            return tempMovesList;
-        }
+        //    return tempMovesList;
+        //}
+        #endregion
     }
 }

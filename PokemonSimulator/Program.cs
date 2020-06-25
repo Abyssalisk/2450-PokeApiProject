@@ -3,14 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using PokeAPI;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace PokemonSimulator
 {
     public class Program
     {
+#if WINDOWS
+        [DllImport("kernel32.dll", ExactSpelling = true)]
+        private static extern IntPtr GetConsoleWindow();
+        private static IntPtr ThisConsole = GetConsoleWindow();
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        private const int HIDE = 0;
+        private const int MAXIMIZE = 3;
+        private const int MINIMIZE = 6;
+        private const int RESTORE = 9;
+#endif
         [Obsolete]
         static void Main(string[] args)
         {
+#if WINDOWS
+            Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
+            ShowWindow(ThisConsole, MAXIMIZE);
+#endif
             var loginStart = new UserAuthAndLogin();
             //Commented this about because the application just started, there won't be much to clean up, and this brings a lot of overhead on call regardless of heap size.
             //One might describe the impact of this function as t(s) = 0.1s^2 + 100; where s is the size of the heap, and t(s) returns the time it takes to GC.

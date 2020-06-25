@@ -22,16 +22,21 @@ namespace PokemonSimulator
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Battle Begin!");
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species)));
                 Pokemon yours;
+                Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
                 do
                 {
-                    int.TryParse(Console.ReadLine(), out int tryParse);
-                    tryParse -= 1;
-                    if (tryParse >= 0 && tryParse < 6)
+                    if (int.TryParse(Console.ReadLine(), out int tryParse) && tryParse > 0 && tryParse <= 6)
                     {
-                        yours = you.Pokemon[tryParse];
-                        break;
+                        if (!you.Pokemon[tryParse - 1].IsAlive)
+                        {
+                            Console.WriteLine("That pokemon has been knocked out! Pick a different one. (1 - 6)");
+                        }
+                        else
+                        {
+                            yours = you.Pokemon[tryParse - 1];
+                            break;
+                        }
                     }
                     else
                     {
@@ -134,10 +139,10 @@ namespace PokemonSimulator
                 bool gaming = true;
                 while (gaming)
                 {
-                    Console.WriteLine("Select move: (1 - 4) " + string.Join(", ", yours.ConsoleMoves.Select(x => x.Name)) + " or switch pokemon (5)");
                     int yourMovePick = 0;
                     do
                     {
+                        Console.WriteLine("Select move: (1 - 4) " + string.Join(", ", yours.ConsoleMoves.Select(x => x.Name)) + ", switch pokemon (5), or look at all pokemon health (6)");
                         if (int.TryParse(Console.ReadLine(), out int tryParse))
                         {
                             if (tryParse < 6 && tryParse > 0)
@@ -145,18 +150,23 @@ namespace PokemonSimulator
                                 yourMovePick = tryParse - 1;
                                 break;
                             }
+                            else if (tryParse == 6)
+                            {
+                                PrintYou("Your Pokemons health: ", string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
+                                PrintEnemy("Enemy's Pokemons health: ", string.Join(", ", enemy.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
+                            }
                             else
                             {
-                                Console.WriteLine("Hey! Pick a move (1 - 4) or switch pokemon (5).");
+                                Console.WriteLine("Hey! Pick a move (1 - 4), switch pokemon (5), or look at all pokemon health (6).");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Hey! Thats not a number, pick a move (1 - 4) or switch pokemon (5).");
+                            Console.WriteLine("Hey! Thats not a number, pick a move (1 - 4), switch pokemon (5), or look at all pokemon health (6).");
                         }
                     } while (true);
                     int enemiesMovePick = Grand.rand.Next(0, 4);
-                    if (yourMovePick != 4)
+                    if (yourMovePick < 4 && yourMovePick >= 0)
                     {
                         //you and your enemy hit eachother based on speed.
                         if (enemies.Speed > yours.Speed)
@@ -204,23 +214,27 @@ namespace PokemonSimulator
                     else if (yourMovePick == 4)
                     {
                         Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
-                        int pokePick = int.Parse(Console.ReadLine()) - 1;
                         do
                         {
-                            if (you.Pokemon[pokePick] == yours)
+                            if (int.TryParse(Console.ReadLine(), out int tryParse) && tryParse > 0 && tryParse <= 6)
                             {
-                                Console.WriteLine("That pokemon is already out! Pick a different one. (1 - 6)");
-                                pokePick = int.Parse(Console.ReadLine()) - 1;
-                            }
-                            else if (!you.Pokemon[pokePick].IsAlive)
-                            {
-                                Console.WriteLine("That pokemon has been knocked out! Pick a different one. (1 - 6)");
-                                pokePick = int.Parse(Console.ReadLine()) - 1;
+                                if (you.Pokemon[tryParse] == yours)
+                                {
+                                    Console.WriteLine("That pokemon is already out! Pick a different one. (1 - 6)");
+                                }
+                                else if (!you.Pokemon[tryParse].IsAlive)
+                                {
+                                    Console.WriteLine("That pokemon has been knocked out! Pick a different one. (1 - 6)");
+                                }
+                                else
+                                {
+                                    yours = you.Pokemon[tryParse];
+                                    break;
+                                }
                             }
                             else
                             {
-                                yours = you.Pokemon[pokePick];
-                                break;
+                                Console.WriteLine("Hey! that's not a valid number. Pick a pokemon (1 - 6)");
                             }
                         } while (true);
                         //yours.ModifyHealth(-int.Parse(enemies.Moves[enemiesMovePick].Damage) * (yours.TypeWeaknesses.Count(x => x == enemies.Moves[enemiesMovePick].Type) + 1));
@@ -228,7 +242,7 @@ namespace PokemonSimulator
                     }
                     else
                     {
-                        throw new InvalidOperationException();
+                        throw new Exception("Error: This should never happen. If it does, tell Sam.");
                     }
                     if (!enemies.IsAlive && enemy.Pokemon.Any(x => x.IsAlive))
                     {

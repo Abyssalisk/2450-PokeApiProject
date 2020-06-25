@@ -14,7 +14,7 @@ namespace PokemonSimulator
         {
             OpponentLineUp = new List<Pokemon>();
             OpponentName = FindOpponent(rank, con);
-            LoadPokemonFromDB loading = new LoadPokemonFromDB(OpponentName,con);
+            LoadPokemonFromDB loading = new LoadPokemonFromDB(OpponentName, con);
             OpponentLineUp = loading.LoadedLineUp;
         }
 
