@@ -21,7 +21,7 @@ namespace PokemonSimulator
             Boolean Exit = false;
             while (Exit == false)
             {
-
+                int WinCounter = 0;
                 var Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
 
                 while (Lineup.LoopStuck == true)
@@ -62,12 +62,13 @@ namespace PokemonSimulator
 
                     if (Win == false)
                     {
-                        ScoreBoard ScoreAndRanking = new ScoreBoard(Win);
-                        //this need to update db with new elite trainer if wins > 0
-
-                        //play again or exit class
-                        //if play again than make new lineup y/n?
-                        //If they beat the champion add some BS celebration stuff
+                        ScoreBoard ScoreAndRanking = new ScoreBoard(WinCounter,CurrentTrainer,loginStart.Connection.myConnection);
+                        PlayAgain Again = new PlayAgain();
+                        Exit = Again.Decsision();
+                    }
+                    else
+                    {
+                        WinCounter++;
                     }
                     System.GC.Collect();
                 }

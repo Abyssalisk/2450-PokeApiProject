@@ -167,7 +167,7 @@ namespace PokemonSimulator
                 tempMovesList.Add(tempMove);
             }
 
-                return tempMovesList;
+            return tempMovesList;
         }
     }
 }
