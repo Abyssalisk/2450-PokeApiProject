@@ -16,78 +16,78 @@ namespace PokemonSimulator
             //used as a lookup for dual type effectiveness. Exceptions to this methodology, yes but very limited cases
 
             //Normal
-            TypeMapNotVery.Add("Normal", new List<string> { "Ghost", "Rock","Steel" });
+            TypeMapNotVery.Add("normal", new List<string> { "ghost", "rock", "steel" });
 
             //Fire
-            TypeMapSuper.Add("Fire", new List<string> {"Grass","Ice" ,"Bug","Steel"});
-            TypeMapNotVery.Add("Fire", new List<string> { "Water", "Rock" ,"Dragon"});
+            TypeMapSuper.Add("fire", new List<string> { "grass", "ice", "bug", "steel" });
+            TypeMapNotVery.Add("fire", new List<string> { "water", "rock", "dragon" });
 
 
             //Water
-            TypeMapSuper.Add("Water", new List<string> { "Fire", "Ground","Rock" });
-            TypeMapNotVery.Add("Water", new List<string> { "Grass", "Dargon" });
+            TypeMapSuper.Add("water", new List<string> { "fire", "ground", "rock" });
+            TypeMapNotVery.Add("water", new List<string> { "grass", "dargon" });
 
             //Electric
-            TypeMapSuper.Add("Electric", new List<string> { "Water", "Flying" });
-            TypeMapNotVery.Add("Electric", new List<string> { "Ground" });
+            TypeMapSuper.Add("electric", new List<string> { "water", "flying" });
+            TypeMapNotVery.Add("electric", new List<string> { "ground" });
 
 
             //Grass
-            TypeMapSuper.Add("Grass", new List<string> { "Water","Ground", "Rock" });
-            TypeMapNotVery.Add("Grass", new List<string> { "Fire", "Poison","Bug","Dragon","Steel","Flying" });
+            TypeMapSuper.Add("grass", new List<string> { "water", "ground", "rock" });
+            TypeMapNotVery.Add("grass", new List<string> { "fire", "poison", "bug", "dragon", "steel", "flying" });
 
             //Ice
-            TypeMapSuper.Add("Ice", new List<string> { "Grass", "Ground","Flying","Dragon" });
-            TypeMapNotVery.Add("Ice", new List<string> { "Fire", "Water","Steel" });
+            TypeMapSuper.Add("ice", new List<string> { "grass", "ground", "flying", "dragon" });
+            TypeMapNotVery.Add("ice", new List<string> { "fire", "water", "steel" });
 
 
             //Fighting
-            TypeMapSuper.Add("Fighting", new List<string> { "Ice", "Rock","Steel","Dark","Normal" });
-            TypeMapNotVery.Add("Fighting", new List<string> { "Ghost", "Poison","Flying","Bug","Psychic" });
+            TypeMapSuper.Add("fighting", new List<string> { "ice", "rock", "steel", "dark", "normal" });
+            TypeMapNotVery.Add("fighting", new List<string> { "ghost", "poison", "flying", "bug", "psychic" });
 
 
             //Poison
-            TypeMapSuper.Add("Poison", new List<string> { "Grass" });
-            TypeMapNotVery.Add("Poison", new List<string> { "Ground", "Rock","Ghost","Steel" });
+            TypeMapSuper.Add("poison", new List<string> { "grass" });
+            TypeMapNotVery.Add("poison", new List<string> { "ground", "rock", "ghost", "steel" });
 
             //Ground
-            TypeMapSuper.Add("Ground", new List<string> { "Fire", "Electric","Poison","Rock","Steel" });
-            TypeMapNotVery.Add("Ground", new List<string> { "Grass", "Flying","Bug" });
+            TypeMapSuper.Add("ground", new List<string> { "fire", "electric", "poison", "rock", "steel" });
+            TypeMapNotVery.Add("ground", new List<string> { "grass", "flying", "bug" });
 
             //Flying
-            TypeMapSuper.Add("Flying", new List<string> { "Grass", "Fighting","Bug" });
-            TypeMapNotVery.Add("Flying", new List<string> { "Steel", "Rock","Electric" });
+            TypeMapSuper.Add("flying", new List<string> { "grass", "fighting", "bug" });
+            TypeMapNotVery.Add("flying", new List<string> { "steel", "rock", "electric" });
 
             //Psychic
-            TypeMapSuper.Add("Psychic", new List<string> { "Poison", "Fighting" });
-            TypeMapNotVery.Add("Psychic", new List<string> { "Dark", "Steel" });
+            TypeMapSuper.Add("psychic", new List<string> { "poison", "fighting" });
+            TypeMapNotVery.Add("psychic", new List<string> { "dark", "steel" });
 
             //Bug
-            TypeMapSuper.Add("Bug", new List<string> { "Grass", "Psychic","Dark" });
-            TypeMapNotVery.Add("Bug", new List<string> { "Ghost", "Flying","Poison","Fighting","Fire","Steel" });
+            TypeMapSuper.Add("bug", new List<string> { "grass", "psychic", "dark" });
+            TypeMapNotVery.Add("bug", new List<string> { "ghost", "flying", "poison", "fighting", "fire", "steel" });
 
 
             //Rock
-            TypeMapSuper.Add("Rock", new List<string> { "Ice", "Fire","Flying","Bug" });
-            TypeMapNotVery.Add("Rock", new List<string> { "Fighting", "Ground","Steel" });
+            TypeMapSuper.Add("rock", new List<string> { "ice", "fire", "flying", "bug" });
+            TypeMapNotVery.Add("rock", new List<string> { "fighting", "ground", "steel" });
 
             //Ghost
-            TypeMapSuper.Add("Ghost", new List<string> { "Psychic", "Ghost" });
-            TypeMapNotVery.Add("Ghost", new List<string> { "Dark", "Steel" });
+            TypeMapSuper.Add("ghost", new List<string> { "psychic", "ghost" });
+            TypeMapNotVery.Add("ghost", new List<string> { "dark", "steel" });
 
 
             //Dragon
-            TypeMapSuper.Add("Dragon", new List<string> { "Dragon" });
-            TypeMapNotVery.Add("Dragon", new List<string> { "Steel" });
+            TypeMapSuper.Add("dragon", new List<string> { "dragon" });
+            TypeMapNotVery.Add("dragon", new List<string> { "steel" });
 
 
             //Dark
-            TypeMapSuper.Add("Dark", new List<string> { "Psychic","Ghost"});
-            TypeMapNotVery.Add("Dark", new List<string> { "Steel","Dark","Fighting" });
+            TypeMapSuper.Add("dark", new List<string> { "psychic", "ghost" });
+            TypeMapNotVery.Add("dark", new List<string> { "steel", "dark", "fighting" });
 
             //Steel
-            TypeMapSuper.Add("Steel", new List<string> {"Ice","Rock" });
-            TypeMapNotVery.Add("Steel", new List<string> { "Fire", "Water","Electric" });
+            TypeMapSuper.Add("steel", new List<string> { "ice", "rock" });
+            TypeMapNotVery.Add("steel", new List<string> { "fire", "water", "electric" });
 
         }
 

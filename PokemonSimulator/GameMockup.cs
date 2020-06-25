@@ -55,6 +55,7 @@ namespace PokemonSimulator
                 }
                 void Attack(Pokemon attack, Pokemon defend, int moveIndex, bool isEnemyAttacking)
                 {
+                    const double makeThisNumberBiggerToMakeAttacksDoLessDamage = 2d;
                     if (isEnemyAttacking)
                     {
                         PrintEnemy($"{attack.Species} ", $"used {attack.ConsoleMoves[moveIndex].Name}!");
@@ -66,42 +67,64 @@ namespace PokemonSimulator
                     int damage = attack.ConsoleMoves[moveIndex].Damage;
                     //double modifier = PokemonType.CalculateDamageMultiplier(attack.Type, defend.Type);
                     double modifier = 1d;
-                    for (int i = 0; i < attack.Types.Count; i++)
+                    for (int j = 0; j < defend.ConsoleTypes.Count; j++)
                     {
-                        for (int j = 0; j < defend.Types.Count; j++)
+                        //modifier *= twm.//PokemonType.CalculateDamageMultiplier(attack.ConsoleTypes[i], defend.ConsoleTypes[j]);
+                        if (twm.TypeMapNotVery.ContainsKey(attack.ConsoleMoves[moveIndex].Type))
                         {
-                            modifier *= PokemonType.CalculateDamageMultiplier(attack.Types[i], defend.Types[j]);
+                            if (twm.TypeMapNotVery[attack.ConsoleMoves[moveIndex].Type].Contains(defend.ConsoleTypes[j]))
+                            {
+                                modifier *= 0.5d;
+                            }
+                        }
+                        if (twm.TypeMapSuper.ContainsKey(attack.ConsoleMoves[moveIndex].Type))
+                        {
+                            if (twm.TypeMapSuper[attack.ConsoleMoves[moveIndex].Type].Contains(defend.ConsoleTypes[j]))
+                            {
+                                modifier *= 2d;
+                            }
                         }
                     }
                     int final = 0;
                     if (!attack.ConsoleMoves[moveIndex].IsPhysical)
                     {
-                        final = (int)(((double)damage * (double)modifier * (double)attack.SpecialAttack) / (double)defend.SpecialDefense);
+                        final = (int)(((double)damage * (double)modifier * (double)attack.SpecialAttack) / ((double)defend.SpecialDefense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
                     }
                     else
                     {
-                        final = (int)(((double)damage * (double)modifier * (double)attack.Attack) / (double)defend.Defense);
+                        final = (int)(((double)damage * (double)modifier * (double)attack.Attack) / ((double)defend.Defense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
                     }
-                    if (modifier > 1)
+                    if (modifier > 1d)
                     {
                         if (isEnemyAttacking)
                         {
-                            PrintEnemy("", $"Your enemy's pokemon's attack was super effective! It hit for {final} damage!");
+                            PrintEnemy("", $"Your enemy's pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
                         }
                         else
                         {
-                            PrintYou("", $"Your pokemon's attack was super effective! It hit for {final} damage!");
+                            PrintYou("", $"Your pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
+                        }
+                    }
+                    else if (modifier == 1d)
+                    {
+                        if (isEnemyAttacking)
+                        {
+                            PrintEnemy("", $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage.");
+                        }
+                        else
+                        {
+                            PrintYou("", $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
                         }
                     }
                     else
                     {
                         if (isEnemyAttacking)
                         {
-                            PrintEnemy("", $"Your enemy's pokemon's attack hit for {final} damage.");
+                            PrintEnemy("", $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective...");
                         }
                         else
                         {
-                            PrintYou("", $"Your pokemon's attack hit for {final} damage!");
+                            PrintYou("", $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective...");
                         }
                     }
                     defend.ModifyHealth(-final);
@@ -146,10 +169,10 @@ namespace PokemonSimulator
                         }
                         else if (yours.Speed > enemies.Speed)
                         {
-                            Attack(yours, enemies, enemiesMovePick, false);
+                            Attack(yours, enemies, yourMovePick, false);
                             if (enemies.IsAlive)
                             {
-                                Attack(enemies, yours, yourMovePick, true);
+                                Attack(enemies, yours, enemiesMovePick, true);
                             }
                         }
                         else
@@ -168,10 +191,10 @@ namespace PokemonSimulator
                                     break;
                                 case 1:
                                     {
-                                        Attack(yours, enemies, enemiesMovePick, false);
+                                        Attack(yours, enemies, yourMovePick, false);
                                         if (enemies.IsAlive)
                                         {
-                                            Attack(enemies, yours, yourMovePick, true);
+                                            Attack(enemies, yours, enemiesMovePick, true);
                                         }
                                     }
                                     break;

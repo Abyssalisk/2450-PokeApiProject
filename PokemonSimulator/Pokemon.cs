@@ -24,6 +24,7 @@ namespace PokemonSimulator
         public int Speed { get; set; }
         public List<string> ConsoleTypes { get; set; } = new List<string>();
         public List<PokemonType> Types { get; set; } = new List<PokemonType>();
+        [Obsolete("Looks like we're using an external system to determine type weaknesses to avoid data duplication.")]
         public List<string> TypeWeaknesses { get; set; } = new List<string>();
         public List<MoveModel> Moves { get; set; } = new List<MoveModel>();
         public List<Move> ConsoleMoves { get; set; } = new List<Move>();

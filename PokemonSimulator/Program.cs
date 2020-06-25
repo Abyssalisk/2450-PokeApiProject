@@ -12,7 +12,10 @@ namespace PokemonSimulator
         static void Main(string[] args)
         {
             var loginStart = new UserAuthAndLogin();
-            System.GC.Collect();
+            //Commented this about because the application just started, there won't be much to clean up, and this brings a lot of overhead on call regardless of heap size.
+            //One might describe the impact of this function as t(s) = 0.1s^2 + 100; where s is the size of the heap, and t(s) returns the time it takes to GC.
+            //Since it's the start of the application, "s" would be very small in this case, but the GC takes 0.1*s^2 + 100 time to clear anyways. That + 100 at the end makes GC's take a long time regardless of heap size.
+            //System.GC.Collect(); //Doing this a lot isn't a good idea, I get doing it in loading breaks, but the CLR takes care of this. Regardless, it's also not a huge deal in the console app.
             Trainer CurrentTrainer = new Trainer();
             CurrentTrainer.UserId = loginStart.UserID;
             CurrentTrainer.TrainerName = loginStart.TrainerName;
@@ -48,9 +51,9 @@ namespace PokemonSimulator
                 CurrentTrainer = Lineup.GhostTrainer;
                 System.GC.Collect();
 
-                Console.WriteLine("Let's Battle! ");
+                //Console.WriteLine("Let's Battle! "); //Derek, my code already includes this.
 
-                for(int j = 5;j>0;j--)
+                for (int j = 5; j > 0; j--)
                 {
                     Trainer EliteTrainer = new Trainer();
                     LoadOpponent EliteLoader = new LoadOpponent(j, loginStart.Connection.myConnection);
@@ -62,19 +65,24 @@ namespace PokemonSimulator
 
                     if (Win == false)
                     {
-                        ScoreBoard ScoreAndRanking = new ScoreBoard(WinCounter,CurrentTrainer,loginStart.Connection.myConnection);
+                        ScoreBoard ScoreAndRanking = new ScoreBoard(WinCounter, CurrentTrainer, loginStart.Connection.myConnection);
                         PlayAgain Again = new PlayAgain();
-                        Exit = Again.Decsision();
+                        Exit = !Again.Decsision(); //Again.Decision() returns true if they want to play again, which is notted for whether or not they want to quit.
+                        if (Exit)
+                        {
+                            //The person quit, so it should break the fighting loop. Right? if it starts over on the match they lost on, their pokemon's HP should be restored to the values they were before this match.
+                            break;
+                        }
                     }
                     else
                     {
                         WinCounter++;
                     }
-                    System.GC.Collect();
+                    System.GC.Collect(); //I think this is appropriate here, as this is when loading happens, and all those json and pokemon objects get cleaned up, freeing lots of memory.
                 }
             }
             System.Environment.Exit(0);
         }
-       
+
     }
 }
