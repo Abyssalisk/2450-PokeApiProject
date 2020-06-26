@@ -19,14 +19,16 @@ namespace PokemonSimulator
         string SearchedName;
         string ReturnedName;
         Boolean ValidPokemon;
+        Boolean HasLineup;
         int LineupSize;
 
-        public CreateLineUp(Trainer ghostTrainer, MySqlConnection con)
+        public CreateLineUp(Trainer ghostTrainer, MySqlConnection con,Boolean haslineup)
         {
             PokemonArray = new string[6];
             MovesCSVArray = new string[6];
             LineupSize = 0;
             ValidPokemon = false;
+            HasLineup = haslineup;
             GhostTrainer = ghostTrainer;
             Con = con;
             ReturnedName = "-1";
@@ -116,14 +118,27 @@ namespace PokemonSimulator
 
         public void AddPokemonToDB()
         {
-            var insertPokemonQuery = "INSERT INTO sql3346222.TrainerLineup VALUES("+GhostTrainer.UserId+",'" +
-                GhostTrainer.TrainerName+"','"+PokemonArray[0]+"','"+MovesCSVArray[0]+"','"+PokemonArray[1]
-                +"','"+MovesCSVArray[1]+"','"+ PokemonArray[2] + "','" + MovesCSVArray[2] + "','" + PokemonArray[3] +
-                "','" + MovesCSVArray[3] + "','" + PokemonArray[4]+ "','" + MovesCSVArray[4] +
-                 "','" + PokemonArray[5] + "','" + MovesCSVArray[5] + "');";
-
+            var pokemonQuery = "";
+            if (HasLineup == false)
+            {
+                    pokemonQuery = "INSERT INTO sql3346222.TrainerLineup VALUES(" + GhostTrainer.UserId + ",'" +
+                    GhostTrainer.TrainerName + "','" + PokemonArray[0] + "','" + MovesCSVArray[0] + "','" + PokemonArray[1]
+                    + "','" + MovesCSVArray[1] + "','" + PokemonArray[2] + "','" + MovesCSVArray[2] + "','" + PokemonArray[3] +
+                    "','" + MovesCSVArray[3] + "','" + PokemonArray[4] + "','" + MovesCSVArray[4] +
+                     "','" + PokemonArray[5] + "','" + MovesCSVArray[5] + "');";
+            }
+            else
+            {
+                pokemonQuery = "UPDATE sql3346222.TrainerLineup SET Pokemon1='" + PokemonArray[0] +
+                    "',MovesCSV1='" + MovesCSVArray[0] + "',Pokemon2='" + PokemonArray[1] +
+                    "',MovesCSV2='" + MovesCSVArray[1] + "',Pokemon3='" + PokemonArray[2] +
+                    "',MovesCSV3='" + MovesCSVArray[2] + "',Pokemon4='" + PokemonArray[3] +
+                    "',MovesCSV4='" + MovesCSVArray[3] + "',Pokemon5='" + PokemonArray[4] +
+                    "',MovesCSV5='" + MovesCSVArray[4] + "',Pokemon6='" + PokemonArray[5] +
+                    "',MovesCSV6='" + MovesCSVArray[5] + "' WHERE( UserID = " + GhostTrainer.UserId + ");";
+            }
             Con.Open();
-            MySqlCommand cmd = new MySqlCommand(insertPokemonQuery, Con);
+            MySqlCommand cmd = new MySqlCommand(pokemonQuery, Con);
             using (MySqlDataReader rdr = cmd.ExecuteReader())
             {
                 while (rdr.Read())
