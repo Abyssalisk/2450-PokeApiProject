@@ -12,6 +12,7 @@ namespace PokemonSimulator
         public MySqlConnection Con { get; set; }
         public Trainer GhostTrainer { get; set; }
         public Boolean LoopStuck = false;
+        public Boolean HasLineup = false;
 
         public TrainerLineUp(int userID, string trainerName, MySqlConnection con, bool getEliteTable = false)
         {
@@ -23,11 +24,13 @@ namespace PokemonSimulator
             if (CheckForLineUp() == true)
             {
                 Console.WriteLine("A Lineup has been found!");
+                HasLineup = true;
                 LoadLineup();
             }
             else
             {
                 Console.WriteLine("No lineup found!");
+                HasLineup = false;
                 NewLineupChoice();
             }
         }
@@ -99,7 +102,7 @@ namespace PokemonSimulator
             if (choice.ToLower().Equals("y"))
             {
                 LoopStuck = false;
-                var makeAlineup = new CreateLineUp(GhostTrainer, Con);
+                var makeAlineup = new CreateLineUp(GhostTrainer, Con,HasLineup);
 
             }
             if (choice.ToLower().Equals("n"))
