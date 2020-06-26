@@ -2,7 +2,7 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background:url("../images/grassbg.png");
+    background: url("../images/grassbg.png");
 }
 
 a, .btn-link {
@@ -33,7 +33,7 @@ app {
 
     .main .top-row {
         /*background-color: #f7f7f7;*/
-        background:url("../images/navbarbg.png");
+        background: url("../images/navbarbg.png");
         /*border-bottom: 1px solid #d6d5d5;*/
         justify-content: flex-end;
     }
@@ -43,10 +43,17 @@ app {
             margin-left: 1.5rem;
         }
 
-.main .top-row a:first-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .main .top-row a:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+    .main .border-wrapper {
+        border: 6px solid transparent;
+        border-image: url("../images/contentbg.png") 6 6 6 6 repeat;
+        background-color: #fff;
+        padding: 15px;
+    }
 
 .sidebar {
     /*background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);*/
@@ -57,6 +64,7 @@ app {
     }
 
     .sidebar .navbar-brand {
+        margin: auto;
         font-size: 1.1rem;
     }
 
@@ -67,32 +75,11 @@ app {
         top: -2px;
     }
 
-    .sidebar .top {
-        background: url('../images/menubgtop.png');
-        background-position: bottom;
-        background-repeat: no-repeat;
-        background-size: 100% auto;
-    }
-
-    .sidebar .top:after {
-        content: '\200b';
-    }
-
-    .sidebar .center {
-        background: url('../images/menubgcenter.png');
-        background-repeat: repeat-y;
-        background-size: 100% auto;
-    }
-
-    .sidebar .bottom {
-        background: url('../images/menubgbottom.png');
-        background-position: top;
-        background-repeat: no-repeat;
-        background-size: 100% auto;
-    }
-
-    .sidebar .bottom:after {
-        content: '\200b';
+    .sidebar .sidebar-menu {
+        border: 6px solid transparent;
+        border-image: url("../images/menubg.png") 6 6 6 6 repeat;
+        background-color: #285068;
+        margin: 10px;
     }
 
     .sidebar .nav-item {
@@ -199,12 +186,12 @@ app {
     z-index: 1000;
 }
 
-#blazor-error-ui .dismiss {
-    cursor: pointer;
-    position: absolute;
-    right: 0.75rem;
-    top: 0.5rem;
-}
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
 
 @media (max-width: 767.98px) {
     .main .top-row:not(.auth) {
@@ -226,7 +213,7 @@ app {
     }
 
     .sidebar {
-        width: 250px;
+        width: 300px;
         height: 100vh;
         position: sticky;
         top: 0;

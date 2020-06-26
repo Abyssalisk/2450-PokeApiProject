@@ -5,53 +5,49 @@
     </button>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <div class="top"></div>
-    <div class="center">
-        <ul class="nav flex-column">
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                    <span class="navLink homeNavLink" aria-hidden="true"></span> Home
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="login">
-                    <span class="navLink loginNavLink" aria-hidden="true"></span> Login
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link disabled" href="newTrainer">
-                    <span class="navLink createNewTrainerNavLink" aria-hidden="true"></span> Create New Trainer
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link disabled" href="team">
-                    <span class="navLink teamNavLink" aria-hidden="true"></span> Team
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link disabled" href="newTeam">
-                    <span class="navLink createNewTeamNavLink" aria-hidden="true"></span> Create New Team
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link disabled" href="battle">
-                    <span class="navLink battleNavLink" aria-hidden="true"></span> Battle
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link disabled" href="champion">
-                    <span class="navLink championNavLink" aria-hidden="true"></span> Champion
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="scoreboard">
-                    <span class="navLink scoreboardNavLink" aria-hidden="true"></span> Score Board
-                </NavLink>
-            </li>
-        </ul>
-    </div>
-    <div class="bottom"></div>
+<div class="@NavMenuCssClass sidebar-menu" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="navLink homeNavLink" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="login">
+                <span class="navLink loginNavLink" aria-hidden="true"></span> Login
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link disabled" href="newTrainer">
+                <span class="navLink createNewTrainerNavLink" aria-hidden="true"></span> Create New Trainer
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link disabled" href="team">
+                <span class="navLink teamNavLink" aria-hidden="true"></span> Team
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link disabled" href="newTeam">
+                <span class="navLink createNewTeamNavLink" aria-hidden="true"></span> Create New Team
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link disabled" href="battle">
+                <span class="navLink battleNavLink" aria-hidden="true"></span> Battle
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link disabled" href="champion">
+                <span class="navLink championNavLink" aria-hidden="true"></span> Champion
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="scoreboard">
+                <span class="navLink scoreboardNavLink" aria-hidden="true"></span> Score Board
+            </NavLink>
+        </li>
+    </ul>
 </div>
 
 @code {
