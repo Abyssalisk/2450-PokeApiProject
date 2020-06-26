@@ -16,9 +16,9 @@ namespace PokemonSimulator
         public string[] PokemonArray;
         public string[] MovesCSVArray;
 
-        string SearchedName;
-        string ReturnedName;
-        Boolean ValidPokemon;
+        public string SearchedName = null; 
+        public string ReturnedName = null;
+        public Boolean ValidPokemon;
         Boolean HasLineup;
         int LineupSize;
 
