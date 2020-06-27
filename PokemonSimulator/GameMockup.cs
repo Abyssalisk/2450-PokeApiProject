@@ -23,7 +23,7 @@ namespace PokemonSimulator
                 Console.WriteLine("Battle Begin!");
                 Console.ForegroundColor = ConsoleColor.White;
                 Pokemon yours;
-                Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
+                Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
                 do
                 {
                     if (int.TryParse(Console.ReadLine(), out int tryParse) && tryParse > 0 && tryParse <= 6)
@@ -60,7 +60,7 @@ namespace PokemonSimulator
                 }
                 void Attack(Pokemon attack, Pokemon defend, int moveIndex, bool isEnemyAttacking)
                 {
-                    const double makeThisNumberBiggerToMakeAttacksDoLessDamage = 2d;
+                    //const double makeThisNumberBiggerToMakeAttacksDoLessDamage = 2d;
                     if (isEnemyAttacking)
                     {
                         PrintEnemy($"{attack.Species} ", $"used {attack.ConsoleMoves[moveIndex].Name}!");
@@ -69,9 +69,9 @@ namespace PokemonSimulator
                     {
                         PrintYou($"{attack.Species} ", $"used {attack.ConsoleMoves[moveIndex].Name}!");
                     }
-                    int damage = attack.ConsoleMoves[moveIndex].Damage;
+                    double power = attack.ConsoleMoves[moveIndex].Damage;
                     //double modifier = PokemonType.CalculateDamageMultiplier(attack.Type, defend.Type);
-                    double modifier = 1d;
+                    double type = 1d;
                     for (int j = 0; j < defend.ConsoleTypes.Count; j++)
                     {
                         //modifier *= twm.//PokemonType.CalculateDamageMultiplier(attack.ConsoleTypes[i], defend.ConsoleTypes[j]);
@@ -79,58 +79,62 @@ namespace PokemonSimulator
                         {
                             if (twm.TypeMapNotVery[attack.ConsoleMoves[moveIndex].Type].Contains(defend.ConsoleTypes[j]))
                             {
-                                modifier *= 0.5d;
+                                type *= 0.5d;
                             }
                         }
                         if (twm.TypeMapSuper.ContainsKey(attack.ConsoleMoves[moveIndex].Type))
                         {
                             if (twm.TypeMapSuper[attack.ConsoleMoves[moveIndex].Type].Contains(defend.ConsoleTypes[j]))
                             {
-                                modifier *= 2d;
+                                type *= 2d;
                             }
                         }
                     }
-                    double crit = Grand.rand.Next(16) == 0 ? 2d : 1d;
-                    int final = 0;
-                    if (!attack.ConsoleMoves[moveIndex].IsPhysical)
+                    double crit = Grand.rand.Next(16) == 0 ? 1.5d : 1d;
+                    const double level = 50d;
+                    double pokeAttack = attack.ConsoleMoves[moveIndex].IsPhysical ? attack.Attack : attack.SpecialAttack;
+                    double pokeDefense = defend.ConsoleMoves[moveIndex].IsPhysical ? defend.Defense : defend.SpecialDefense;
+                    double modifier = (Grand.rand.Next(88, 100) / 100d) * type;
+                    int final = (int)(((((((2d * level) / (5d)) + 2) * power * (pokeAttack / pokeDefense)) / (50d)) + 2d) * modifier);
+                    //if (!attack.ConsoleMoves[moveIndex].IsPhysical)
+                    //{
+                    //    damage = (int)(((double)damage * (double)type * (double)attack.SpecialAttack * crit)/ ((double)defend.SpecialDefense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
+                    //}
+                    //else
+                    //{
+                    //    damage = (int)(((double)damage * (double)type * (double)attack.Attack * crit) / ((double)defend.Defense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
+                    //}
+                    if (type > 1d)
                     {
-                        final = (int)(((double)damage * (double)modifier * (double)attack.SpecialAttack * crit)/ ((double)defend.SpecialDefense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
+                        if (isEnemyAttacking)
+                        {
+                            PrintEnemy("", (crit > 1d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage! ({defend.ActingHP})HP remaining.");
+                        }
+                        else
+                        {
+                            PrintYou("", (crit > 1d ? "Critical Hit! " : "") + $"Your pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage! ({defend.ActingHP})HP remaining.");
+                        }
+                    }
+                    else if (type == 1d)
+                    {
+                        if (isEnemyAttacking)
+                        {
+                            PrintEnemy("", (crit > 1d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. ({defend.ActingHP})HP remaining.");
+                        }
+                        else
+                        {
+                            PrintYou("", (crit > 1d ? "Critical Hit! " : "") + $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage! ({defend.ActingHP})HP remaining.");
+                        }
                     }
                     else
                     {
-                        final = (int)(((double)damage * (double)modifier * (double)attack.Attack * crit) / ((double)defend.Defense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
-                    }
-                    if (modifier > 1d)
-                    {
                         if (isEnemyAttacking)
                         {
-                            PrintEnemy("", (crit == 2d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
+                            PrintEnemy("", (crit > 1d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective... ({defend.ActingHP})HP remaining.");
                         }
                         else
                         {
-                            PrintYou("", (crit == 2d ? "Critical Hit! " : "") + $"Your pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
-                        }
-                    }
-                    else if (modifier == 1d)
-                    {
-                        if (isEnemyAttacking)
-                        {
-                            PrintEnemy("", (crit == 2d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage.");
-                        }
-                        else
-                        {
-                            PrintYou("", (crit == 2d ? "Critical Hit! " : "") + $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
-                        }
-                    }
-                    else
-                    {
-                        if (isEnemyAttacking)
-                        {
-                            PrintEnemy("", (crit == 2d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective...");
-                        }
-                        else
-                        {
-                            PrintYou("", (crit == 2d ? "Critical Hit! " : "") + $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective...");
+                            PrintYou("", (crit > 1d ? "Critical Hit! " : "") + $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective... ({defend.ActingHP})HP remaining.");
                         }
                     }
                     defend.ModifyHealth(-final);
@@ -153,8 +157,8 @@ namespace PokemonSimulator
                             }
                             else if (tryParse == 6)
                             {
-                                PrintYou("Your Pokemons health: ", string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
-                                PrintEnemy("Enemy's Pokemons health: ", string.Join(", ", enemy.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
+                                PrintYou("Your Pokemons health: ", string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
+                                PrintEnemy("Enemy's Pokemons health: ", string.Join(", ", enemy.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
                             }
                             else
                             {
@@ -214,7 +218,7 @@ namespace PokemonSimulator
                     }
                     else if (yourMovePick == 4)
                     {
-                        Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
+                        Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
                         do
                         {
                             if (int.TryParse(Console.ReadLine(), out int tryParse) && tryParse > 0 && tryParse <= 6)
@@ -253,7 +257,7 @@ namespace PokemonSimulator
                     }
                     if (!yours.IsAlive && you.Pokemon.Any(x => x.IsAlive))
                     {
-                        PrintYou($"{yours.Species} ", "was knocked out! Choose a new pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + "HP")));
+                        PrintYou($"{yours.Species} ", "was knocked out! Choose a new pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
                         int pokePick = int.Parse(Console.ReadLine()) - 1;
                         do
                         {
