@@ -122,11 +122,13 @@ namespace PokemonSimulator
             }
             #endregion
 
-            do
+            while (true) //This loop just goes on forever, doing the battle sequence until someone wins.
             {
+                //Write declaration of battle
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Battle Begin!");
                 Console.ForegroundColor = ConsoleColor.White;
+                //Initial choosing of pokemon.
                 Pokemon yours;
                 Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
                 do
@@ -148,15 +150,16 @@ namespace PokemonSimulator
                         Console.WriteLine("Hey! that's not a valid number. Pick a pokemon (1 - 6)");
                     }
                 } while (true);
+                //Enemy choosing pokemon
                 Pokemon enemies = enemy.Pokemon[Grand.rand.Next(0, enemy.Pokemon.Count)];
-
-
+                //Go Pikachu!
                 PrintYou("You: ", $"Go {yours.Species}!");
                 PrintEnemy("Enemy: ", $"Go {enemies.Species}!");
                 bool gaming = true;
                 while (gaming)
                 {
                     int yourMovePick = 0;
+                    //choose a move, switch pokemon, or view stats.
                     do
                     {
                         Console.WriteLine("Select move: (1 - 4) " + string.Join(", ", yours.ConsoleMoves.Select(x => x.Name)) + ", switch pokemon (5), or look at all pokemon health (6)");
@@ -169,6 +172,7 @@ namespace PokemonSimulator
                             }
                             else if (tryParse == 6)
                             {
+                                //If you choose to look at stats, that doesn't remove your turn, just look at the stats and then pick what you want to do.
                                 PrintYou("Your Pokemons health: ", string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
                                 PrintEnemy("Enemy's Pokemons health: ", string.Join(", ", enemy.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
                             }
@@ -182,12 +186,14 @@ namespace PokemonSimulator
                             Console.WriteLine("Hey! Thats not a number, pick a move (1 - 4), switch pokemon (5), or look at all pokemon health (6).");
                         }
                     } while (true);
+                    //enemy chooses move (doesn't matter anymore because it'll just pick a new move when it attacks).
                     int enemiesMovePick = Grand.rand.Next(0, 4);
                     if (yourMovePick < 4 && yourMovePick >= 0)
                     {
                         //you and your enemy hit eachother based on speed.
                         if (enemies.Speed > yours.Speed)
                         {
+                            //Enemy was faster, so they hit first, then you hit if your pokemon is still alive.
                             Attack(enemies, yours, enemiesMovePick, true);
                             if (yours.IsAlive)
                             {
@@ -196,6 +202,7 @@ namespace PokemonSimulator
                         }
                         else if (yours.Speed > enemies.Speed)
                         {
+                            //You were faster, so you hit then their pokemon hits if it's still alive
                             Attack(yours, enemies, yourMovePick, false);
                             if (enemies.IsAlive)
                             {
@@ -230,6 +237,7 @@ namespace PokemonSimulator
                     }
                     else if (yourMovePick == 4)
                     {
+                        //You want to switch pokemon.
                         Console.WriteLine("Choose your pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
                         do
                         {
@@ -254,31 +262,28 @@ namespace PokemonSimulator
                                 Console.WriteLine("Hey! that's not a valid number. Pick a pokemon (1 - 6)");
                             }
                         } while (true);
-                        //yours.ModifyHealth(-int.Parse(enemies.Moves[enemiesMovePick].Damage) * (yours.TypeWeaknesses.Count(x => x == enemies.Moves[enemiesMovePick].Type) + 1));
+                        //Enemy gets a free hit in on the freshly switched in pokemon because you switched pokemon.
                         Attack(enemies, yours, enemiesMovePick, true);
                     }
                     else
                     {
                         throw new Exception("Error: This should never happen. If it does, tell Sam.");
                     }
+                    //If enemies pokemon is dead and it has any that are alive left, pick a new one at random.
                     if (!enemies.IsAlive && enemy.Pokemon.Any(x => x.IsAlive))
                     {
                         IEnumerable<Pokemon> temp = enemy.Pokemon.Where(x => x.IsAlive);
                         enemies = temp.ElementAtOrDefault(Grand.rand.Next(0, temp.Count()));
                         PrintEnemy("Enemy: ", $"Go {enemies.Species}!");
                     }
+                    //Pick a new pokemon if yours was knocked out and you have any left.
                     if (!yours.IsAlive && you.Pokemon.Any(x => x.IsAlive))
                     {
                         PrintYou($"{yours.Species} ", "was knocked out! Choose a new pokemon: (1 - 6) " + string.Join(", ", you.Pokemon.Select(x => x.Species + " " + (((float)x.ActingHP / (float)x.BaseHP)).ToString("P") + $" ({x.ActingHP})HP")));
                         int pokePick = int.Parse(Console.ReadLine()) - 1;
                         do
                         {
-                            if (you.Pokemon[pokePick] == yours)
-                            {
-                                Console.WriteLine("That pokemon is already out! Pick a different one. (1 - 6)");
-                                pokePick = int.Parse(Console.ReadLine()) - 1;
-                            }
-                            else if (!you.Pokemon[pokePick].IsAlive)
+                            if (!you.Pokemon[pokePick].IsAlive)
                             {
                                 Console.WriteLine("That pokemon has been knocked out! Pick a different one. (1 - 6)");
                                 pokePick = int.Parse(Console.ReadLine()) - 1;
@@ -291,50 +296,20 @@ namespace PokemonSimulator
                         } while (true);
                         PrintYou("You: ", $"Go {yours.Species}!");
                     }
+                    //If all of enemy's pokemon are KO, you win.
                     if (!enemy.Pokemon.Any(x => x.IsAlive))
                     {
                         PrintYou("You win! ", "");
                         return true;
-                        //gaming = false;
                     }
+                    //If you have no pokemon left, you lose.
                     else if (!you.Pokemon.Any(x => x.IsAlive))
                     {
                         PrintEnemy("You lose. ", "");
                         return false;
-                        //gaming = false;
                     }
                 }
-                //bool quit = false;
-                //do
-                //{
-                //    string reply = Console.ReadLine();
-                //    if (Grand.yes.IsMatch(reply))
-                //    {
-                //        gaming = true;
-                //        you = enemy = null;
-                //        yours = enemies = null;
-                //        quit = false;
-                //        Console.Clear();
-                //        break;
-                //    }
-                //    else if (Grand.no.IsMatch(reply))
-                //    {
-                //        gaming = false;
-                //        quit = true;
-                //        break;
-                //    }
-                //    else
-                //    {
-                //        Console.WriteLine("Hey! That's not a valid response. Say yes or no.");
-                //    }
-                //}
-                //while (true);
-                //if (quit)
-                //{
-                //    break;
-                //}
             }
-            while (true);
         }
     }
 }
