@@ -54,6 +54,8 @@ namespace PokemonSimulator
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
                 Queue<Tuple<Task<PokeAPI.Pokemon>, List<Task<PokeAPI.Move>>>> tasks = new Queue<Tuple<Task<PokeAPI.Pokemon>, List<Task<PokeAPI.Move>>>>();
+                Dictionary<string, Task<PokeAPI.Pokemon>> requestedPokemon = new Dictionary<string, Task<PokeAPI.Pokemon>>();
+                Dictionary<string, Task<PokeAPI.Move>> requestedMoves = new Dictionary<string, Task<PokeAPI.Move>>();
                 Task<PokeAPI.Pokemon> tempGetPoke = null;
                 List<Task<PokeAPI.Move>> tempGetMove = null;
                 while (reader.Read())
@@ -63,8 +65,18 @@ namespace PokemonSimulator
                         if (i % 2 == 0)
                         {
                             //this record is a pokemon.
-                            Console.WriteLine($"Starting request for pokemon: {reader.GetString(i)}...");
-                            tempGetPoke = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(reader.GetString(i));
+                            string cleaned = reader.GetString(i).Trim().ToLower();
+                            if (requestedPokemon.ContainsKey(cleaned))
+                            {
+                                Console.WriteLine($"Pokemon {cleaned} already requested, removing redundancy...");
+                                tempGetPoke = requestedPokemon[cleaned];
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Starting request for pokemon: {cleaned}...");
+                                tempGetPoke = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(cleaned);
+                                requestedPokemon.Add(cleaned, tempGetPoke);
+                            }
                             //tempGetPoke.Start();
                         }
                         else
@@ -73,8 +85,17 @@ namespace PokemonSimulator
                             tempGetMove = reader.GetString(i).Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x =>
                             {
                                 string cleaned = x.Trim().ToLower();
-                                Console.WriteLine($"Starting request for move: {cleaned}...");
-                                return DataFetcher.GetNamedApiObject<PokeAPI.Move>(cleaned);
+                                if (requestedMoves.ContainsKey(cleaned))
+                                {
+                                    Console.WriteLine($"Move {cleaned} already requested, removing redundancy...");
+                                    return requestedMoves[cleaned];
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Starting request for move: {cleaned}...");
+                                    requestedMoves.Add(cleaned, DataFetcher.GetNamedApiObject<PokeAPI.Move>(cleaned));
+                                    return requestedMoves[cleaned];
+                                }
                             }).ToList();
                             //tempGetMove = GetMovesAsync(reader.GetString(i).Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray());
                             //tempGetMove.ForEach(x =>
