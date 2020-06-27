@@ -76,8 +76,9 @@ namespace PokemonSimulator
 
                     EliteTrainer.Pokemon = EliteLoader.OpponentLineUp;
                     EliteTrainer.TrainerName = EliteLoader.OpponentName;
-
-                    Win = GameMockup.GameEngine(CurrentTrainer, EliteTrainer);
+                    
+                    //Game 1 will have dumbest AI at intelligence = 35%, Game 5 at 75% (increments of 10%).
+                    Win = GameMockup.GameEngine(CurrentTrainer, EliteTrainer, ((((double)j + 1d) / 10d) + 0.25d));
 
                     if (Win == false)
                     {
