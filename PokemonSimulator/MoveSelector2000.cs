@@ -36,7 +36,6 @@ namespace PokemonSimulator
             var returnedmoves = p.Result.Moves;
             int linecountspace = 0;
 
-
             foreach (PokeAPI.PokemonMove element in returnedmoves)
             {
                 

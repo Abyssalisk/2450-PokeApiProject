@@ -184,6 +184,7 @@ namespace PokemonSimulator
         }
 
         #region Duplicate of LoadPokemonTeam (Above method covers the differences this one had).
+
         //public void LoadPokemonTeam(Boolean x)
         //{
         //    var tempLineUp = new List<Pokemon>();
