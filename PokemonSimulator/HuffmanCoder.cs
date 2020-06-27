@@ -288,6 +288,7 @@ namespace PokemonSimulator
             private protected DualNode root;
             #endregion
 
+            //Yes I know Properties arent fields, but the storage for the properties are, and I don't think it makes sense to seperate them.
             #region Properties
             private protected string compressedObject;
             /// <summary>

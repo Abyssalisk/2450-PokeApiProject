@@ -8,6 +8,9 @@ using Newtonsoft.Json;
 
 namespace PokemonSimulator
 {
+    /// <summary>
+    /// Author: Samuel Gardner
+    /// </summary>
     public static partial class Grand
     {
         #region Fields
