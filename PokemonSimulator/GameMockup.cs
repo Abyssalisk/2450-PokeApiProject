@@ -108,18 +108,18 @@ namespace PokemonSimulator
                     {
                         if (isEnemyAttacking)
                         {
-                            PrintEnemy("", (crit > 1d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage! ({defend.ActingHP})HP remaining.");
+                            PrintEnemy("", (crit > 1d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage! ({(defend.ActingHP - final >= 0 ? defend.ActingHP - final : 0)})HP remaining.");
                         }
                         else
                         {
-                            PrintYou("", (crit > 1d ? "Critical Hit! " : "") + $"Your pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage! ({defend.ActingHP})HP remaining.");
+                            PrintYou("", (crit > 1d ? "Critical Hit! " : "") + $"Your pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage! ({(defend.ActingHP - final >= 0 ? defend.ActingHP - final : 0)})HP remaining.");
                         }
                     }
                     else if (type == 1d)
                     {
                         if (isEnemyAttacking)
                         {
-                            PrintEnemy("", (crit > 1d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. ({defend.ActingHP})HP remaining.");
+                            PrintEnemy("", (crit > 1d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. ({(defend.ActingHP - final >= 0 ? defend.ActingHP - final : 0)})HP remaining.");
                         }
                         else
                         {
