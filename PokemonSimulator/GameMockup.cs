@@ -90,46 +90,47 @@ namespace PokemonSimulator
                             }
                         }
                     }
+                    double crit = Grand.rand.Next(16) == 0 ? 2d : 1d;
                     int final = 0;
                     if (!attack.ConsoleMoves[moveIndex].IsPhysical)
                     {
-                        final = (int)(((double)damage * (double)modifier * (double)attack.SpecialAttack) / ((double)defend.SpecialDefense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
+                        final = (int)(((double)damage * (double)modifier * (double)attack.SpecialAttack * crit)/ ((double)defend.SpecialDefense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
                     }
                     else
                     {
-                        final = (int)(((double)damage * (double)modifier * (double)attack.Attack) / ((double)defend.Defense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
+                        final = (int)(((double)damage * (double)modifier * (double)attack.Attack * crit) / ((double)defend.Defense * makeThisNumberBiggerToMakeAttacksDoLessDamage));
                     }
                     if (modifier > 1d)
                     {
                         if (isEnemyAttacking)
                         {
-                            PrintEnemy("", $"Your enemy's pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
+                            PrintEnemy("", (crit == 2d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
                         }
                         else
                         {
-                            PrintYou("", $"Your pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
+                            PrintYou("", (crit == 2d ? "Critical Hit! " : "") + $"Your pokemon's attack was super effective! It hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
                         }
                     }
                     else if (modifier == 1d)
                     {
                         if (isEnemyAttacking)
                         {
-                            PrintEnemy("", $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage.");
+                            PrintEnemy("", (crit == 2d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage.");
                         }
                         else
                         {
-                            PrintYou("", $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
+                            PrintYou("", (crit == 2d ? "Critical Hit! " : "") + $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage!");
                         }
                     }
                     else
                     {
                         if (isEnemyAttacking)
                         {
-                            PrintEnemy("", $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective...");
+                            PrintEnemy("", (crit == 2d ? "Critical Hit! " : "") + $"Your enemy's pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective...");
                         }
                         else
                         {
-                            PrintYou("", $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective...");
+                            PrintYou("", (crit == 2d ? "Critical Hit! " : "") + $"Your pokemon's attack hit for {(final <= defend.ActingHP ? final : defend.ActingHP)} damage. It wasn't very effective...");
                         }
                     }
                     defend.ModifyHealth(-final);
