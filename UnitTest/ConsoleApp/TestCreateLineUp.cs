@@ -12,14 +12,28 @@ namespace UnitTest.ConsoleApp
 {
     public class TestCreateLineUp
     {
-        private CreateLineUp _LineUpHasLineUp;
-        private CreateLineUp _LineUpNoLineUp;
         private readonly TestSetup _Environment;
+        private readonly CreateLineUp _TestLineUp;
 
 
         public TestCreateLineUp()
         {
             _Environment = new TestSetup();
+            _TestLineUp = new CreateLineUp();
+        }
+
+        [Fact]
+        public void TestSeachPokemonAsync()
+        {
+            Assert.True(_TestLineUp.SearchPokemonAsync("pikachu"));
+            Assert.False(_TestLineUp.SearchPokemonAsync("spencer is the worst"));
+        }
+
+        [Fact]
+        public void TestPokeFinder()
+        {
+            Assert.True(_TestLineUp.PokeFinder("pikachu"));
+            Assert.False(_TestLineUp.PokeFinder("spencer is the worst"));
         }
 
     }

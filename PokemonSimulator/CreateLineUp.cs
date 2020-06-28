@@ -11,10 +11,6 @@ namespace PokemonSimulator
     public class CreateLineUp
     {
 
-        public CreateLineUp()
-        {
-        }
-
         public bool SearchPokemonAsync(string searchName)
         {
             try
@@ -61,7 +57,7 @@ namespace PokemonSimulator
         }
 
 
-
+        //not testing db queries in unit testing, test was done with jenga methodology
         public void AddPokemonToDB(string[] PokemonArray, string[] MovesCSVArray, string name, int UserId, MySqlConnection Con, bool HasLineup)
         {
             var pokemonQuery = "";
