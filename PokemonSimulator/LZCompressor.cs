@@ -92,41 +92,42 @@ namespace PokemonSimulator
             /// The compressed form of the object. If this value was not set manually, but the <see cref="DecompressedObject"/> property was set, this value will be generated, 
             /// cached, and returned. Otherwise, this will return <c>null</c>.
             /// </summary>
-            public string CompressedObject
-            {
-                get
-                {
+            //public string CompressedObject
+            //{
+            //    get
+            //    {
 
-                }
-                set
-                {
+            //    }
+            //    set
+            //    {
 
-                }
-            }
+            //    }
+            //}
             private protected string decompressedObject;
             /// <summary>
             /// The decompressed form of the object. If this value was not set manually, but the <see cref="CompressedObject"/> property was set, this value will be generated, 
             /// cached, and returned. Otherwise, this will return <c>null</c>.
             /// </summary>
-            public string DecompressedObject
-            {
-                get
-                {
+            //    public string DecompressedObject
+            //    {
+            //        get
+            //        {
 
-                }
-                set
-                {
-                    if (value.Contains(Delimiter))
-                    {
-                        throw new InvalidConstraintException("Error: the reserved delimiter is contained at least once in the provided string.");
-                    }
-                    else
-                    {
+            //        }
+            //        set
+            //        {
+            //            if (value.Contains(Delimiter))
+            //            {
+            //                throw new InvalidConstraintException("Error: the reserved delimiter is contained at least once in the provided string.");
+            //            }
+            //            else
+            //            {
 
-                    }
-                }
-            }
+            //            }
+            //        }
+            //    }
+            //}
+            #endregion
         }
-        #endregion
     }
 }
