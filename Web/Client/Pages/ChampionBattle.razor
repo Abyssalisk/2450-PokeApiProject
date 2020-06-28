@@ -1,14 +1,11 @@
-﻿@page "/champion"
+﻿@page "/championbattle"
 @inject NavigationManager navMan
 @inject HttpClient client
 
 <h1>Champion</h1>
 
-<p>Champion info page that shows the current champion and their lineup</p>
-
-<ChampionInfoComponent></ChampionInfoComponent>
-
-@*<button class="btn btn-primary" @onclick="BattleOver">Battle Over</button>
+<p>Final champion battle blah blah... if win create new champion (add trainer to trainers table)</p>
+<button class="btn btn-primary" @onclick="BattleOver">Battle Over</button>
 
 @code {
     //int score = 0;
@@ -18,4 +15,4 @@
         Console.WriteLine("Win/Lose");
         navMan.NavigateTo("scoreboard");
     }
-}*@
+}

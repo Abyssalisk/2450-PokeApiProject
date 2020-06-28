@@ -1,0 +1,154 @@
+﻿@inject NavigationManager navMan
+@inject HttpClient client
+@using Web.Shared.Models
+
+<table class="table">
+    <tbody>
+        <tr>
+            <th>Champion ID</th>
+            <td>@Champion.Id</td>
+        </tr>
+        <tr>
+            <th>Champion name</th>
+            <td>@Champion.Handle</td>
+        </tr>
+        <tr>
+            <th>Champion high score</th>
+            <td>@Champion.HighScore</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="row">
+    @foreach (var pokemon in Champion.Team.Lineup)
+    {
+        <div class="col-lg-4">
+            <div class="card" style="margin: 5px 0 5px 0;">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        @pokemon.Name
+                        @foreach (var type in pokemon.Types)
+                        {
+                            <span class="type type-@type.Name"></span>
+                        }
+                    </h5>
+                    <p class="card-text">
+                        Moves:
+                        <ul>
+                            @foreach (var move in pokemon.MoveSelections)
+                            {
+                                <li>@move.Name <span class="type type-@move.Type"></span></li>
+                            }
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+
+    private TrainerModel Champion = new TrainerModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //create test champion
+        Champion = new TrainerModel()
+        {
+            Handle = "Ash",
+            HighScore = 1000,
+            Id = 1,
+            Team = new LineupModel()
+            {
+                Lineup = new List<PokemonModel>()
+                {
+                    new PokemonModel() {
+                        Name = "Fearow",
+                        Types = new List<PokemonType>()
+                        {
+                            new PokemonType() {Name = "normal" },
+                            new PokemonType() {Name = "flying" }
+                        },
+                        MoveSelections = new List<MoveModel>() {
+                            new MoveModel() { Name = "Drill Peck", Type = "flying" },
+                            new MoveModel() { Name = "Fly", Type = "flying" },
+                            new MoveModel() { Name = "Gust", Type = "flying" },
+                            new MoveModel() { Name = "Peck", Type = "flying" }
+                        }
+                    },
+                    new PokemonModel() {
+                        Name = "Pikachu",
+                        Types = new List<PokemonType>()
+                        {
+                            new PokemonType() {Name = "electric" }
+                        },
+                        MoveSelections = new List<MoveModel>() {
+                            new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                            new MoveModel() { Name = "Dig", Type = "ground" },
+                            new MoveModel() { Name = "Surf", Type = "water" },
+                            new MoveModel() { Name = "Quick Attack", Type = "normal" }
+                        }
+                    },
+                    new PokemonModel() {
+                        Name = "Blastoise",
+                        Types = new List<PokemonType>()
+                        {
+                            new PokemonType() {Name = "water" }
+                        },
+                        MoveSelections = new List<MoveModel>() {
+                            new MoveModel() { Name = "Surf", Type = "water" },
+                            new MoveModel() { Name = "Bubble", Type = "water" },
+                            new MoveModel() { Name = "water Gun", Type = "water" },
+                            new MoveModel() { Name = "Bubblebeam", Type = "water" }
+                        }
+                    },
+                    new PokemonModel() {
+                        Name = "Venusaur",
+                        Types = new List<PokemonType>()
+                        {
+                            new PokemonType() {Name = "grass" },
+                            new PokemonType() {Name = "poison" }
+                        },
+                        MoveSelections = new List<MoveModel>() {
+                            new MoveModel() { Name = "Solar Beam", Type = "grass" },
+                            new MoveModel() { Name = "Acid", Type = "poison" },
+                            new MoveModel() { Name = "Body Slam", Type = "normal" },
+                            new MoveModel() { Name = "Absorb", Type = "grass" }
+                        }
+                    },
+                    new PokemonModel() {
+                        Name = "Charizard",
+                        Types = new List<PokemonType>()
+                        {
+                            new PokemonType() {Name = "fire" },
+                            new PokemonType() {Name = "flying" }
+                        },
+                        MoveSelections = new List<MoveModel>() {
+                            new MoveModel() { Name = "Fire Blast", Type = "fire" },
+                            new MoveModel() { Name = "Earthquake", Type = "ground" },
+                            new MoveModel() { Name = "Wing Attack", Type = "flying" },
+                            new MoveModel() { Name = "Slash", Type = "normal" }
+                        }
+                    },
+                    new PokemonModel() {
+                        Name = "Butterfree",
+                        Types = new List<PokemonType>()
+                        {
+                            new PokemonType() {Name = "bug" },
+                            new PokemonType() {Name = "flying" }
+                        },
+                        MoveSelections = new List<MoveModel>() {
+                            new MoveModel() { Name = "Tackle", Type = "normal" },
+                            new MoveModel() { Name = "Gust", Type = "flying" },
+                            new MoveModel() { Name = "Psychic", Type = "psychic" },
+                            new MoveModel() { Name = "Wing Attack", Type = "flying" }
+                        }
+                    },
+
+                }
+            }
+        };
+
+    }
+}
