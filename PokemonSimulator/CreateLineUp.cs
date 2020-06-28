@@ -10,122 +10,68 @@ namespace PokemonSimulator
 {
     public class CreateLineUp
     {
-        public Trainer GhostTrainer { get; set; }
-        MySqlConnection Con { get; set; }
 
-        public string[] PokemonArray;
-        public string[] MovesCSVArray;
-
-        public string SearchedName = null; 
-        public string ReturnedName = null;
-        public Boolean ValidPokemon;
-        Boolean HasLineup;
-        int LineupSize;
-
-        public CreateLineUp(Trainer ghostTrainer, MySqlConnection con,Boolean haslineup)
+        public CreateLineUp()
         {
-            PokemonArray = new string[6];
-            MovesCSVArray = new string[6];
-            LineupSize = 0;
-            ValidPokemon = false;
-            HasLineup = haslineup;
-            GhostTrainer = ghostTrainer;
-            Con = con;
-            ReturnedName = "-1";
-            while (LineupSize < 6)
-            {
-                PokeFinder();
-                ValidPokemon = false;
-            }
-            AddPokemonToDB();
-            var Lineup = new TrainerLineUp(GhostTrainer.UserId, GhostTrainer.TrainerName, Con);
         }
 
-        public void ReadName()
-        {
-            Console.WriteLine("Enter the name of desired pokemon: ");
-            SearchedName = Console.ReadLine();
-        }
-
-        public void SearchPokemonAsync()
+        public bool SearchPokemonAsync(string searchName)
         {
             try
             {
-                Task<PokemonSpecies> p = DataFetcher.GetNamedApiObject<PokemonSpecies>(SearchedName.ToLower());
-                ReturnedName = p.Result.Name.ToString();
-            }catch(Exception e)
+                Task<PokemonSpecies> p = DataFetcher.GetNamedApiObject<PokemonSpecies>(searchName.ToLower());
+                searchName = p.Result.Name.ToString();
+                return true;
+            } catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                ReturnedName = "-1";
+                return false;
             }
-           
+
         }
 
-        public void PokeFinder()
-        {
-            while(ValidPokemon==false)
-            {
-                ReturnedName = "-1";
-                ReadName();
-                SearchPokemonAsync();
-                if(ReturnedName=="-1")
-                {
-                    Console.WriteLine("Pokemon not found, try again!");
-                }
-                else
-                {
-                    Console.WriteLine(ReturnedName + " has been located!");
-                     
-                    if(AddToLineup()==true)
-                    {
-                        ValidPokemon = true;
-                    }
-                }
-            }
-        }
-
-        public Boolean AddToLineup()
+        public bool PokeFinder(string returnedName)
         {
             while (true)
             {
-                Console.WriteLine("Add " + ReturnedName + " to lineup?(y/n)");
-                string choice = Console.ReadLine();
-                if (choice.ToLower().Equals("y"))
-                {
-                    Console.WriteLine(ReturnedName+" added!");
 
-                    var ChooseMoves = new MoveSelector2000(ReturnedName);
-
-                    PokemonArray[LineupSize] = ReturnedName;
-                    MovesCSVArray[LineupSize] = ChooseMoves.Move1+","+ ChooseMoves.Move2+"," + ChooseMoves.Move3 + "," + ChooseMoves.Move4;
-                    
-                    Console.WriteLine("Lets add another Pokemon....");
-                    LineupSize++;
-                    return true;
-                    
-                }
-                else if (choice.ToLower().Equals("n"))
+                if (SearchPokemonAsync(returnedName) == false)
                 {
                     return false;
                 }
                 else
                 {
-                    Console.WriteLine("Invalid choice!");
+                    Console.WriteLine(returnedName + " has been located!");
+                    return true;
                 }
             }
         }
 
+        public string AddToLineup(string name)
+        {
+            var ChooseMoves = new MoveSelector2000(name);
+            ChooseMoves.DisplayMoves();
+            string move1 = ChooseMoves.ChoseMove() + ",";
+            string move2 = ChooseMoves.ChoseMove() + ",";
+            string move3 = ChooseMoves.ChoseMove() + ",";
+            string move4 = ChooseMoves.ChoseMove();
 
-        public void AddPokemonToDB()
+            string moves = move1 + move2 + move3 + move4;
+            return moves;
+        }
+
+
+
+        public void AddPokemonToDB(string[] PokemonArray, string[] MovesCSVArray, string name, int UserId, MySqlConnection Con, bool HasLineup)
         {
             var pokemonQuery = "";
             if (HasLineup == false)
             {
-                    pokemonQuery = "INSERT INTO sql3346222.TrainerLineup VALUES(" + GhostTrainer.UserId + ",'" +
-                    GhostTrainer.TrainerName + "','" + PokemonArray[0] + "','" + MovesCSVArray[0] + "','" + PokemonArray[1]
-                    + "','" + MovesCSVArray[1] + "','" + PokemonArray[2] + "','" + MovesCSVArray[2] + "','" + PokemonArray[3] +
-                    "','" + MovesCSVArray[3] + "','" + PokemonArray[4] + "','" + MovesCSVArray[4] +
-                     "','" + PokemonArray[5] + "','" + MovesCSVArray[5] + "');";
+                pokemonQuery = "INSERT INTO sql3346222.TrainerLineup VALUES(" + UserId + ",'" +
+                name + "','" + PokemonArray[0] + "','" + MovesCSVArray[0] + "','" + PokemonArray[1]
+                + "','" + MovesCSVArray[1] + "','" + PokemonArray[2] + "','" + MovesCSVArray[2] + "','" + PokemonArray[3] +
+                "','" + MovesCSVArray[3] + "','" + PokemonArray[4] + "','" + MovesCSVArray[4] +
+                 "','" + PokemonArray[5] + "','" + MovesCSVArray[5] + "');";
             }
             else
             {
@@ -135,7 +81,7 @@ namespace PokemonSimulator
                     "',MovesCSV3='" + MovesCSVArray[2] + "',Pokemon4='" + PokemonArray[3] +
                     "',MovesCSV4='" + MovesCSVArray[3] + "',Pokemon5='" + PokemonArray[4] +
                     "',MovesCSV5='" + MovesCSVArray[4] + "',Pokemon6='" + PokemonArray[5] +
-                    "',MovesCSV6='" + MovesCSVArray[5] + "' WHERE( UserID = " + GhostTrainer.UserId + ");";
+                    "',MovesCSV6='" + MovesCSVArray[5] + "' WHERE( UserID = " + UserId + ");";
             }
             Con.Open();
             MySqlCommand cmd = new MySqlCommand(pokemonQuery, Con);
@@ -147,8 +93,7 @@ namespace PokemonSimulator
                 }
             }
             Con.Close();
-
         }
-
     }
 }
+    
