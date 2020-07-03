@@ -25,6 +25,11 @@ namespace PokemonSimulator
         /// Regex field that matches common permutations of "no". Regex value is: <see cref="noRegex"/>.
         /// </summary>
         public static readonly Regex no = new Regex(noRegex);
+        private const string alphaNumericRegex = "^[[a-z]|[A-Z]|[0-9]|[_]]+$";
+        /// <summary>
+        /// Regex field that matches any string that contains only letters and numbers. Regex value is: <see cref="alphaNumericRegex"/>.
+        /// </summary>
+        public static readonly Regex alphaNumeric = new Regex(alphaNumericRegex);
         #endregion
 
         #region Class Fields

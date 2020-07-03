@@ -18,17 +18,29 @@ namespace PokemonSimulator
             {
                 Connection = con;
 
-                Console.WriteLine("lets reset your password\nFirst enter your trainer name: ");
-                TrainerName = Console.ReadLine();
-
-                string lookupEmailByName = "SELECT email FROM sql3346222.userCredentials WHERE(TrainerName = '" + TrainerName + "');";
+                Console.WriteLine("Lets reset your password.\nFirst enter your trainer name: ");
+                while (true)
+                {
+                    TrainerName = Console.ReadLine().Trim();
+                    if (!Grand.alphaNumeric.IsMatch(TrainerName))
+                    {
+                        Console.WriteLine("Trainer names can contain only letters, numbers, and underscores!");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                string lookupEmailByName = "SELECT email FROM sql3346222.userCredentials WHERE(TrainerName = @Username);";
                 string returnedEmail = "0";
 
                 Console.WriteLine("Enter the email attached to your account: ");
-                EnteredEmail = Console.ReadLine();
+                EnteredEmail = Console.ReadLine().Trim();
 
                 con.Open();
                 MySqlCommand query = new MySqlCommand(lookupEmailByName, con);
+                query.Parameters.Add(@"@Username", MySqlDbType.VarChar);
+                query.Parameters[@"@Username"].Value = TrainerName;
                 MySqlDataReader rdr = query.ExecuteReader();
 
                 //reading returned query
@@ -105,10 +117,14 @@ namespace PokemonSimulator
 
             Connection.Open();
             //INSERT query
-            string plainTextQuery = "UPDATE sql3346222.userCredentials SET Password=('"+Hashedpass+"')" +
-                " WHERE TrainerName = ('"+TrainerName+"');";
+            string plainTextQuery = "UPDATE sql3346222.userCredentials SET Password=(@Password)" +
+                " WHERE TrainerName = (@Username);";
             //execute the query
             MySqlCommand query = new MySqlCommand(plainTextQuery, Connection);
+            query.Parameters.Add(@"@Password", MySqlDbType.Text);
+            query.Parameters[@"@Password"].Value = Hashedpass;
+            query.Parameters.Add(@"@Username", MySqlDbType.VarChar);
+            query.Parameters[@"@Username"].Value = TrainerName;
             MySqlDataReader rdr = query.ExecuteReader();
 
             while (rdr.Read())

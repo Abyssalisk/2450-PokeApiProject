@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using PokeAPI;
@@ -30,6 +31,10 @@ namespace PokemonSimulator
         public LoadPokemonFromDB(string trainername, MySqlConnection con)
         {
             LoadedLineUp = new List<Pokemon>();
+            if (!Grand.alphaNumeric.IsMatch(trainername))
+            {
+                throw new ArgumentException("Error: trainername must consist of only alphanumeric characters to mitigate SQL injection attacks.");
+            }
             TrainerName = trainername;
             Con = con;
             LoadData(/*true*/);
@@ -43,17 +48,27 @@ namespace PokemonSimulator
             var tempLineUp = new List<Pokemon>();
             var getPokemonQuery = (TrainerName == string.Empty ? "SELECT `Pokemon1`,`MovesCSV1`,`Pokemon2`,`MovesCSV2`,`Pokemon3`,`MovesCSV3`" +
                 ",`Pokemon4`,`MovesCSV4`,`Pokemon5`,`MovesCSV5`,`Pokemon6`,`MovesCSV6`" +
-                " FROM sql3346222.TrainerLineup WHERE(UserID = " + TrainerId + ");" :
+                " FROM sql3346222.TrainerLineup WHERE(UserID = @ID);" :
                 "SELECT `Pokemon1`,`MovesCSV1`,`Pokemon2`,`MovesCSV2`,`Pokemon3`,`MovesCSV3`" +
                 ",`Pokemon4`,`MovesCSV4`,`Pokemon5`,`MovesCSV5`,`Pokemon6`,`MovesCSV6`" +
-                " FROM sql3346222.EliteFour WHERE(TrainerName = '" + TrainerName + "');");
+                " FROM sql3346222.EliteFour WHERE(TrainerName = @Username);");
 
             //Get pokemon from DB
             Con.Open();
             MySqlCommand cmd = new MySqlCommand(getPokemonQuery, Con);
+            if (TrainerName == string.Empty)
+            {
+                cmd.Parameters.Add(@"@ID", MySqlDbType.Int32);
+                cmd.Parameters[@"@ID"].Value = TrainerId;
+            }
+            else
+            {
+                cmd.Parameters.Add(@"@Username", MySqlDbType.VarChar);
+                cmd.Parameters[@"@Username"].Value = TrainerName;
+            }
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
-                Queue<Tuple<Task<PokeAPI.Pokemon>, List<Task<PokeAPI.Move>>>> tasks = new Queue<Tuple<Task<PokeAPI.Pokemon>, List<Task<PokeAPI.Move>>>>();
+                var tasks = new Queue<Tuple<Task<PokeAPI.Pokemon>, List<Task<PokeAPI.Move>>>>();
                 Dictionary<string, Task<PokeAPI.Pokemon>> requestedPokemon = new Dictionary<string, Task<PokeAPI.Pokemon>>();
                 Dictionary<string, Task<PokeAPI.Move>> requestedMoves = new Dictionary<string, Task<PokeAPI.Move>>();
                 Task<PokeAPI.Pokemon> tempGetPoke = null;
@@ -160,7 +175,14 @@ namespace PokemonSimulator
                         TypeWeaknesses = null
                     });
                 }
-
+                foreach (var e in requestedPokemon)
+                {
+                    e.Value.Dispose();
+                }
+                foreach (var e in requestedMoves)
+                {
+                    e.Value.Dispose();
+                }
                 #region Old
                 //while (reader.Read())
                 //{

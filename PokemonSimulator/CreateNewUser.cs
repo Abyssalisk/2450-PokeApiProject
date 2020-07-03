@@ -42,13 +42,20 @@ namespace PokemonSimulator
                 }
                 else
                 {
-                    if (UserNameValidation(TrainerName, con) == false)
+                    if (UserNameValidation(TrainerName, con))
                     {
-                        Console.WriteLine("Trainer name is already taken!Try again");
+                        if (!Grand.alphaNumeric.IsMatch(TrainerName))
+                        {
+                            Console.WriteLine("Trainer names can contain only letters, numbers, and underscores!");
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                     else
                     {
-                        break;
+                        Console.WriteLine("That trainer name is already taken! Try another username.");
                     }
                 }
             }
@@ -60,6 +67,7 @@ namespace PokemonSimulator
                 Password = Console.ReadLine();
                 if (Password.Length > 50)
                 {
+#warning This input is not yet being vetted to mitigate SQL injections.
                     Console.WriteLine("Password is to long, enter a shorter one!");
                 }
                 else
@@ -112,11 +120,15 @@ namespace PokemonSimulator
         //Private method to verify Email is in the correct form
 
         //checks to see if username is already taken
-        public Boolean UserNameValidation(string userName, MySqlConnection con)
+        public bool UserNameValidation(string userName, MySqlConnection con)
         {
+            if (!Grand.alphaNumeric.IsMatch(userName))
+            {
+                return false;
+            }
             con.Open();
             //INSERT query
-            string plainTextQuery = "SELECT TrainerName FROM sql3346222.userCredentials WHERE(TrainerName = '"+userName+"');";
+            string plainTextQuery = "SELECT TrainerName FROM sql3346222.userCredentials WHERE(TrainerName = '" + userName + "');";
             string returnedQuery = "";
             //execute the query
             MySqlCommand query = new MySqlCommand(plainTextQuery, con);
@@ -124,12 +136,12 @@ namespace PokemonSimulator
 
             while (rdr.Read())
             {
-                returnedQuery=(rdr[0]).ToString();
+                returnedQuery = (rdr[0]).ToString();
             }
             rdr.Close();
             con.Close();
 
-            if(returnedQuery==userName)
+            if (returnedQuery == userName)
             {
                 return false;
             }
@@ -137,15 +149,20 @@ namespace PokemonSimulator
             return true;
         }
         //This method inserts the user login credentials into the DB
-        public void InsertDBcredentials(String name, String passAfterItHashed,  String Email, MySqlConnection connection)
+        public void InsertDBcredentials(String name, String passAfterItHashed, String email, MySqlConnection connection)
         {
             //Opens a new connection to MySql DB
             connection.Open();
             //INSERT query
-            string plainTextQuery = "INSERT INTO sql3346222.userCredentials(TrainerName, Password, Email) VALUES('" + name + 
-                "','" + passAfterItHashed + "','"+ Email+ "');";
+            string plainTextQuery = "INSERT INTO sql3346222.userCredentials(TrainerName, Password, Email) VALUES(@Name,@Pass,@Email);";
             //execute the query
             MySqlCommand query = new MySqlCommand(plainTextQuery, connection);
+            query.Parameters.Add(@"@Name", MySqlDbType.VarChar);
+            query.Parameters.Add(@"@Pass", MySqlDbType.Text);
+            query.Parameters.Add(@"@Email", MySqlDbType.VarChar);
+            query.Parameters[@"@Name"].Value = name;
+            query.Parameters[@"@Pass"].Value = passAfterItHashed;
+            query.Parameters[@"@Email"].Value = email;
             MySqlDataReader rdr = query.ExecuteReader();
 
             while (rdr.Read())
@@ -156,8 +173,6 @@ namespace PokemonSimulator
             connection.Close();
 
             Console.WriteLine("new trainer added!");
-
         }
-
     }
 }

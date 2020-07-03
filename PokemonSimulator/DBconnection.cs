@@ -14,15 +14,15 @@ namespace PokemonSimulator
         public static string GetRDSConnectionString()
         {
 
-            var dbname = "sql3346222";
+            const string dbname = "sql3346222";
 
-            if (string.IsNullOrEmpty(dbname)) return null;
+            //if (string.IsNullOrEmpty(dbname)) return null;
 
-            string username = "sql3346222";
-            string password = "wTvU3pVa7f";
-            string hostname = "sql3.freemysqlhosting.net";
-            string port = "3306";
-            var connectionString = "Server=" + hostname + "; Port=" + port + "; Database=" + dbname + "; Uid=" + username + "; Pwd=" + password + ";";
+            const string username = "sql3346222";
+            const string password = "wTvU3pVa7f";
+            const string hostname = "sql3.freemysqlhosting.net";
+            const string port = "3306";
+            const string connectionString = "Server=" + hostname + "; Port=" + port + "; Database=" + dbname + "; Uid=" + username + "; Pwd=" + password + ";";
             return connectionString;
         }
     }
