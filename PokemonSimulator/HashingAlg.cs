@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace PokemonSimulator
 {
-    class HashingAlg
+    public class HashingAlg
     {
         //add SHA256 secret, seperate with -, split on
         string hashString;
