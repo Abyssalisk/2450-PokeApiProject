@@ -29,12 +29,6 @@ namespace UnitTest.ConsoleApp
             Assert.False(_TestLineUp.SearchPokemonAsync("spencer is the worst"));
         }
 
-        [Fact]
-        public void TestPokeFinder()
-        {
-            Assert.True(_TestLineUp.PokeFinder("pikachu"));
-            Assert.False(_TestLineUp.PokeFinder("spencer is the worst"));
-        }
 
     }
 }

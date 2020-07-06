@@ -10,114 +10,48 @@ namespace PokemonSimulator
 {
     public class CreateLineUp
     {
-        public Trainer GhostTrainer { get; set; }
-        MySqlConnection Con { get; set; }
 
-        public string[] PokemonArray;
-        public string[] MovesCSVArray;
-
-        public string SearchedName = null;
-        public string ReturnedName = null;
-        public Boolean ValidPokemon;
-        Boolean HasLineup;
-        int LineupSize;
-
-        public CreateLineUp(Trainer ghostTrainer, MySqlConnection con, Boolean haslineup)
+        public CreateLineUp()
         {
-            PokemonArray = new string[6];
-            MovesCSVArray = new string[6];
-            LineupSize = 0;
-            ValidPokemon = false;
-            HasLineup = haslineup;
-            GhostTrainer = ghostTrainer;
-            Con = con;
-            ReturnedName = "-1";
-            while (LineupSize < 6)
-            {
-                PokeFinder();
-                ValidPokemon = false;
-            }
-            AddPokemonToDB();
-            var Lineup = new TrainerLineUp(GhostTrainer.UserId, GhostTrainer.TrainerName, Con);
+           
         }
 
-        public void ReadName()
-        {
-            Console.WriteLine("Enter the name of desired pokemon: ");
-            SearchedName = Console.ReadLine();
-        }
-
-        public void SearchPokemonAsync()
+        public bool SearchPokemonAsync(string name)
         {
             try
             {
-                Task<PokemonSpecies> p = DataFetcher.GetNamedApiObject<PokemonSpecies>(SearchedName.ToLower());
-                ReturnedName = p.Result.Name.ToString();
+                Task<PokemonSpecies> p = DataFetcher.GetNamedApiObject<PokemonSpecies>(name.ToLower());
+                if (p.Result.Name.ToString() == name)
+                    return true;
+                else
+                    return false;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                ReturnedName = "-1";
+                return false;
             }
 
         }
 
-        public void PokeFinder()
+        public string AddToLineup(string name)
         {
-            while (ValidPokemon == false)
-            {
-                ReturnedName = "-1";
-                ReadName();
-                SearchPokemonAsync();
-                if (ReturnedName == "-1")
-                {
-                    Console.WriteLine("Pokemon not found, try again!");
-                }
-                else
-                {
-                    Console.WriteLine(ReturnedName + " has been located!");
+            var ChooseMoves = new MoveSelector2000(name);
+            ChooseMoves.DisplayMoves();
+            string moves = "";
+            for(int i = 0; i < 4; i++)
+                moves += ChooseMoves.ChoseMove()+",";
 
-                    if (AddToLineup() == true)
-                    {
-                        ValidPokemon = true;
-                    }
-                }
-            }
-        }
+            moves.Remove(moves.Length-2);
+            Console.WriteLine(moves);
+            Console.WriteLine("Lets add another Pokemon....");
 
-        public Boolean AddToLineup()
-        {
-            while (true)
-            {
-                Console.WriteLine("Add " + ReturnedName + " to lineup?(y/n)");
-                string choice = Console.ReadLine();
-                if (choice.ToLower().Equals("y"))
-                {
-                    Console.WriteLine(ReturnedName + " added!");
+            return moves;
 
-                    var ChooseMoves = new MoveSelector2000(ReturnedName);
-
-                    PokemonArray[LineupSize] = ReturnedName;
-                    MovesCSVArray[LineupSize] = ChooseMoves.Move1 + "," + ChooseMoves.Move2 + "," + ChooseMoves.Move3 + "," + ChooseMoves.Move4;
-
-                    Console.WriteLine("Lets add another Pokemon....");
-                    LineupSize++;
-                    return true;
-
-                }
-                else if (choice.ToLower().Equals("n"))
-                {
-                    return false;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid choice!");
-                }
-            }
         }
 
 
-        public void AddPokemonToDB()
+        public void AddPokemonToDB(string[] PokemonArray, string[] MovesCSVArray,Trainer GhostTrainer,MySqlConnection Con,bool HasLineup)
         {
             string pokemonQuery = "";
             if (!HasLineup)
@@ -143,29 +77,29 @@ namespace PokemonSimulator
                 cmd.Parameters[@"@CSV1"].Value = MovesCSVArray[0];
 
                 cmd.Parameters.Add(@"@Poke2", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke2"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke2"].Value = PokemonArray[1];
                 cmd.Parameters.Add(@"@CSV2", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV2"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV2"].Value = MovesCSVArray[1];
 
                 cmd.Parameters.Add(@"@Poke3", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke3"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke3"].Value = PokemonArray[2];
                 cmd.Parameters.Add(@"@CSV3", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV3"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV3"].Value = MovesCSVArray[2];
 
                 cmd.Parameters.Add(@"@Poke4", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke4"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke4"].Value = PokemonArray[3];
                 cmd.Parameters.Add(@"@CSV4", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV4"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV4"].Value = MovesCSVArray[3];
 
                 cmd.Parameters.Add(@"@Poke5", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke5"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke5"].Value = PokemonArray[4];
                 cmd.Parameters.Add(@"@CSV5", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV5"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV5"].Value = MovesCSVArray[4];
 
                 cmd.Parameters.Add(@"@Poke6", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke6"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke6"].Value = PokemonArray[5];
                 cmd.Parameters.Add(@"@CSV6", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV6"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV6"].Value = MovesCSVArray[5];
             }
             else
             {
@@ -178,29 +112,29 @@ namespace PokemonSimulator
                 cmd.Parameters[@"@CSV1"].Value = MovesCSVArray[0];
 
                 cmd.Parameters.Add(@"@Poke2", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke2"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke2"].Value = PokemonArray[1];
                 cmd.Parameters.Add(@"@CSV2", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV2"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV2"].Value = MovesCSVArray[1];
 
                 cmd.Parameters.Add(@"@Poke3", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke3"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke3"].Value = PokemonArray[2];
                 cmd.Parameters.Add(@"@CSV3", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV3"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV3"].Value = MovesCSVArray[2];
 
                 cmd.Parameters.Add(@"@Poke4", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke4"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke4"].Value = PokemonArray[3];
                 cmd.Parameters.Add(@"@CSV4", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV4"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV4"].Value = MovesCSVArray[3];
 
                 cmd.Parameters.Add(@"@Poke5", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke5"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke5"].Value = PokemonArray[4];
                 cmd.Parameters.Add(@"@CSV5", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV5"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV5"].Value = MovesCSVArray[4];
 
                 cmd.Parameters.Add(@"@Poke6", MySqlDbType.MediumText);
-                cmd.Parameters[@"@Poke6"].Value = PokemonArray[0];
+                cmd.Parameters[@"@Poke6"].Value = PokemonArray[5];
                 cmd.Parameters.Add(@"@CSV6", MySqlDbType.VarString);
-                cmd.Parameters[@"@CSV6"].Value = MovesCSVArray[0];
+                cmd.Parameters[@"@CSV6"].Value = MovesCSVArray[5];
             }
             using (MySqlDataReader rdr = cmd.ExecuteReader())
             {

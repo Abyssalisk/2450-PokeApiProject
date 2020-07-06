@@ -8,7 +8,7 @@ using PokeAPI;
 
 namespace PokemonSimulator
 {
-    class MoveSelector2000
+    public class MoveSelector2000
     {
 
         public List<string> AvailbleMoves;

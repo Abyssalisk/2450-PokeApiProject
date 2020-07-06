@@ -35,16 +35,16 @@ namespace PokemonSimulator
             {
                 Console.WriteLine("Enter the name of desired pokemon: ");
                 string pokemonName = Console.ReadLine();
-                bool pokemonfound = MakeLineUp.PokeFinder(pokemonName);
+                bool pokemonfound = MakeLineUp.SearchPokemonAsync(pokemonName);
                 if(pokemonfound == true)
                 {
-                    AddDescion(pokemonName);
+                    AddDescion(pokemonName.ToLower());
                 }else if(pokemonfound ==false )
                 {
-                    Console.WriteLine();
+                    Console.WriteLine("Pokemon not found, try again!");
                 }
             }
-            MakeLineUp.AddPokemonToDB(PokemonArray,MovesCSVArray,GhostTrainer.TrainerName, GhostTrainer.UserId,Con,HasLineup);
+            MakeLineUp.AddPokemonToDB(PokemonArray,MovesCSVArray,GhostTrainer,Con,HasLineup);
             var Lineup = new TrainerLineUp(GhostTrainer.UserId, GhostTrainer.TrainerName, Con);
         }
 
