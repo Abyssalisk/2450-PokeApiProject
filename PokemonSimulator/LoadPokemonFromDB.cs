@@ -53,6 +53,7 @@ namespace PokemonSimulator
                 ",`Pokemon4`,`MovesCSV4`,`Pokemon5`,`MovesCSV5`,`Pokemon6`,`MovesCSV6`" +
                 " FROM sql3346222.EliteFour WHERE(TrainerName = @Username);");
 
+
             //Get pokemon from DB
             Con.Open();
             MySqlCommand cmd = new MySqlCommand(getPokemonQuery, Con);
