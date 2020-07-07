@@ -40,7 +40,7 @@ namespace PokemonSimulator
             #endregion
 
             #region Attack method
-            void Attack(Pokemon attack, Pokemon defend, int moveIndex, bool isEnemyAttacking)
+            void Attack(Pokemon attack, Pokemon defend, int moveIndex, bool isEnemyAttacking) //is
             {
                 if (isEnemyAttacking)
                 {

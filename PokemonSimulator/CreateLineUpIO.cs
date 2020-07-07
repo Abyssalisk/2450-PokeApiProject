@@ -26,7 +26,7 @@ namespace PokemonSimulator
             HasLineup = haslineup;
             GhostTrainer = ghostTrainer;
             Con = con;
-            AddPokemonToLineup(); 
+            AddPokemonToLineup();
         }
 
         public void AddPokemonToLineup()
@@ -36,15 +36,16 @@ namespace PokemonSimulator
                 Console.WriteLine("Enter the name of desired pokemon: ");
                 string pokemonName = Console.ReadLine();
                 bool pokemonfound = MakeLineUp.SearchPokemonAsync(pokemonName);
-                if(pokemonfound == true)
+                if (pokemonfound == true)
                 {
                     AddDescion(pokemonName.ToLower());
-                }else if(pokemonfound ==false )
+                }
+                else if (pokemonfound == false)
                 {
                     Console.WriteLine("Pokemon not found, try again!");
                 }
             }
-            MakeLineUp.AddPokemonToDB(PokemonArray,MovesCSVArray,GhostTrainer,Con,HasLineup);
+            MakeLineUp.AddPokemonToDB(PokemonArray, MovesCSVArray, GhostTrainer, Con, HasLineup);
             var Lineup = new TrainerLineUp(GhostTrainer.UserId, GhostTrainer.TrainerName, Con);
         }
 
@@ -74,4 +75,3 @@ namespace PokemonSimulator
         }
     }
 }
- 

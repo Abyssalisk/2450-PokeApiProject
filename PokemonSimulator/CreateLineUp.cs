@@ -20,7 +20,7 @@ namespace PokemonSimulator
         {
             try
             {
-                Task<PokemonSpecies> p = DataFetcher.GetNamedApiObject<PokemonSpecies>(name.ToLower());
+                Task<PokemonSpecies> p = DataFetcher.GetNamedApiObject<PokemonSpecies>(name.Trim().ToLower());
                 if (p.Result.Name.ToString() == name)
                     return true;
                 else

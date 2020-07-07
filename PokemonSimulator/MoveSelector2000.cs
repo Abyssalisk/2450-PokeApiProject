@@ -18,24 +18,26 @@ namespace PokemonSimulator
             AvailbleMoves = new List<string>();
             Name = name;
         }
-        
+
         public bool DisplayMoves()
         {
             try
             {
-                Console.WriteLine("Dispaying list of moves......");
+                Console.WriteLine("Displaying list of moves......");
                 Task<PokeAPI.Pokemon> p = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(Name);
-                var returnedmoves = p.Result.Moves;
+                PokemonMove[] returnedmoves = p.Result.Moves;
                 int linecountspace = 0;
-
-                foreach (PokeAPI.PokemonMove element in returnedmoves)
+                Task<PokeAPI.Move>[] moves = new Task<PokeAPI.Move>[returnedmoves.Length];
+                for (int i = 0; i < returnedmoves.Length; i++)
                 {
-
-                    Task<PokeAPI.Move> m = DataFetcher.GetNamedApiObject<PokeAPI.Move>(element.Move.Name.ToString());
-
-                    if (m.Result.Power != 0 && m.Result.Power.ToString() != "" && m.Result.Power != null)
+                    moves[i] = (DataFetcher.GetNamedApiObject<PokeAPI.Move>(returnedmoves[i].Move.Name.ToString()));
+                }
+                Task.WaitAll(moves);
+                foreach (Task<PokeAPI.Move> e in moves)
+                {
+                    if (e.Result.Power != null && !string.IsNullOrEmpty(e.Result.Power.ToString()))
                     {
-                        string movestring = element.Move.Name.ToString();
+                        string movestring = e.Result.Name.ToString();
                         Console.Write(movestring + ", ");
                         AvailbleMoves.Add(movestring);
                         linecountspace++;
@@ -45,11 +47,31 @@ namespace PokemonSimulator
                             linecountspace = 0;
                         }
                     }
+                    e.Dispose();
                 }
+                //foreach (PokeAPI.PokemonMove element in returnedmoves)
+                //{
+
+                //    Task<PokeAPI.Move> m = DataFetcher.GetNamedApiObject<PokeAPI.Move>(element.Move.Name.ToString());
+
+                //    if (m.Result.Power != 0 && m.Result.Power.ToString() != "" && m.Result.Power != null)
+                //    {
+                //        string movestring = element.Move.Name.ToString();
+                //        Console.Write(movestring + ", ");
+                //        AvailbleMoves.Add(movestring);
+                //        linecountspace++;
+                //        if (linecountspace == 4)
+                //        {
+                //            Console.Write("\n");
+                //            linecountspace = 0;
+                //        }
+                //    }
+                //}
                 return true;
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
-                Console.WriteLine("Error most likely with pokemon name! \n"+e.Message);
+                Console.WriteLine("Error most likely with pokemon name! \n" + e.Message);
                 return false;
             }
         }
@@ -62,7 +84,7 @@ namespace PokemonSimulator
                 string movechoice = Console.ReadLine();
                 if (AvailbleMoves.Contains(movechoice))
                 {
-                    Console.WriteLine(movechoice+" added!");
+                    Console.WriteLine(movechoice + " added!");
                     return movechoice;
                 }
                 else
