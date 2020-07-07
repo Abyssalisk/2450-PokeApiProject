@@ -80,7 +80,7 @@ namespace PokemonSimulator
         {
             while (true)
             {
-                Console.WriteLine("Type the name of the move you wish to add:");
+                Console.WriteLine("\nType the name of the move you wish to add:");
                 string movechoice = Console.ReadLine();
                 if (AvailbleMoves.Contains(movechoice))
                 {

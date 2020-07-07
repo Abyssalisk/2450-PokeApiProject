@@ -46,7 +46,6 @@ namespace PokemonSimulator
                 }
             }
             MakeLineUp.AddPokemonToDB(PokemonArray, MovesCSVArray, GhostTrainer, Con, HasLineup);
-            var Lineup = new TrainerLineUp(GhostTrainer.UserId, GhostTrainer.TrainerName, Con);
         }
 
         public void AddDescion(string name)

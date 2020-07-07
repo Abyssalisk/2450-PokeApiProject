@@ -113,6 +113,7 @@ namespace PokemonSimulator
                 {
                     LoopStuck = false;
                     var makeAlineup = new CreateLineUpIO(GhostTrainer, Con, HasLineup);
+                    HasLineup = false;
                     return;
                 }
                 else if (choice.ToLower().Equals("n"))

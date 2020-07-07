@@ -42,7 +42,7 @@ namespace PokemonSimulator
             for(int i = 0; i < 4; i++)
                 moves += ChooseMoves.ChoseMove()+",";
 
-            moves.Remove(moves.Length-2);
+            moves = moves.Remove((moves.Length)-1);
             Console.WriteLine(moves);
             Console.WriteLine("Lets add another Pokemon....");
 
