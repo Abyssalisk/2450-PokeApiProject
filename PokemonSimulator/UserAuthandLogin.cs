@@ -34,22 +34,20 @@ namespace PokemonSimulator
 
             // Begin Console Program
             Console.WriteLine("Welcome to Pokemon Battle Simulator Console Version!");
-
-            Console.WriteLine("Are you a new trainer? (y/n)");
-            var newUser = Console.ReadLine();
+            Console.WriteLine("Are you a new trainer? (Y/N)");
 
             while (true)
             {
+                string newUser = Console.ReadLine().Trim();
                 //Choice if user is new, takes them to create user
-                if (newUser.ToLower().Equals("y"))
+                if (Grand.yes.IsMatch(newUser))
                 {
                     var createNewTrainer = new CreateNewUser(Connection.myConnection);
                     Login(); //once new user is made prompts for login
                     break;
                 }
-
                 //Choice if user enters, N not a new user, prompts login
-                if (newUser.ToLower().Equals("n"))
+                else if (Grand.no.IsMatch(newUser))
                 {
                     Login();
                     break;
@@ -57,8 +55,7 @@ namespace PokemonSimulator
 
                 //if something other than y or n is entered user is prompted with choice again
                 Console.WriteLine("Invalid choice! Please type y or n");
-                Console.WriteLine("Are you a new trainer? (y/n)");
-                newUser = Console.ReadLine();
+                Console.WriteLine("Are you a new trainer? (Y/N)");
             }
         }
 
@@ -123,24 +120,22 @@ namespace PokemonSimulator
             else //failed login attempt
             {
                 Console.WriteLine("Username or Password incorrect! Please try again!");
-                Console.WriteLine("Do you need to reset your Password? (y/n)");
-                var resetPasswrodYorN = Console.ReadLine();
 
                 while (true)
                 {
-                    if (resetPasswrodYorN.ToLower().Equals("y"))
+                    Console.WriteLine("Do you need to reset your Password? (Y/N)");
+                    string resetPasswrodYorN = Console.ReadLine().Trim();
+                    if (Grand.yes.IsMatch(resetPasswrodYorN))
                     {
                         var reset = new ResetPassword(con);
                         return true;
                     }
-                    if (resetPasswrodYorN.ToLower().Equals("n"))
+                    else if (Grand.no.IsMatch(resetPasswrodYorN))
                     {
                         return false;
                     }
 
                     Console.WriteLine("Invalid choice, please eneter y to reset Password or n to reattempt login!");
-                    Console.WriteLine("Do you need to reset your Password? (y/n)");
-                    resetPasswrodYorN = Console.ReadLine();
                 }
             }
         }

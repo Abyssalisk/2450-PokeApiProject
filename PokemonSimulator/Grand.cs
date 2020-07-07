@@ -15,12 +15,12 @@ namespace PokemonSimulator
     {
         #region Fields
         #region Consts
-        private const string yesRegex = @"^[y|Ye|Es|S]|[y|Y]";
+        private const string yesRegex = @"^[[y|Ye|Es|S]|[y|Y]]$";
         /// <summary>
         /// Regex field that matches common permutations of "yes". Regex value is: <see cref="yesRegex"/>.
         /// </summary>
         public static readonly Regex yes = new Regex(yesRegex);
-        private const string noRegex = @"^[n|No|O]|[n|N]";
+        private const string noRegex = @"^[[n|No|O]|[n|N]]$";
         /// <summary>
         /// Regex field that matches common permutations of "no". Regex value is: <see cref="noRegex"/>.
         /// </summary>

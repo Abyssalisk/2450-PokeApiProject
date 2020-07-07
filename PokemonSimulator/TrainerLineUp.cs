@@ -81,24 +81,24 @@ namespace PokemonSimulator
             Con.Close();
             while (true)
             {
-                Console.WriteLine("Use this lineup? (y/n)");
-                var choice = Console.ReadLine();
+                Console.WriteLine("Use this lineup? (Y/N)");
+                string choice = Console.ReadLine().Trim();
 
-                if (choice.ToLower().Equals("y"))
+                if (Grand.yes.IsMatch(choice))
                 {
                     var loader = new LoadPokemonFromDB(UserID, Con);
                     tempLineUp = loader.LoadedLineUp;
                     GhostTrainer.Pokemon = tempLineUp;
                     break;
                 }
-                else if (choice.ToLower().Equals("n"))
+                else if (Grand.no.IsMatch(choice))
                 {
                     NewLineupChoice();
                     break;
                 }
                 else
                 {
-                    Console.WriteLine("Invalid choice !");
+                    Console.WriteLine("Invalid choice!");
                 }
             }
         }
@@ -107,23 +107,23 @@ namespace PokemonSimulator
         {
             while (true)
             {
-                Console.WriteLine("Make a new lineup? (y/n)");
-                var choice = Console.ReadLine();
-                if (choice.ToLower().Equals("y"))
+                Console.WriteLine("Make a new lineup? (Y/N)");
+                string choice = Console.ReadLine().Trim();
+                if (Grand.yes.IsMatch(choice))
                 {
                     LoopStuck = false;
                     var makeAlineup = new CreateLineUpIO(GhostTrainer, Con, HasLineup);
                     HasLineup = false;
                     return;
                 }
-                else if (choice.ToLower().Equals("n"))
+                else if (Grand.no.IsMatch(choice))
                 {
                     LoopStuck = true;
                     return;
                 }
                 else
                 {
-                    Console.WriteLine("Invalid Choice! ");
+                    Console.WriteLine("Invalid Choice!");
                 }
             }
         }

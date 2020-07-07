@@ -52,14 +52,14 @@ namespace PokemonSimulator
         {
             while (true)
             {
-                Console.WriteLine("Add " + name + " to lineup?(y/n)");
-                string choice = Console.ReadLine();
+                Console.WriteLine("Add " + name + " to lineup? (Y/N)");
+                string choice = Console.ReadLine().Trim();
 
-                if (choice.ToLower() == "n")
+                if (Grand.no.IsMatch(choice))
                 {
                     break;
                 }
-                else if (choice.ToLower() == "y")
+                else if (Grand.yes.IsMatch(choice))
                 {
                     PokemonArray[LineupSize] = name;
                     MovesCSVArray[LineupSize] = MakeLineUp.AddToLineup(name);

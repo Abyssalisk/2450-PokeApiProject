@@ -91,7 +91,7 @@ namespace PokemonSimulator
                     //validates if the entered Email is in supported format
                     if (EmailSetup.EmailIsInCorrectForm == false)
                     {
-                        Console.WriteLine("Email is in invalid form!Try again");
+                        Console.WriteLine("Email is in invalid form! Try again");
                     }
                     if (EmailSetup.EmailIsValid == false)
                     {

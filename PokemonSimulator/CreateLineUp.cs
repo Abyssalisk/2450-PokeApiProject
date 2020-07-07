@@ -36,7 +36,7 @@ namespace PokemonSimulator
 
         public string AddToLineup(string name)
         {
-            var ChooseMoves = new MoveSelector2000(name);
+            MoveSelector2000 ChooseMoves = new MoveSelector2000(name);
             ChooseMoves.DisplayMoves();
             string moves = "";
             for(int i = 0; i < 4; i++)
@@ -44,7 +44,7 @@ namespace PokemonSimulator
 
             moves = moves.Remove((moves.Length)-1);
             Console.WriteLine(moves);
-            Console.WriteLine("Lets add another Pokemon....");
+            Console.WriteLine("Lets add another Pokemon...");
 
             return moves;
 

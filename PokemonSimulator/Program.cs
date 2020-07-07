@@ -4,6 +4,7 @@ using System.Linq;
 using PokeAPI;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace PokemonSimulator
 {
@@ -49,8 +50,8 @@ namespace PokemonSimulator
 
                 while (Lineup.LoopStuck == true)
                 {
-                    Console.WriteLine("Would you like to leave? type 'exit'\nOr press any key to continue");
-                    string exitChoice = Console.ReadLine();
+                    Console.WriteLine("Would you like to leave? type 'exit'\nOr press enter to continue");
+                    string exitChoice = Console.ReadLine().Trim();
 
                     if (exitChoice.ToLower().Equals("exit"))
                     {
@@ -96,7 +97,16 @@ namespace PokemonSimulator
                         if (Exit)
                         {
                             //The person quit, so it should break the fighting loop. Right? if it starts over on the match they lost on, their pokemon's HP should be restored to the values they were before this match.
+                            Console.WriteLine("\n\n\nThanks for playing!");
+                            Thread.Sleep(3000);
                             break;
+                        }
+                        else
+                        {
+                            //Sets all the pokemanz health back to full and restarts the game from the first of the elite four.
+                            CurrentTrainer.Pokemon.ForEach(x => x.ActingHP = x.BaseHP);
+                            WinCounter = 0;
+                            j = 6; //It'll be decremented to 5 at the beginning of the loop.
                         }
                     }
                     else

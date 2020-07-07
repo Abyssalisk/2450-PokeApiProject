@@ -56,27 +56,25 @@ namespace PokemonSimulator
                 {
                     string newUser;
                     Console.WriteLine("No email found or user name incorrect!\nPlease try again or create new user");
-                    Console.WriteLine("Would you like to make a new account?(y/n)");
-                    newUser = Console.ReadLine();
+                    Console.WriteLine("Would you like to make a new account? (Y/N)");
                     while (true)
                     {
+                        newUser = Console.ReadLine().Trim();
                         //Choice if user is new, takes them to create user
-                        if (newUser.ToLower().Equals("y"))
+                        if (Grand.yes.IsMatch(newUser))
                         {
                             var backToMakeNewAccount = new UserAuthAndLogin();
                             break;
                         }
-
                         //Choice if user enters, N not a new user, prompts login
-                        if (newUser.ToLower().Equals("n"))
+                        else if (Grand.no.IsMatch(newUser))
                         {
                             break;
                         }
 
                         //if something other than y or n is entered user is prompted with choice again
                         Console.WriteLine("Invalid choice! Please type y or n");
-                        Console.WriteLine("Make new account? (y/n)");
-                        newUser = Console.ReadLine();
+                        Console.WriteLine("Make new account? (Y/N)");
                     }
                 }
 
@@ -85,7 +83,7 @@ namespace PokemonSimulator
                     if (returnedEmail == EnteredEmail)
                     {
                         var emailVerificationForReset = new EmailValidation(returnedEmail);
-                        if(emailVerificationForReset.EmailIsValid==true)
+                        if (emailVerificationForReset.EmailIsValid == true)
                         {
                             Console.WriteLine("Lets reset your password...");
                             MakeNewPassword();

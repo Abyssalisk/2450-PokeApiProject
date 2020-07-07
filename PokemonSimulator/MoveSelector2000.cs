@@ -76,12 +76,13 @@ namespace PokemonSimulator
             }
         }
 
+        //Probably should be an IEnumerator
         public string ChoseMove()
         {
             while (true)
             {
                 Console.WriteLine("\nType the name of the move you wish to add:");
-                string movechoice = Console.ReadLine();
+                string movechoice = Console.ReadLine().Trim().ToLower();
                 if (AvailbleMoves.Contains(movechoice))
                 {
                     Console.WriteLine(movechoice + " added!");
@@ -89,11 +90,9 @@ namespace PokemonSimulator
                 }
                 else
                 {
-                    Console.WriteLine("move not found");
+                    Console.WriteLine($"Move \"{movechoice}\" not found. Try again.");
                 }
             }
         }
-
-
     }
 }
