@@ -59,7 +59,7 @@ namespace PokemonSimulator
                 return false;
         }
 
-        private void LoadLineup()
+        public void LoadLineup()
         {
             var tempLineUp = new List<Pokemon>();
             var getPokemonQuery = "SELECT `Pokemon1`,`Pokemon2`,`Pokemon3`,`Pokemon4`,`Pokemon5`,`Pokemon6`" +
@@ -79,35 +79,51 @@ namespace PokemonSimulator
                 }
             }
             Con.Close();
-
-            Console.WriteLine("Use this lineup? (y/n)");
-            var choice = Console.ReadLine();
-
-            if (choice.ToLower().Equals("y"))
+            while (true)
             {
-                var loader = new LoadPokemonFromDB(UserID,Con);
-                tempLineUp = loader.LoadedLineUp;
-                GhostTrainer.Pokemon = tempLineUp;
-            }
-            if (choice.ToLower().Equals("n"))
-            {
-                NewLineupChoice();
+                Console.WriteLine("Use this lineup? (y/n)");
+                var choice = Console.ReadLine();
+
+                if (choice.ToLower().Equals("y"))
+                {
+                    var loader = new LoadPokemonFromDB(UserID, Con);
+                    tempLineUp = loader.LoadedLineUp;
+                    GhostTrainer.Pokemon = tempLineUp;
+                    break;
+                }
+                else if (choice.ToLower().Equals("n"))
+                {
+                    NewLineupChoice();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid choice !");
+                }
             }
         }
 
         private void NewLineupChoice()
         {
-            Console.WriteLine("Make a new lineup? (y/n)");
-            var choice = Console.ReadLine();
-            if (choice.ToLower().Equals("y"))
+            while (true)
             {
-                LoopStuck = false;
-                var makeAlineup = new CreateLineUpIO(GhostTrainer, Con, HasLineup);
-            }
-            else if (choice.ToLower().Equals("n"))
-            {
-                LoopStuck = true;
-                return;
+                Console.WriteLine("Make a new lineup? (y/n)");
+                var choice = Console.ReadLine();
+                if (choice.ToLower().Equals("y"))
+                {
+                    LoopStuck = false;
+                    var makeAlineup = new CreateLineUpIO(GhostTrainer, Con, HasLineup);
+                    return;
+                }
+                else if (choice.ToLower().Equals("n"))
+                {
+                    LoopStuck = true;
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Choice! ");
+                }
             }
         }
     }

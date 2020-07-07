@@ -42,6 +42,7 @@ namespace PokemonSimulator
             {
                 int WinCounter = 0;
                 var Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
+                Lineup.LoadLineup();
 
                 while (Lineup.LoopStuck == true)
                 {
@@ -61,6 +62,7 @@ namespace PokemonSimulator
                         CurrentTrainer.TrainerName = loginStart.TrainerName;
 
                         Lineup = new TrainerLineUp(CurrentTrainer.UserId, CurrentTrainer.TrainerName, loginStart.Connection.myConnection);
+                        Lineup.LoadLineup();
                     }
                 }
 
