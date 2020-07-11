@@ -239,6 +239,24 @@ app {
     }
 }
 
+/* Button styles */
+.btn-gameboy {
+    display: inline-block;
+    height: 32px;
+    width: 112px;
+}
+.btn-gameboy:after {
+    content: '.';
+    visibility: hidden;
+}
+
+.gameboy-ok {
+    background: url("../images/okbutton.png");
+}
+.gameboy-back {
+    background: url("../images/backbutton.png");
+}
+
 /* Types styles */
 .type {
     display: inline-block;
