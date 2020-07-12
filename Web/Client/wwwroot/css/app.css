@@ -75,11 +75,12 @@ app {
         top: -2px;
     }
 
-    .sidebar .sidebar-menu {
+    .dark-menu {
         border: 6px solid transparent;
         border-image: url("../images/menubg.png") 6 6 6 6 repeat;
         background-color: #285068;
         margin: 10px;
+        color: #fff;
     }
 
     .sidebar .nav-item {
@@ -237,6 +238,24 @@ app {
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+}
+
+.battle-status {
+    border: 10px solid transparent;
+    background-color: #f8f8d8;
+    margin: 0px;
+}
+
+    .trainer {
+        border-image: url("../images/battlestatustrainer.png") 24 56 36 56 repeat repeat;
+    }
+
+    .opponent {
+        border-image: url("../images/battlestatusopponent.png") 24 56 36 56 repeat repeat;
+    }
+
+.progress {
+    background-color: #4a4332 !important;
 }
 
 /* Button styles */

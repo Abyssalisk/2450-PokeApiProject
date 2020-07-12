@@ -1,25 +1,24 @@
 ﻿@using Web.Shared.Models
     
-<div class="col-lg-4">
-    <div class="card" style="margin: 5px 0 5px 0;">
-        <div class="card-body">
-            <h5 class="card-title">
-                @Pokemon.Name
-                @foreach (var type in Pokemon.Types)
+
+<div class="card" style="margin: 5px 0 5px 0;">
+    <div class="card-body">
+        <h5 class="card-title">
+            @Pokemon.Name
+            @foreach (var type in Pokemon.Types)
+            {
+                <span class="type type-@type.Name"></span>
+            }
+        </h5>
+        <p class="card-text">
+            Moves:
+            <ul>
+                @foreach (var move in Pokemon.MoveSelections)
                 {
-                    <span class="type type-@type.Name"></span>
+                    <li>@move.Name <span class="type type-@move.Type"></span></li>
                 }
-            </h5>
-            <p class="card-text">
-                Moves:
-                <ul>
-                    @foreach (var move in Pokemon.MoveSelections)
-                    {
-                        <li>@move.Name <span class="type type-@move.Type"></span></li>
-                    }
-                </ul>
-            </p>
-        </div>
+            </ul>
+        </p>
     </div>
 </div>
 
