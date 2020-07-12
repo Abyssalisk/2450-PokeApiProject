@@ -15,12 +15,12 @@ namespace UnitTest.Web.Server
         JavaScriptSerializer JS = new JavaScriptSerializer();
 
         [Fact]
-        public async void GetPokemonByName()
+        public void GetPokemonByName()
         {
             var testPokemon = new PokemonModel() { Name = "Charizard" };
             Client = new RestClient(BaseUrl + "charizard");
             Request = new RestRequest(Method.GET);
-            Response = await Client.ExecuteAsync(Request);
+            Response = Client.ExecuteAsync(Request).Result;
             var pokemon = JS.Deserialize<PokemonModel>(Response.Content);
 
             pokemon.IsSameOrEqualTo(testPokemon);

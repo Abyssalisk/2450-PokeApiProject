@@ -318,7 +318,7 @@ namespace PokemonSimulator
                     if (compressedObject != value)
                     {
                         compressedObject = value;
-                        DecompressedObject = null;
+                        decompressedObject = null;
                     }
                 }
             }
@@ -350,7 +350,7 @@ namespace PokemonSimulator
                     if (decompressedObject != value)
                     {
                         decompressedObject = value;
-                        CompressedObject = null;
+                        compressedObject = null;
                     }
                 }
             }
@@ -365,6 +365,7 @@ namespace PokemonSimulator
             /// <returns>The compressed form the of the object</returns>
             private protected string Encode(string serialized)
             {
+                root = null;
                 StringBuilder result = new StringBuilder(string.Empty);
                 {
                     List<DualNode> dangling = new List<DualNode>();
@@ -614,7 +615,7 @@ namespace PokemonSimulator
                 int secondD = encoded.IndexOf("$D", firstD + 1);
                 uint whitespace = ((uint)encoded[firstD + 2]) - 60;
                 string data = encoded.Substring(firstD + 5);
-#warning ended optimization here.
+//#warning ended optimization here.
                 Queue<string> process = new Queue<string>();
                 for (int i = 0; i < data.Length; i++)
                 {
