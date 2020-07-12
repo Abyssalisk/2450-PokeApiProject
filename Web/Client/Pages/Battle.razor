@@ -2,15 +2,164 @@
 @inject NavigationManager navMan
 @inject HttpClient client
 
+@using Web.Shared.Models
+@using Web.Client.Components
+
 <h1>Battle</h1>
 
-<p>Create some cool backgrounds here for the elite 4 battles... let's do something new and extra special for the champion battle... get some placeholders going</p>
-<button class="btn btn-primary" @onclick="Win">Win</button>
-<button class="btn btn-primary" @onclick="Lose">Lose</button>
+@{
+    if (!confirmOpponent)
+    {
+        <h3>Your opponent is: <strong>@(Opponent.Handle)</strong></h3>
+
+        @foreach (var lineup in Opponent.Lineups)
+        {
+            <div>
+                <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
+            </div>
+        }
+
+        <p>You are about to challenge @(Opponent.Handle). Continue?</p>
+        <div class="row">
+            <div class="col">
+                <ButtonComponent buttonType="ok" buttonSpan="block" action="Confirm"></ButtonComponent>
+            </div>
+            <div class="col">
+                <ButtonComponent buttonType="back" buttonSpan="block" action="Back"></ButtonComponent>
+            </div>
+        </div>
+    }
+    else
+    {
+        if (selectPokemon)
+        {
+            //i think the Pokemon model needs to be adjusted to include current HP as well as max HP
+            <p>Please select a Pokemon to use:</p>
+
+            @foreach (var pokemon in Trainer.Lineups.FirstOrDefault().Lineup.Where(x => x.IsAlive))
+            {
+                <button class="btn btn-light m-1" @onclick="PokemonSelected">
+                    <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
+                </button>
+            }
+        }
+        else
+        {
+            var pokemon = Trainer.Lineups.FirstOrDefault().Lineup[activePokemon];
+            var opponentPokemon = Opponent.Lineups.FirstOrDefault().Lineup[activeOpponentPokemon];
+
+            <p>Commence battle!!</p>
+            <div class="container-fluid" style="max-width:500px">
+                <div class="row">
+                    <div class="col">
+                        <div class="battle-status opponent">
+                            <strong>@(opponentPokemon.Name)</strong>
+                            HP: @(opponentPokemon.ActingHP.ToString())/@(opponentPokemon.BaseHP.ToString())
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(opponentPokemon.ActingHP.ToString())/@(opponentPokemon.BaseHP.ToString()) * 100%);" aria-valuenow="@(opponentPokemon.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(opponentPokemon.BaseHP.ToString())"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <img src="@(opponentPokemon.FrontImageUri)" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <img src="@(pokemon.BackImageUri)" />
+                    </div>
+                    <div class="col">
+                        <div class="battle-status trainer">
+                            <strong>@(pokemon.Name)</strong>
+                            HP: @(pokemon.ActingHP.ToString())/@(pokemon.BaseHP.ToString())
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(pokemon.ActingHP.ToString())/@(pokemon.BaseHP.ToString()) * 100%);" aria-valuenow="@(pokemon.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(pokemon.BaseHP.ToString())"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row dark-menu p-2">
+                    @{ 
+                        foreach (var status in battleStatus)
+                        {
+                            @status<br />
+                        }
+                    }
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <h3>Menu</h3>
+                        <button class="btn btn-primary m-1 mb-0" style="width: 100%" @onclick="SelectPokemon">Switch</button>
+                        <button class="btn btn-danger mt-5 m-1" style="width: 100%" @onclick="Back">Forfeit</button>
+                    </div>
+                    <div class="col-8">
+                        <h3>Fight</h3>
+                        @{
+                            foreach (var move in pokemon.MoveSelections)
+                            {
+                                <button type="button" class="btn btn-primary m-1" style="width: 45%;">
+                                    <p>@move.Name</p>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="type type-@move.Type"></span> <span>@move.Damage</span>
+                                    </div>
+                                </button>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @*<button class="btn btn-primary" @onclick="Win">Win</button>
+                <button class="btn btn-primary" @onclick="Lose">Lose</button>*@
+        }
+    }
+
+}
 
 
 @code {
-    //int score = 0;
+    int score = 0;
+    bool confirmOpponent { get; set; } = false;
+    bool selectPokemon { get; set; } = false;
+
+    private TrainerModel Opponent = new TrainerModel();
+    private TrainerModel Trainer = new TrainerModel();
+
+    int activePokemon = 0;
+    int activeOpponentPokemon = 0;
+
+    List<string> battleStatus = new List<string>()
+    {
+        "Pidgey used smack!",
+        "You have lost the poekmon game."
+    };
+
+    private void UpdateBattleStatus(string newStatus)
+    {
+        battleStatus.RemoveAt(0);
+        battleStatus.Add(newStatus);
+    }
+
+    private void Confirm()
+    {
+        confirmOpponent = true;
+    }
+
+    private void Back()
+    {
+        navMan.NavigateTo("home");
+    }
+
+    private void SelectPokemon()
+    {
+        selectPokemon = true;
+    }
+
+    private void PokemonSelected()
+    {
+        UpdateBattleStatus("You have selected a new pokemon.");
+        selectPokemon = false;
+    }
 
     private void Win()
     {
@@ -23,5 +172,235 @@
     {
         Console.WriteLine("Lose");
         navMan.NavigateTo("scoreboard");
+    }
+
+    private void SelectMove(MoveModel move)
+    {
+        UpdateBattleStatus(Trainer.Lineups.FirstOrDefault().Lineup[activePokemon].Name + " used " + move.Name + "!");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //create test opponent
+        Opponent = new TrainerModel()
+        {
+            Handle = "Lance",
+            HighScore = 1200,
+            Id = 3,
+            Lineups = new List<LineupModel>()
+{
+                new LineupModel()
+                {
+                    Lineup = new List<PokemonModel>()
+{
+                        new PokemonModel() {
+                            Name = "Dratini",
+                            BaseHP = 50,
+                            ActingHP = 49,
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/147.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/147.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "dragon" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water", Damage = 85 },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric", Damage = 80 },
+                                new MoveModel() { Name = "Ice beam", Type = "ice", Damage = 60 },
+                                new MoveModel() { Name = "Psychic", Type = "psychic", Damage = 100 }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Dragonair",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/148.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/148.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "dragon" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Dragonite",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/149.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "dragon" },
+                                new PokemonType() {Name = "flying" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Dragonite",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/149.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "dragon" },
+                                new PokemonType() {Name = "flying" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Dragonite",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/149.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "dragon" },
+                                new PokemonType() {Name = "flying" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Dratini",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/147.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/147.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "dragon" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+
+                    }
+                },
+            }
+        };
+
+        //create test team
+        Trainer = new TrainerModel()
+        {
+            Lineups = new List<LineupModel>()
+{
+                new LineupModel()
+                {
+                    Lineup = new List<PokemonModel>()
+{
+                        new PokemonModel() {
+                            Name = "Starmie",
+                            BaseHP = 75,
+                            ActingHP = 69,
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/121.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/121.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "water" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water", Damage = 85 },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric", Damage = 80 },
+                                new MoveModel() { Name = "Ice beam", Type = "ice", Damage = 60 },
+                                new MoveModel() { Name = "Psychic", Type = "psychic", Damage = 100 }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Starmie",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/121.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/121.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "water" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Starmie",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/121.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/121.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "water" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Starmie",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/121.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/121.png",
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "water" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Starmie",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/121.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/121.png",
+                            ActingHP = 0,
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "water" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+                        new PokemonModel() {
+                            Name = "Starmie",
+                            FrontImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/121.png",
+                            BackImageUri = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/121.png",
+                            ActingHP = 0,
+                            Types = new List<PokemonType>()
+{
+                                new PokemonType() {Name = "water" }
+                            },
+                            MoveSelections = new List<MoveModel>() {
+                                new MoveModel() { Name = "Surf", Type = "water" },
+                                new MoveModel() { Name = "Thunderbolt", Type = "electric" },
+                                new MoveModel() { Name = "Ice beam", Type = "ice" },
+                                new MoveModel() { Name = "Psychic", Type = "psychic" }
+                            }
+                        },
+
+                    }
+                },
+            }
+        };
     }
 }

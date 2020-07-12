@@ -19,6 +19,8 @@ namespace Web.Shared.Models
         public int Defense { get; set; }
         public int SpecialAttack { get; set; }
         public int SpecialDefense { get; set; }
+        public int ActingHP { get; set; }
+        public bool IsAlive { get => ActingHP > 0; }
         public List<MoveModel> MoveSelections { get; set; } = new List<MoveModel>() { new MoveModel(), new MoveModel(), new MoveModel(), new MoveModel() }; // stores moves
     }
 }
