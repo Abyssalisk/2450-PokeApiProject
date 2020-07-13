@@ -8,20 +8,28 @@ using Newtonsoft.Json;
 
 namespace PokemonSimulator
 {
+    /// <summary>
+    /// Author: Samuel Gardner
+    /// </summary>
     public static partial class Grand
     {
         #region Fields
         #region Consts
-        private const string yesRegex = @"^[y|Ye|Es|S]|[y|Y]";
+        private const string yesRegex = @"^[[y|Ye|Es|S]|[y|Y]]$";
         /// <summary>
         /// Regex field that matches common permutations of "yes". Regex value is: <see cref="yesRegex"/>.
         /// </summary>
         public static readonly Regex yes = new Regex(yesRegex);
-        private const string noRegex = @"^[n|No|O]|[n|N]";
+        private const string noRegex = @"^[[n|No|O]|[n|N]]$";
         /// <summary>
         /// Regex field that matches common permutations of "no". Regex value is: <see cref="noRegex"/>.
         /// </summary>
         public static readonly Regex no = new Regex(noRegex);
+        private const string alphaNumericRegex = "^[[a-z]|[A-Z]|[0-9]|[_]]+$";
+        /// <summary>
+        /// Regex field that matches any string that contains only letters and numbers. Regex value is: <see cref="alphaNumericRegex"/>.
+        /// </summary>
+        public static readonly Regex alphaNumeric = new Regex(alphaNumericRegex);
         #endregion
 
         #region Class Fields

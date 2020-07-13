@@ -15,12 +15,12 @@ namespace PokemonSimulator
         {
             while (true)
             {
-                Console.WriteLine("Would you like to play again? (y/n)");
-                string choice = Console.ReadLine();
+                Console.WriteLine("Would you like to play again? (Y/N)");
+                string choice = Console.ReadLine().Trim();
 
-                if (choice.ToLower() == "y")
+                if (Grand.yes.IsMatch(choice))
                     return true;
-                else if (choice.ToLower() == "n")
+                else if (Grand.no.IsMatch(choice))
                     return false;
                 else
                     Console.WriteLine("Invalid choice type y or n!");
