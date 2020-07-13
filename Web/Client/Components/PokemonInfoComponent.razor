@@ -1,0 +1,43 @@
+﻿@using Web.Shared.Models
+    
+
+<div class="card" style="margin: 5px 0 5px 0;">
+    <div class="card-body text-center">
+        <h5 class="card-title">
+            <img src=@Pokemon.FrontImageUri style="height: 50px; width: 50px;" />
+            @Pokemon.Name
+            @foreach (var type in Pokemon.Types)
+            {
+                <span class="type type-@type.Name"></span>
+            }
+        </h5>
+        <h7><b>HP:</b> @Pokemon.BaseHP&emsp;<b>ATK:</b> @Pokemon.Attack&emsp;<b>DEF:</b> @Pokemon.Defense</h7><br />
+        <h7><b>Sp. ATK:</b> @Pokemon.SpecialAttack&emsp;<b>Sp. DEF:</b> @Pokemon.SpecialDefense&emsp;<b>SPD:</b> @Pokemon.Speed</h7>
+        <br />
+        <br />
+        <h7 class="text-center"><b>Moves</b></h7>
+        <p class="card-text text-center">
+
+            @{
+                Pokemon.MoveSelections = Pokemon.MoveSelections.Where(p => !string.IsNullOrEmpty(p.Name)).ToList(); // double filter out empty moves until that is fixed in back end
+            }
+
+            <table class="table">
+                <tr>
+                    <td>@Pokemon.MoveSelections[0].Name (@Pokemon.MoveSelections[0].Damage) <span class="type type-@Pokemon.MoveSelections[0].Type"></span></td>
+                    <td>@Pokemon.MoveSelections[1].Name (@Pokemon.MoveSelections[1].Damage) <span class="type type-@Pokemon.MoveSelections[1].Type"></span></td>
+                </tr>
+                <tr>
+                    <td>@Pokemon.MoveSelections[2].Name (@Pokemon.MoveSelections[2].Damage) <span class="type type-@Pokemon.MoveSelections[2].Type"></span></td>
+                    <td>@Pokemon.MoveSelections[3].Name (@Pokemon.MoveSelections[3].Damage) <span class="type type-@Pokemon.MoveSelections[3].Type"></span></td>
+                </tr>
+
+            </table>
+        </p>
+    </div>
+</div>
+
+@code {
+
+    [Parameter] public PokemonModel Pokemon { get; set; }
+}

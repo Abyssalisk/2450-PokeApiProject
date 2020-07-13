@@ -63,6 +63,9 @@ else
                         var p = PokemonSelections[pokeIndex];
                         <div class="col">
                             <div class="row-fluid">
+                                <img src=@p.FrontImageUri style="height: 50px; width: 50px;" />
+                            </div>
+                            <div class="row-fluid">
                                 @{
                                     var capatalizedName = char.ToUpper(p.Name[0]) + p.Name.Substring(1);
                                 }
@@ -171,7 +174,7 @@ else
                 var move = p.Moves.Where(s => s.Name == p.MoveSelections[i].Name).Select(s => s).FirstOrDefault();
                 p.MoveSelections[i] = move;
                 p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
-            }
+        }
             p.Moves.Clear();
         });
     }

@@ -1,27 +1,205 @@
-﻿@page "/battle"
+@page "/battle"
 @inject NavigationManager navMan
 @inject HttpClient client
+@inject IJSRuntime JSRuntime;
+@using Web.Shared.Models
+@using Web.Client.Components
 
-<h1>Battle</h1>
+@{
+    if (!confirmOpponent)
+    {
+        <h3>Your opponent is: <strong>@(Opponent.Handle)</strong></h3>
 
-<p>Create some cool backgrounds here for the elite 4 battles... let's do something new and extra special for the champion battle... get some placeholders going</p>
-<button class="btn btn-primary" @onclick="Win">Win</button>
-<button class="btn btn-primary" @onclick="Lose">Lose</button>
-<BattleComponent />
+        @foreach (var lineup in Opponent.Lineups)
+        {
+            <div>
+                <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
+            </div>
+        }
+
+        <p>You are about to challenge @(Opponent.Handle). Continue?</p>
+        <div class="row">
+            <div class="col">
+                <ButtonComponent buttonType="ok" buttonSpan="block" action="Confirm"></ButtonComponent>
+            </div>
+            <div class="col">
+                <ButtonComponent buttonType="back" buttonSpan="block" action="Back"></ButtonComponent>
+            </div>
+        </div>
+    }
+    else
+    {
+        if (selectPokemon)
+        {
+            //i think the Pokemon model needs to be adjusted to include current HP as well as max HP
+            <p>Please select a Pokemon to use:</p>
+
+            @foreach (var pokemon in Trainer.Lineups.FirstOrDefault().Lineup.Where(x => x.IsAlive))
+            {
+                <button class="btn btn-light m-1" @onclick="PokemonSelected">
+                    <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
+                </button>
+            }
+        }
+        else
+        {
+            var pokemon = Trainer.Lineups.FirstOrDefault().Lineup[activePokemon];
+            var opponentPokemon = Opponent.Lineups.FirstOrDefault().Lineup[activeOpponentPokemon];
+
+            <p>Commence battle!!</p>
+            <div class="container-fluid" style="max-width:500px">
+                <div class="row">
+                    <div class="col">
+                        <div class="battle-status opponent">
+                            <strong>@(opponentPokemon.Name)</strong>
+                            HP: @(opponentPokemon.BaseHP.ToString())/@(opponentPokemon.BaseHP.ToString())
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(opponentPokemon.BaseHP.ToString())/@(opponentPokemon.BaseHP.ToString()) * 100%);" aria-valuenow="@(opponentPokemon.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(opponentPokemon.BaseHP.ToString())"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <img src="@(opponentPokemon.FrontImageUri)" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <img src="@(pokemon.BackImageUri)" />
+                    </div>
+                    <div class="col">
+                        <div class="battle-status trainer">
+                            <strong>@(pokemon.Name)</strong>
+                            HP: @(pokemon.ActingHP.ToString())/@(pokemon.BaseHP.ToString())
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(pokemon.ActingHP.ToString())/@(pokemon.BaseHP.ToString()) * 100%);" aria-valuenow="@(pokemon.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(pokemon.BaseHP.ToString())"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row dark-menu p-2">
+                    @{
+                        foreach (var status in battleStatus)
+                        {
+                            @status<br />
+                        }
+                    }
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <h3>Menu</h3>
+                        <button class="btn btn-primary m-1 mb-0" style="width: 100%" @onclick="SelectPokemon">Switch</button>
+                        <button class="btn btn-danger mt-5 m-1" style="width: 100%" @onclick="Back">Forfeit</button>
+                    </div>
+                    <div class="col-8">
+                        <h3>Fight</h3>
+                        @{
+                            foreach (var move in pokemon.MoveSelections)
+                            {
+                                if (!string.IsNullOrEmpty(move.Name))
+                                {
+                                    <button type="button" class="btn btn-primary m-1" style="width: 45%;">
+                                        <p>@move.Name</p>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="type type-@move.Type"></span> <span>@move.Damage</span>
+                                        </div>
+                                    </button>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @*<button class="btn btn-primary" @onclick="Win">Win</button>
+                <button class="btn btn-primary" @onclick="Lose">Lose</button>*@
+        }
+    }
+
+}
 
 @code {
-    //int score = 0;
+    int score = 0;
+    bool confirmOpponent { get; set; } = false;
+    bool selectPokemon { get; set; } = false;
+
+    private TrainerModel Opponent = new TrainerModel();
+    private TrainerModel Trainer = new TrainerModel();
+
+    public PokemonService Poke { get; set; }
+    public AuthService Auth { get; set; }
+
+    int activePokemon = 0;
+    int activeOpponentPokemon = 0;
+
+    List<string> battleStatus { get; set; }
+
+    private void UpdateBattleStatus(string newStatus)
+    {
+        battleStatus.RemoveAt(0);
+        battleStatus.Add(newStatus);
+    }
+
+    private void Confirm()
+    {
+        confirmOpponent = true;
+    }
+
+    private void Back()
+    {
+        navMan.NavigateTo("home");
+    }
+
+    private void SelectPokemon()
+    {
+        selectPokemon = true;
+    }
+
+    private void PokemonSelected()
+    {
+        UpdateBattleStatus("You have selected a new pokemon.");
+        selectPokemon = false;
+    }
 
     private void Win()
     {
         Console.WriteLine("Win");
         // let's say that all 4 elite 4 are defeated, so move onto champion
-        navMan.NavigateTo("champion");
+        navMan.NavigateTo("championbattle");
     }
 
     private void Lose()
     {
         Console.WriteLine("Lose");
         navMan.NavigateTo("scoreboard");
+    }
+
+    private void SelectMove(MoveModel move)
+    {
+        UpdateBattleStatus(Trainer.Lineups.FirstOrDefault().Lineup[activePokemon].Name + " used " + move.Name + "!");
+    }
+
+
+    protected override void OnInitialized()
+    {
+        Poke = new PokemonService();
+        Auth = new AuthService();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
+        Opponent = championAndElite4.Last();
+
+        var trainerHandle = await Task.Run(async () => await Auth.GetCookieAsync(JSRuntime, "Username"));
+        if (string.IsNullOrEmpty(trainerHandle))
+            throw new Exception($"Failed to set TrainerHandle from cookie");
+        Trainer = await Poke.GetTrainer(client, trainerHandle);
+
+        Trainer.Lineups[0].Lineup.Skip(1).ToList().ForEach(p => p.ActingHP = p.BaseHP);
+
+        battleStatus = new List<string>(){
+        $"{Opponent.Lineups[0].Lineup.First().Name} used fissure!",
+        "You have lost the pokemon game."
+    };
     }
 }

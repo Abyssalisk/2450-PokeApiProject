@@ -1,0 +1,33 @@
+﻿@page "/trainer"
+
+@inject NavigationManager navMan;
+@inject HttpClient client;
+@inject IJSRuntime JSRuntime;
+@using Web.Shared.Models
+@using Web.Client.Components
+
+<h1>My Trainer</h1>
+<p>Basic trainer info for @MyTrainer.Handle</p>
+<TrainerInfoComponent Trainer="@MyTrainer" ShowLineups="false"></TrainerInfoComponent>
+
+@code {
+
+    private TrainerModel MyTrainer = new TrainerModel();
+    public PokemonService Poke { get; set; }
+    public AuthService Auth { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Poke = new PokemonService();
+        Auth = new AuthService();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var trainerHandle = await Task.Run(async () => await Auth.GetCookieAsync(JSRuntime, "Username"));
+        if (string.IsNullOrEmpty(trainerHandle))
+            throw new Exception($"Failed to set TrainerHandle from cookie");
+        MyTrainer = await Poke.GetTrainer(client, trainerHandle);
+        MyTrainer.Handle = char.ToUpper(MyTrainer.Handle[0]) + MyTrainer.Handle.Substring(1); // uppercase first letter
+    }
+}

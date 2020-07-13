@@ -1,92 +1,98 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using PokeAPI;
 
 namespace PokemonSimulator
 {
-    class MoveSelector2000
+    public class MoveSelector2000
     {
-        public string Move1 {get;set;}
-        public string Move2 { get; set; }
-        public string Move3 { get; set; }
-        public string Move4 { get; set; }
 
         public List<string> AvailbleMoves;
         string Name;
         public MoveSelector2000(string name)
         {
-            AvailbleMoves = null;
-            Move1 = null;
-            Move2 = null;
-            Move3 = null;
-            Move4 = null;
+            AvailbleMoves = new List<string>();
             Name = name;
-            DisplayMoves();
-            ChoseMove();
         }
-        
-        public void DisplayMoves()
-        {
-            Console.WriteLine("Dispaying list of moves......");
-            Task<PokeAPI.Pokemon> p = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(Name);
-            var returnedmoves = p.Result.Moves;
 
-            foreach (PokeAPI.PokemonMove element in returnedmoves)
+        public bool DisplayMoves()
+        {
+            try
             {
-                Console.WriteLine(element.Move.Name.ToString());
-                AvailbleMoves.Add(element.Move.Name.ToString());
+                Console.WriteLine("Displaying list of moves......");
+                Task<PokeAPI.Pokemon> p = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(Name);
+                PokemonMove[] returnedmoves = p.Result.Moves;
+                int linecountspace = 0;
+                Task<PokeAPI.Move>[] moves = new Task<PokeAPI.Move>[returnedmoves.Length];
+                for (int i = 0; i < returnedmoves.Length; i++)
+                {
+                    moves[i] = (DataFetcher.GetNamedApiObject<PokeAPI.Move>(returnedmoves[i].Move.Name.ToString()));
+                }
+                Task.WaitAll(moves);
+                foreach (Task<PokeAPI.Move> e in moves)
+                {
+                    if (e.Result.Power != null && !string.IsNullOrEmpty(e.Result.Power.ToString()))
+                    {
+                        string movestring = e.Result.Name.ToString();
+                        Console.Write(movestring + ", ");
+                        AvailbleMoves.Add(movestring);
+                        linecountspace++;
+                        if (linecountspace == 4)
+                        {
+                            Console.Write("\n");
+                            linecountspace = 0;
+                        }
+                    }
+                    e.Dispose();
+                }
+                //foreach (PokeAPI.PokemonMove element in returnedmoves)
+                //{
+
+                //    Task<PokeAPI.Move> m = DataFetcher.GetNamedApiObject<PokeAPI.Move>(element.Move.Name.ToString());
+
+                //    if (m.Result.Power != 0 && m.Result.Power.ToString() != "" && m.Result.Power != null)
+                //    {
+                //        string movestring = element.Move.Name.ToString();
+                //        Console.Write(movestring + ", ");
+                //        AvailbleMoves.Add(movestring);
+                //        linecountspace++;
+                //        if (linecountspace == 4)
+                //        {
+                //            Console.Write("\n");
+                //            linecountspace = 0;
+                //        }
+                //    }
+                //}
+                return true;
             }
-
+            catch (Exception e)
+            {
+                Console.WriteLine("Error most likely with pokemon name! \n" + e.Message);
+                return false;
+            }
         }
 
-        public void ChoseMove()
+        //Probably should be an IEnumerator
+        public string ChoseMove()
         {
-            int moveconter = 0;
-            Boolean movevalid = false;
-            while (movevalid==false&&moveconter<=4)
+            while (true)
             {
-                Console.WriteLine("Type the name of the move you wish to add:");
-                string movechoice = Console.ReadLine();
+                Console.WriteLine("\nType the name of the move you wish to add:");
+                string movechoice = Console.ReadLine().Trim().ToLower();
                 if (AvailbleMoves.Contains(movechoice))
                 {
-                    StoreMove(movechoice);
-                    Console.WriteLine(movechoice+" added!");
-
-                    moveconter++;
+                    Console.WriteLine(movechoice + " added!");
+                    return movechoice;
                 }
                 else
                 {
-                    Console.WriteLine("move not found");
+                    Console.WriteLine($"Move \"{movechoice}\" not found. Try again.");
                 }
             }
         }
-
-        public void StoreMove(string move)
-        {
-            if(Move1==null)
-            {
-                Move1 = move;
-                return;
-            }
-            else if (Move2 == null)
-            {
-                Move2 = move;
-                return;
-            }
-            else if (Move3 == null)
-            {
-                Move3 = move;
-                return;
-            }
-            else if (Move4 == null)
-            {
-                Move4 = move;
-                return;
-            }
-        }
-
     }
 }

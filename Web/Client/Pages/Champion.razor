@@ -1,18 +1,28 @@
 ﻿@page "/champion"
 @inject NavigationManager navMan
 @inject HttpClient client
+@using Web.Shared.Models
+@using Web.Client.Components
 
 <h1>Champion</h1>
 
-<p>Final champion battle blah blah... if win create new champion (add trainer to trainers table)</p>
-<button class="btn btn-primary" @onclick="BattleOver">Battle Over</button>
+<p>Champion info page that shows the current champion and their lineup</p>
+
+<TrainerInfoComponent Trainer="@ChampionInfo" ShowLineups="true"></TrainerInfoComponent>
 
 @code {
-    //int score = 0;
 
-    private void BattleOver()
+    private TrainerModel ChampionInfo = new TrainerModel();
+    public PokemonService Poke { get; set; }
+
+    protected override void OnInitialized()
     {
-        Console.WriteLine("Win/Lose");
-        navMan.NavigateTo("scoreboard");
+        Poke = new PokemonService();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
+        ChampionInfo = championAndElite4.First();
     }
 }

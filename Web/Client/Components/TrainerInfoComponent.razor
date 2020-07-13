@@ -1,0 +1,37 @@
+﻿@inject NavigationManager navMan
+@inject HttpClient client
+@using Web.Shared.Models
+@using Web.Client.Components
+
+<table class="table">
+    <tbody>
+        <tr>
+            <th>Trainer ID</th>
+            <td>@Trainer.Id</td>
+        </tr>
+        <tr>
+            <th>Trainer name</th>
+            <td>@Trainer.Handle</td>
+        </tr>
+        <tr>
+            <th>Trainer high score</th>
+            <td>@Trainer.HighScore</td>
+        </tr>
+    </tbody>
+</table>
+
+@if (ShowLineups)
+{
+    foreach (var lineup in Trainer.Lineups)
+    {
+        <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
+    }
+}
+
+
+
+@code {
+
+    [Parameter] public TrainerModel Trainer { get; set; }
+    [Parameter] public bool ShowLineups { get; set; } = true;
+}
