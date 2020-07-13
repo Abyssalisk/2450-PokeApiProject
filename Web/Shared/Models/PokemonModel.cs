@@ -9,7 +9,6 @@ namespace Web.Shared.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public int BaseHP { get; set; }
-        public int BattleHP { get; set; }
         public int Speed { get; set; }
         public List<PokemonType> Types { get; set; } = new List<PokemonType>();
         public List<string> TypeWeaknesses { get; set; } = new List<string>();
