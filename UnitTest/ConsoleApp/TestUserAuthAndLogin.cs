@@ -20,11 +20,11 @@ namespace UnitTest.ConsoleApp
             Assert.False(c.Validate("username", "mypassword", connection.myConnection));
         }
 
-        [Fact]
-        public void ValidateTrue()
-        {
-            Assert.True(c.Validate("srosy", "myballsaresrosy", connection.myConnection));
-        }
+        //[Fact]
+        //public void ValidateTrue()
+        //{
+        //    Assert.True(c.Validate("srosy", "myballsaresrosy", connection.myConnection));
+        //}
 
         [Fact]
         public void UserNameValidationFalse()

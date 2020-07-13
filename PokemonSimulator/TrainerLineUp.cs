@@ -59,7 +59,7 @@ namespace PokemonSimulator
                 return false;
         }
 
-        private void LoadLineup()
+        public void LoadLineup()
         {
             var tempLineUp = new List<Pokemon>();
             var getPokemonQuery = "SELECT `Pokemon1`,`Pokemon2`,`Pokemon3`,`Pokemon4`,`Pokemon5`,`Pokemon6`" +
@@ -79,40 +79,53 @@ namespace PokemonSimulator
                 }
             }
             Con.Close();
-
-            Console.WriteLine("Use this lineup? (y/n)");
-            var choice = Console.ReadLine();
-
-            if (choice.ToLower().Equals("y"))
+            while (true)
             {
-                var loader = new LoadPokemonFromDB(UserID,Con);
-                tempLineUp = loader.LoadedLineUp;
-                GhostTrainer.Pokemon = tempLineUp;
-            }
-            if (choice.ToLower().Equals("n"))
-            {
-                NewLineupChoice();
+                Console.WriteLine("Use this lineup? (Y/N)");
+                string choice = Console.ReadLine().Trim();
+
+                if (Grand.yes.IsMatch(choice))
+                {
+                    var loader = new LoadPokemonFromDB(UserID, Con);
+                    tempLineUp = loader.LoadedLineUp;
+                    GhostTrainer.Pokemon = tempLineUp;
+                    break;
+                }
+                else if (Grand.no.IsMatch(choice))
+                {
+                    NewLineupChoice();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid choice!");
+                }
             }
         }
 
         private void NewLineupChoice()
         {
-            Console.WriteLine("Make a new lineup? (y/n)");
-            var choice = Console.ReadLine();
-            if (choice.ToLower().Equals("y"))
+            while (true)
             {
-                LoopStuck = false;
-                var makeAlineup = new CreateLineUp(GhostTrainer, Con,HasLineup);
-
-            }
-            if (choice.ToLower().Equals("n"))
-            {
-                LoopStuck = true;
-                return;
+                Console.WriteLine("Make a new lineup? (Y/N)");
+                string choice = Console.ReadLine().Trim();
+                if (Grand.yes.IsMatch(choice))
+                {
+                    LoopStuck = false;
+                    var makeAlineup = new CreateLineUpIO(GhostTrainer, Con, HasLineup);
+                    HasLineup = false;
+                    return;
+                }
+                else if (Grand.no.IsMatch(choice))
+                {
+                    LoopStuck = true;
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Choice!");
+                }
             }
         }
-
-    
-
     }
 }

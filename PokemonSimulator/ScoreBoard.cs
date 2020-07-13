@@ -29,6 +29,7 @@ namespace PokemonSimulator
             if(Wins>0)
             {
                 Con.Open();
+#warning This code is still vunerable to SQL Injection, change to mitigate. (paramiterize).
                 string query = "UPDATE sql3346222.EliteFour SET UserId="+GhostTrainer.UserId+", " +
                     "Rank="+rank+",TrainerName='"+GhostTrainer.TrainerName+"',Pokemon1='"+Pokemon[0]+
                     "',MovesCSV1='"+MovesCSV[0]+ "',Pokemon2='" + Pokemon[1] +

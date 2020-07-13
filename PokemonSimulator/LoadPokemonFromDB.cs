@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using PokeAPI;
@@ -30,6 +31,10 @@ namespace PokemonSimulator
         public LoadPokemonFromDB(string trainername, MySqlConnection con)
         {
             LoadedLineUp = new List<Pokemon>();
+            if (!Grand.alphaNumeric.IsMatch(trainername))
+            {
+                throw new ArgumentException("Error: trainername must consist of only alphanumeric characters to mitigate SQL injection attacks.");
+            }
             TrainerName = trainername;
             Con = con;
             LoadData(/*true*/);
@@ -43,17 +48,30 @@ namespace PokemonSimulator
             var tempLineUp = new List<Pokemon>();
             var getPokemonQuery = (TrainerName == string.Empty ? "SELECT `Pokemon1`,`MovesCSV1`,`Pokemon2`,`MovesCSV2`,`Pokemon3`,`MovesCSV3`" +
                 ",`Pokemon4`,`MovesCSV4`,`Pokemon5`,`MovesCSV5`,`Pokemon6`,`MovesCSV6`" +
-                " FROM sql3346222.TrainerLineup WHERE(UserID = " + TrainerId + ");" :
+                " FROM sql3346222.TrainerLineup WHERE(UserID = @ID);" :
                 "SELECT `Pokemon1`,`MovesCSV1`,`Pokemon2`,`MovesCSV2`,`Pokemon3`,`MovesCSV3`" +
                 ",`Pokemon4`,`MovesCSV4`,`Pokemon5`,`MovesCSV5`,`Pokemon6`,`MovesCSV6`" +
-                " FROM sql3346222.EliteFour WHERE(TrainerName = '" + TrainerName + "');");
+                " FROM sql3346222.EliteFour WHERE(TrainerName = @Username);");
+
 
             //Get pokemon from DB
             Con.Open();
             MySqlCommand cmd = new MySqlCommand(getPokemonQuery, Con);
+            if (TrainerName == string.Empty)
+            {
+                cmd.Parameters.Add(@"@ID", MySqlDbType.Int32);
+                cmd.Parameters[@"@ID"].Value = TrainerId;
+            }
+            else
+            {
+                cmd.Parameters.Add(@"@Username", MySqlDbType.VarChar);
+                cmd.Parameters[@"@Username"].Value = TrainerName;
+            }
             using (MySqlDataReader reader = cmd.ExecuteReader())
             {
-                Queue<Tuple<Task<PokeAPI.Pokemon>, List<Task<PokeAPI.Move>>>> tasks = new Queue<Tuple<Task<PokeAPI.Pokemon>, List<Task<PokeAPI.Move>>>>();
+                var tasks = new Queue<Tuple<Task<PokeAPI.Pokemon>, List<Task<PokeAPI.Move>>>>();
+                Dictionary<string, Task<PokeAPI.Pokemon>> requestedPokemon = new Dictionary<string, Task<PokeAPI.Pokemon>>();
+                Dictionary<string, Task<PokeAPI.Move>> requestedMoves = new Dictionary<string, Task<PokeAPI.Move>>();
                 Task<PokeAPI.Pokemon> tempGetPoke = null;
                 List<Task<PokeAPI.Move>> tempGetMove = null;
                 while (reader.Read())
@@ -63,8 +81,18 @@ namespace PokemonSimulator
                         if (i % 2 == 0)
                         {
                             //this record is a pokemon.
-                            Console.WriteLine($"Starting request for pokemon: {reader.GetString(i)}...");
-                            tempGetPoke = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(reader.GetString(i));
+                            string cleaned = reader.GetString(i).Trim().ToLower();
+                            if (requestedPokemon.ContainsKey(cleaned))
+                            {
+                                Console.WriteLine($"Pokemon {cleaned} already requested, removing redundancy...");
+                                tempGetPoke = requestedPokemon[cleaned];
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Starting request for pokemon: {cleaned}...");
+                                tempGetPoke = DataFetcher.GetNamedApiObject<PokeAPI.Pokemon>(cleaned);
+                                requestedPokemon.Add(cleaned, tempGetPoke);
+                            }
                             //tempGetPoke.Start();
                         }
                         else
@@ -73,8 +101,17 @@ namespace PokemonSimulator
                             tempGetMove = reader.GetString(i).Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x =>
                             {
                                 string cleaned = x.Trim().ToLower();
-                                Console.WriteLine($"Starting request for move: {cleaned}...");
-                                return DataFetcher.GetNamedApiObject<PokeAPI.Move>(cleaned);
+                                if (requestedMoves.ContainsKey(cleaned))
+                                {
+                                    Console.WriteLine($"Move {cleaned} already requested, removing redundancy...");
+                                    return requestedMoves[cleaned];
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Starting request for move: {cleaned}...");
+                                    requestedMoves.Add(cleaned, DataFetcher.GetNamedApiObject<PokeAPI.Move>(cleaned));
+                                    return requestedMoves[cleaned];
+                                }
                             }).ToList();
                             //tempGetMove = GetMovesAsync(reader.GetString(i).Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray());
                             //tempGetMove.ForEach(x =>
@@ -139,7 +176,14 @@ namespace PokemonSimulator
                         TypeWeaknesses = null
                     });
                 }
-
+                foreach (var e in requestedPokemon)
+                {
+                    e.Value.Dispose();
+                }
+                foreach (var e in requestedMoves)
+                {
+                    e.Value.Dispose();
+                }
                 #region Old
                 //while (reader.Read())
                 //{
@@ -184,6 +228,7 @@ namespace PokemonSimulator
         }
 
         #region Duplicate of LoadPokemonTeam (Above method covers the differences this one had).
+
         //public void LoadPokemonTeam(Boolean x)
         //{
         //    var tempLineUp = new List<Pokemon>();
