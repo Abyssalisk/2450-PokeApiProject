@@ -59,7 +59,7 @@
             {
                 var username = JsonSerializer.Serialize(LoginModel.Username);
                 await WriteAuthCookie(username);
-                navMan.NavigateTo("team");
+                navMan.NavigateTo("trainer");
             }
             else
             {

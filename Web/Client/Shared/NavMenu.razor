@@ -1,89 +1,39 @@
-﻿<style>
-    .navLink {
-        background-size: cover;
-        background-position: center;
-        background-color: white;
-        height: 40px;
-        width: 40px;
-        margin-right: 15px;
-    }
-
-    .homeNavLink {
-        background-image: url('https://www.clipartmax.com/png/middle/147-1475559_pokeball-clipart-svg-pokeball-icon.png');
-    }
-
-    .loginNavLink {
-        background-image: url('https://banner2.cleanpng.com/20180702/zvi/kisspng-padlock-computer-icons-key-5b39a468789b52.511797701530504296494.jpg');
-    }
-
-    .createNewTrainerNavLink {
-        background-image: url('https://cdn1.iconfinder.com/data/icons/games-outline/512/pokemon_trainer-512.png');
-    }
-
-    .teamNavLink {
-        background-image: url('https://cdn.imgbin.com/24/6/11/imgbin-computer-icons-pok-mon-jigglypuff-pokemon-CgwyjdDZtW2CXPdCVRfX7M0PL.jpg');
-    }
-
-    .createNewTeamNavLink {
-        background-image: url('https://www.pngfind.com/pngs/m/252-2522556_free-download-pokemon-png-pikachu-icon-transparent-png.png');
-    }
-
-    .battleNavLink {
-        background-image: url('https://gamepedia.cursecdn.com/zelda_gamepedia_en/thumb/8/8d/TWW_Master_Sword_Model.png/320px-TWW_Master_Sword_Model.png?version=5920681bcea2fa643f301f0f09edde4f');
-    }
-
-    .championNavLink {
-        background-image: url('https://66.media.tumblr.com/fb14df00c549d1552488122a97d60e39/tumblr_ohp76srngu1v5fgk1o4_250.png');
-    }
-
-    .scoreboardNavLink {
-        background-image: url('https://cdn1.iconfinder.com/data/icons/seo-128/48/19-512.png');
-    }
-</style>
-
-
-
-<div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="">Pokemanz</a>
+﻿<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href=""><img src="/images/logo.png" /></a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass dark-menu" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
+        @*<li class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="navLink homeNavLink" aria-hidden="true"></span> Home
             </NavLink>
-        </li>
+        </li>*@
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="navLink loginNavLink" aria-hidden="true"></span> Login
+            <NavLink class="nav-link" href="trainer">
+                <span class="navLink loginNavLink" aria-hidden="true"></span> My Trainer
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link disabled" href="newTrainer">
-                <span class="navLink createNewTrainerNavLink" aria-hidden="true"></span> Create New Trainer
+            <NavLink class="nav-link" href="team">
+                <span class="navLink teamNavLink" aria-hidden="true"></span> My Teams
             </NavLink>
         </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link disabled" href="team">
-                <span class="navLink teamNavLink" aria-hidden="true"></span> Team
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
+        @*<li class="nav-item px-3">
             <NavLink class="nav-link disabled" href="newTeam">
                 <span class="navLink createNewTeamNavLink" aria-hidden="true"></span> Create New Team
             </NavLink>
-        </li>
+        </li>*@
         <li class="nav-item px-3">
-            <NavLink class="nav-link disabled" href="battle">
+            <NavLink class="nav-link" href="battle">
                 <span class="navLink battleNavLink" aria-hidden="true"></span> Battle
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link disabled" href="champion">
+            <NavLink class="nav-link" href="champion">
                 <span class="navLink championNavLink" aria-hidden="true"></span> Champion
             </NavLink>
         </li>

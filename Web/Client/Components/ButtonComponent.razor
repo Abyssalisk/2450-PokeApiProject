@@ -1,0 +1,9 @@
+﻿<button class="btn btn-primary @(buttonSpan == "block" ? "btn-block" : "")" @onclick="@action"><span class="btn-gameboy gameboy-@buttonType"></span></button>
+
+@code {
+
+    [Parameter] public string buttonType { get; set; } = "ok";
+    [Parameter] public string buttonSpan { get; set; } = "inline";
+    [Parameter] public EventCallback action { get; set; }
+
+}
