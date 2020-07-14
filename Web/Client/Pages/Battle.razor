@@ -33,9 +33,9 @@
     }
     else
     {
-        CurrentPoke = Trainer.Lineups.FirstOrDefault().Lineup[activePokemon];
-        OpponentPoke = Opponent.Lineups.FirstOrDefault().Lineup[activeOpponentPokemon];
-
+        if (CurrentPoke == null) CurrentPoke = Trainer.Lineups.FirstOrDefault().Lineup[0]; 
+        if (OpponentPoke == null) OpponentPoke = Opponent.Lineups.FirstOrDefault().Lineup[0];
+        
         while (true)
         {
             if (selectPokemon)
@@ -131,9 +131,6 @@
     public PokemonService Poke { get; set; }
     public AuthService Auth { get; set; }
 
-    int activePokemon = 0;
-    int activeOpponentPokemon = 0;
-
     public PokemonModel CurrentPoke { get; set; }
     public PokemonModel OpponentPoke { get; set; }
 
@@ -175,7 +172,7 @@
                 else
                 {
                     CurrentPoke = pokemon;
-                    UpdateBattleStatus("You have selected " + CurrentPoke.Name + id);
+                    UpdateBattleStatus("You have selected " + CurrentPoke.Name);
 
                     selectPokemon = false;
                 }
@@ -198,7 +195,7 @@
 
     private void SelectMove(MoveModel move)
     {
-        UpdateBattleStatus(Trainer.Lineups.FirstOrDefault().Lineup[activePokemon].Name + " used " + move.Name + "!");
+        UpdateBattleStatus(CurrentPoke.Name + " used " + move.Name + "!");
     }
 
 
