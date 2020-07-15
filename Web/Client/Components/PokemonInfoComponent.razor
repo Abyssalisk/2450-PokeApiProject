@@ -24,12 +24,12 @@
 
             <table class="table">
                 <tr>
-                    <td>@Pokemon.MoveSelections[0].Name (@Pokemon.MoveSelections[0].Damage) <span class="type type-@Pokemon.MoveSelections[0].Type"></span></td>
-                    <td>@Pokemon.MoveSelections[1].Name (@Pokemon.MoveSelections[1].Damage) <span class="type type-@Pokemon.MoveSelections[1].Type"></span></td>
-                </tr>
-                <tr>
-                    <td>@Pokemon.MoveSelections[2].Name (@Pokemon.MoveSelections[2].Damage) <span class="type type-@Pokemon.MoveSelections[2].Type"></span></td>
-                    <td>@Pokemon.MoveSelections[3].Name (@Pokemon.MoveSelections[3].Damage) <span class="type type-@Pokemon.MoveSelections[3].Type"></span></td>
+                    <td>@PascalCaseName(Pokemon.MoveSelections[0].Name) (@Pokemon.MoveSelections[0].Damage) <span class="type type-@Pokemon.MoveSelections[0].Type"></span></td>
+                    <td>@PascalCaseName(Pokemon.MoveSelections[1].Name) (@Pokemon.MoveSelections[1].Damage) <span class="type type-@Pokemon.MoveSelections[1].Type"></span></td>
+                </tr>                                                 
+                <tr>                                                  
+                    <td>@PascalCaseName(Pokemon.MoveSelections[2].Name) (@Pokemon.MoveSelections[2].Damage) <span class="type type-@Pokemon.MoveSelections[2].Type"></span></td>
+                    <td>@PascalCaseName(Pokemon.MoveSelections[3].Name) (@Pokemon.MoveSelections[3].Damage) <span class="type type-@Pokemon.MoveSelections[3].Type"></span></td>
                 </tr>
 
             </table>
@@ -41,7 +41,7 @@
 
     [Parameter] public PokemonModel Pokemon { get; set; }
 
-    private static System.Text.RegularExpressions.Regex pascalReg = new System.Text.RegularExpressions.Regex("\b");
+    private static System.Text.RegularExpressions.Regex pascalReg = new System.Text.RegularExpressions.Regex("\\W\\w");
 
     public static string PascalCaseName(string toPascal)
     {
