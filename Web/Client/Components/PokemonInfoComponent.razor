@@ -1,11 +1,11 @@
 ﻿@using Web.Shared.Models
-    
+
 
 <div class="card" style="margin: 5px 0 5px 0;">
     <div class="card-body text-center">
         <h5 class="card-title">
             <img src=@Pokemon.FrontImageUri style="height: 50px; width: 50px;" />
-            @Pokemon.Name
+            @PascalCaseName(Pokemon.Name)
             @foreach (var type in Pokemon.Types)
             {
                 <span class="type type-@type.Name"></span>
@@ -40,4 +40,24 @@
 @code {
 
     [Parameter] public PokemonModel Pokemon { get; set; }
+
+    private static System.Text.RegularExpressions.Regex pascalReg = new System.Text.RegularExpressions.Regex("\b");
+
+    public static string PascalCaseName(string toPascal)
+    {
+        var ms = pascalReg.Matches(toPascal);
+        char[] ns = toPascal.ToCharArray();
+        if (ns.Length > 0)
+        { 
+            ns[0] = char.ToUpper(ns[0]); 
+        }
+        for (int i = 0; i < ms.Count; i++)
+        {
+            if (ms[i].Success && ms[i].Index != toPascal.Length - 1)
+            {
+                ns[i] = char.ToUpper(ns[i]);
+            }
+        }
+        return string.Join("", ns);
+    }
 }

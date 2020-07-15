@@ -46,7 +46,7 @@
             throw new Exception($"Failed to set TrainerHandle from cookie");
         Trainer = await Poke.GetTrainer(client, trainerHandle);
         trainerHandle = trainerHandle.Replace("\"", string.Empty);
-        trainerHandle = char.ToUpper(trainerHandle[0]) + trainerHandle.Substring(1); // uppercase first letter
+        trainerHandle = char.ToUpper(trainerHandle[0]) + trainerHandle.Substring(1); // uppercase first letter //Sam G: Don't you think we should respect the username's original casing?
         Title = trainerHandle + "\'s Teams";
     }
 }
