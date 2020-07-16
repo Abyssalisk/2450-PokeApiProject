@@ -24,8 +24,13 @@ namespace Web.Server.Classes
         }
         public string Decrypt(string encryptedPassword)
         {
-            var base64EncodedBytes = Convert.FromBase64String(encryptedPassword);
-            return Encoding.UTF8.GetString(base64EncodedBytes);
+            try
+            {
+                var base64EncodedBytes = Convert.FromBase64String(encryptedPassword);
+                return Encoding.UTF8.GetString(base64EncodedBytes);
+            }
+            catch { Console.WriteLine("Failed to decode password in LoginController.cs"); }
+            return string.Empty;
         }
     }
 }
