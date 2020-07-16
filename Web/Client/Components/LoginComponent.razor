@@ -21,6 +21,15 @@
         </div>
     </form>
 </EditForm>
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="text-center">
+        <div class="badge badge-danger">
+            @Message
+        </div>
+    </div>
+    <br />
+}
 <br />
 <div class="text-center">
     <button class="btn btn-primary" @onclick="Authenticate">Login</button>
@@ -31,6 +40,7 @@
     public string Message { get; set; }
     private string Response { get; set; }
     private AuthService Auth { get; set; }
+    private bool LoginFailed { get; set; }
 
     protected override void OnInitialized()
     {
@@ -65,6 +75,10 @@
             {
                 Message = "Failed to login. Check username/password or select Forgot Password";
             }
+        }
+        else
+        {
+            Message = "Enter a username and password, then click Login";
         }
     }
 
