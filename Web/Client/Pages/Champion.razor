@@ -1,6 +1,7 @@
 ﻿@page "/champion"
 @inject NavigationManager navMan
 @inject HttpClient client
+@inject IJSRuntime JSRuntime;
 @using Web.Shared.Models
 @using Web.Client.Components
 
@@ -14,15 +15,26 @@
 
     private TrainerModel ChampionInfo = new TrainerModel();
     public PokemonService Poke { get; set; }
+    public AuthService Auth { get; set; }
+
 
     protected override void OnInitialized()
     {
         Poke = new PokemonService();
+        Auth = new AuthService();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
-        ChampionInfo = championAndElite4.First();
+        var trainerHandle = await Auth.GetCookieAsync(JSRuntime, "Username");
+        if (string.IsNullOrEmpty(trainerHandle))
+        {
+            navMan.NavigateTo("login");
+        }
+        else
+        {
+            var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
+            ChampionInfo = championAndElite4.First();
+        }
     }
 }

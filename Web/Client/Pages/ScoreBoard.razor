@@ -11,6 +11,23 @@
 <button class="btn btn-primary" @onclick="Exit">Exit</button>
 
 @code {
+    public AuthService Auth { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var trainerHandle = await Task.Run(async () => await Auth.GetCookieAsync(JSRuntime, "Username"));
+
+        if (string.IsNullOrEmpty(trainerHandle))
+        {
+            navMan.NavigateTo("login");
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        Auth = new AuthService();
+    }
+
     private void PlayAgain()
     {
         navMan.NavigateTo("team");

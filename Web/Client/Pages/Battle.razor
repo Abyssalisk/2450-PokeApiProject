@@ -183,7 +183,6 @@
         UpdateBattleStatus(Trainer.Lineups.FirstOrDefault().Lineup[activePokemon].Name + " used " + move.Name + "!");
     }
 
-
     protected override void OnInitialized()
     {
         Poke = new PokemonService();
@@ -192,19 +191,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
-        Opponent = championAndElite4.Last();
-
         var trainerHandle = await Task.Run(async () => await Auth.GetCookieAsync(JSRuntime, "Username"));
+
         if (string.IsNullOrEmpty(trainerHandle))
-            throw new Exception($"Failed to set TrainerHandle from cookie");
-        Trainer = await Poke.GetTrainer(client, trainerHandle);
-
-        Trainer.Lineups[0].Lineup.Skip(1).ToList().ForEach(p => p.ActingHP = p.BaseHP);
-
-        battleStatus = new List<string>(){
-        $"{Opponent.Lineups[0].Lineup.First().Name} used fissure!",
-        "You have lost the pokemon game."
-    };
+        {
+            navMan.NavigateTo("login");
+        }
+        else
+        {
+            var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
+            Opponent = championAndElite4.Last();
+            Trainer = await Poke.GetTrainer(client, trainerHandle);
+            Trainer.Lineups[0].Lineup.Skip(1).ToList().ForEach(p => p.ActingHP = p.BaseHP);
+            battleStatus = new List<string>() { $"{Opponent.Lineups[0].Lineup.First().Name} used fissure!", "You have lost the pokemon game." };
+        }
     }
 }
