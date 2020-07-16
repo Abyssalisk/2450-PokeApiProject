@@ -16,41 +16,45 @@
 </div>
 
 @code {
-        public TrainerModel Trainer { get; set; }
-        private AuthService Auth { get; set; }
-        private PokemonService Poke { get; set; }
-        public string trainerHandle = string.Empty;
+    public TrainerModel Trainer { get; set; }
+    private AuthService Auth { get; set; }
+    private PokemonService Poke { get; set; }
+    public string trainerHandle = string.Empty;
 
-        public List<CheckBox> PokemonNames { get; set; }
+    public List<CheckBox> PokemonNames { get; set; }
 
-        // set trainer.team to selected team
+    // set trainer.team to selected team
 
-        protected override void OnInitialized()
+    protected override void OnInitialized()
+    {
+        //Trainer = new TrainerModel();
+        Auth = new AuthService();
+        Poke = new PokemonService();
+        PokemonNames = new List<CheckBox>();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var names = await Poke.GetAllPokemonNames(client);
+        names.ForEach(n => { PokemonNames.Add(new CheckBox() { Text = n, Checked = false }); });
+        trainerHandle = await Auth.GetCookieAsync(JSRuntime, "Username");
+
+        if (string.IsNullOrEmpty(trainerHandle))
         {
-            //Trainer = new TrainerModel();
-            Auth = new AuthService();
-            Poke = new PokemonService();
-            PokemonNames = new List<CheckBox>();
+            navMan.NavigateTo("login");
         }
-
-        protected override async Task OnInitializedAsync()
+        else
         {
-            var names = await Poke.GetAllPokemonNames(client);
-            names.ForEach(n => { PokemonNames.Add(new CheckBox() { Text = n, Checked = false }); });
-            trainerHandle = await Auth.GetCookieAsync(JSRuntime, "Username");
-
-            if (string.IsNullOrEmpty(trainerHandle))
-                throw new Exception($"Failed to set TrainerHandle from cookie");
-
             Trainer = await Poke.GetTrainer(client, trainerHandle);
             if (Trainer.Lineups == null)
                 Trainer.Lineups = new List<LineupModel>(); // used actually, not sure why it doesn't set where expected, look into later
         }
-
-        public class CheckBox
-        {
-            public bool Checked { get; set; }
-            public string Text { get; set; }
-        }
     }
+
+    public class CheckBox
+    {
+        public bool Checked { get; set; }
+        public string Text { get; set; }
+    }
+}
 

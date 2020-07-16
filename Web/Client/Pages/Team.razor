@@ -6,18 +6,25 @@
 @using Web.Shared.Models
 @using Web.Client.Components
 
-<button class="btn btn-primary float-right" @onclick="CreateNewTeam">Create New Team</button>
-
-<h2>@Title</h2>
-
-@foreach (var lineup in Trainer.Lineups)
+@if (!Loading)
 {
-    teamCounter++;
-    <br />
-    <div>
-        <h3>Lineup @teamCounter</h3>
-        <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
-    </div>
+    <button class="btn btn-primary float-right" @onclick="CreateNewTeam">Create New Team</button>
+
+    <h2>@Title</h2>
+
+    @foreach (var lineup in Trainer.Lineups)
+    {
+        teamCounter++;
+        <br />
+        <div>
+            <h3>Lineup @teamCounter</h3>
+            <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
+        </div>
+    }
+}
+else
+{
+    <h1>Loading...</h1>
 }
 
 @code {
@@ -26,6 +33,7 @@
     public AuthService Auth { get; set; }
     private string Title { get; set; }
     private int teamCounter = 0;
+    private bool Loading { get; set; }
 
     private void CreateNewTeam()
     {
@@ -34,6 +42,7 @@
 
     protected override void OnInitialized()
     {
+        Loading = true;
         Title = "My Teams";
         Poke = new PokemonService();
         Auth = new AuthService();
@@ -42,11 +51,18 @@
     protected override async Task OnInitializedAsync()
     {
         var trainerHandle = await Task.Run(async () => await Auth.GetCookieAsync(JSRuntime, "Username"));
+
         if (string.IsNullOrEmpty(trainerHandle))
-            throw new Exception($"Failed to set TrainerHandle from cookie");
-        Trainer = await Poke.GetTrainer(client, trainerHandle);
-        trainerHandle = trainerHandle.Replace("\"", string.Empty);
-        trainerHandle = char.ToUpper(trainerHandle[0]) + trainerHandle.Substring(1); // uppercase first letter //Sam G: Don't you think we should respect the username's original casing?
-        Title = trainerHandle + "\'s Teams";
+        {
+            navMan.NavigateTo("login");
+        }
+        else
+        {
+            Trainer = await Poke.GetTrainer(client, trainerHandle);
+            trainerHandle = trainerHandle.Replace("\"", string.Empty);
+            trainerHandle = char.ToUpper(trainerHandle[0]) + trainerHandle.Substring(1); // uppercase first letter //Sam G: Don't you think we should respect the username's original casing?
+            Title = trainerHandle + "\'s Teams";
+            Loading = false;
+        }
     }
 }

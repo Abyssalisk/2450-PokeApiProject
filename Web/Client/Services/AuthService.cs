@@ -47,7 +47,7 @@ namespace Web.Client.Services
         public async Task<string> GetCookieAsync(IJSRuntime js, string name)
         {
             var cookie = await js.InvokeAsync<string>("GetCookie", name);
-            return cookie;
+            return !string.IsNullOrEmpty(cookie) ? cookie : string.Empty;
         }
 
         public async Task<string> TryLogin(HttpClient client, LoginModel login)
