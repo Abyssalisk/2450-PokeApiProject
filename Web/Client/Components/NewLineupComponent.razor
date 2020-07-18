@@ -49,6 +49,11 @@ else
                         <td>
                             <img src="@name.ImgURI" />
                         </td>
+                        <td>
+                            <p>Types: 
+                            @string.Join(", ", name.Types);
+                            </p>
+                        </td>
                     </tr>
                 }
             </tbody>
