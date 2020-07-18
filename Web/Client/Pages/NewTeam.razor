@@ -44,7 +44,18 @@
                 gets.Add(n, Poke.GetPokemonByName(client, n));
             }
         });
-        Task.WaitAll(gets.Values.ToArray());
+        //Task.WaitAll(gets.Values.ToArray());
+        while (true)
+        {
+            if (gets.Values.All(x => x.IsCompleted))
+            {
+                break;
+            }
+            else
+            {
+                System.Threading.Thread.Sleep(100);
+            }
+        }
         names.ForEach(n =>
         {
             PokemonNames.Add(new CheckBox()
