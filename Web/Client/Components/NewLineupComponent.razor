@@ -32,18 +32,23 @@ else
                 @foreach (var name in @PokemonNames)
                 {
                     <tr>
-                        <label for="@name.Text">
-                            @if (name.Checked)
-                            {
-                                <input type="checkbox" id="@name.Text" checked="checked"
-                                       @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount--; })" />
-                            }
-                            else
-                            {
-                                <input type="checkbox" id="@name.Text" @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount++; })" />
-                            }
-                            @name.Text
-                        </label>
+                        <td>
+                            <label for="@name.Text">
+                                @if (name.Checked)
+                                {
+                                    <input type="checkbox" id="@name.Text" checked="checked"
+                                           @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount--; })" />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" id="@name.Text" @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount++; })" />
+                                }
+                                @name.Text
+                            </label>
+                        </td>
+                        <td>
+                            <img src="@name.ImgURI" />
+                        </td>
                     </tr>
                 }
             </tbody>
