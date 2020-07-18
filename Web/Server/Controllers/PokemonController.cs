@@ -139,9 +139,15 @@ namespace Web.Server.Controllers
                     });
             });
 
+            Dictionary<string, Task<IDictionary<string, object>>> gets = new Dictionary<string, Task<IDictionary<string, object>>>();
+
+            pokemon.Moves.ForEach(x => gets.Add(x.ResourceUri, GetAdditionInfo(x.ResourceUri)));
+
+            Task.WaitAll(gets.Values.ToArray());
+
             foreach (var m in pokemon.Moves)
             {
-                var info = await GetAdditionInfo(m.ResourceUri);
+                var info = gets[m.ResourceUri].Result;
 
                 if (info != null && info.Count > 0)
                 {
