@@ -8,10 +8,10 @@
 
 <div class="container-fluid" style="max-width: 100%; float: left;">
     <h1 class="text-center">New Team</h1>
-    @if (PokemonNames?.Count > 0)
-    {
-        <NewLineupComponent PokemonNames="@PokemonNames" Trainer="@Trainer" />
-    }
+        @if (PokemonNames?.Count > 0)
+        {
+            <NewLineupComponent PokemonNames="@PokemonNames" Trainer="@Trainer" />
+        }
 
 </div>
 
@@ -39,19 +39,16 @@
         Dictionary<string, Task<PokemonModel>> gets = new Dictionary<string, Task<PokemonModel>>();
         names.ForEach(n =>
         {
-            if (!gets.ContainsKey(n))
-            {
-                gets.Add(n, Poke.GetPokemonByName(client, n));
-            }
+            gets.Add(n, Poke.GetPokemonByName(client, n));
         });
         Task.WaitAll(gets.Values.ToArray());
         names.ForEach(n =>
         {
-            PokemonNames.Add(new CheckBox()
+            PokemonNames.Add(new CheckBox() 
             {
-                Text = n,
-                Checked = false,
-                ImgURI = gets[n].Result.FrontImageUri,
+                Text = n, 
+                Checked = false, 
+                ImgURI = gets[n].Result.FrontImageUri, 
                 Types = ((gets[n]).Result).Types.Select<PokemonType, string>(x => x.Name).ToArray()
             });
         });

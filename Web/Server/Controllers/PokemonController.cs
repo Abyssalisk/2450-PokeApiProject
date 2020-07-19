@@ -142,13 +142,7 @@ namespace Web.Server.Controllers
 
             Dictionary<string, Task<IDictionary<string, object>>> gets = new Dictionary<string, Task<IDictionary<string, object>>>();
 
-            pokemon.Moves.ForEach(x => 
-            { 
-                if (!gets.ContainsKey(x.ResourceUri)) 
-                { 
-                    gets.Add(x.ResourceUri, GetAdditionInfo(x.ResourceUri)); 
-                } 
-            });
+            pokemon.Moves.ForEach(x => gets.Add(x.ResourceUri, GetAdditionInfo(x.ResourceUri)));
 
             Task.WaitAll(gets.Values.ToArray());
 
