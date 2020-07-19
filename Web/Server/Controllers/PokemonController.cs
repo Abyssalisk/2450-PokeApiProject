@@ -150,18 +150,7 @@ namespace Web.Server.Controllers
                 } 
             });
 
-            //Task.WaitAll(gets.Values.ToArray());
-            while (true)
-            {
-                if (gets.Values.All(x => x.IsCompleted))
-                {
-                    break;
-                }
-                else
-                {
-                    Thread.Sleep(100);
-                }
-            }
+            Task.WaitAll(gets.Values.ToArray());
 
             foreach (var m in pokemon.Moves)
             {
