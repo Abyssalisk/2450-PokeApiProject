@@ -30,22 +30,13 @@
         //Trainer = new TrainerModel();
         Auth = new AuthService();
         Poke = new PokemonService();
-        this.PokemonNames = new List<CheckBox>();
+        PokemonNames = new List<CheckBox>();
     }
 
     protected override async Task OnInitializedAsync()
     {
         var names = await Poke.GetAllPokemonNames(client);
-        Dictionary<string, Task<PokemonModel>> gets = new Dictionary<string, Task<PokemonModel>>();
-        names.ForEach(n =>
-        {
-            gets.Add(n, Poke.GetPokemonByName(client, n));
-        });
-        Task.WaitAll(gets.Values.ToArray());
-        names.ForEach(n =>
-        {
-            PokemonNames.Add(new CheckBox() { Text = n, Checked = false, ImgURI = gets[n].Result.FrontImageUri });
-        });
+        names.ForEach(n => { PokemonNames.Add(new CheckBox() { Text = n, Checked = false }); });
         trainerHandle = await Auth.GetCookieAsync(JSRuntime, "Username");
 
         if (string.IsNullOrEmpty(trainerHandle))
@@ -64,7 +55,6 @@
     {
         public bool Checked { get; set; }
         public string Text { get; set; }
-        public string ImgURI { get; set; }
     }
 }
 
