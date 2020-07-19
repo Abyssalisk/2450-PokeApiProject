@@ -44,13 +44,7 @@
         Task.WaitAll(gets.Values.ToArray());
         names.ForEach(n =>
         {
-            PokemonNames.Add(new CheckBox() 
-            {
-                Text = n, 
-                Checked = false, 
-                ImgURI = gets[n].Result.FrontImageUri, 
-                Types = ((gets[n]).Result).Types.Select<PokemonType, string>(x => x.Name).ToArray()
-            });
+            PokemonNames.Add(new CheckBox() { Text = n, Checked = false, ImgURI = gets[n].Result.FrontImageUri });
         });
         trainerHandle = await Auth.GetCookieAsync(JSRuntime, "Username");
 
@@ -71,7 +65,6 @@
         public bool Checked { get; set; }
         public string Text { get; set; }
         public string ImgURI { get; set; }
-        public string[] Types { get; set; }
     }
 }
 
