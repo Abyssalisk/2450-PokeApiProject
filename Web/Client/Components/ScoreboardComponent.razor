@@ -2,75 +2,68 @@
 @inject HttpClient client
 @using Web.Shared.Models
 
-<h1>Scoreboard</h1>
+@if (Loading)
+{
+    <LoadingComponent />
+}
+else
+{
+    <h1>Scoreboard</h1>
 
-<p>display top 10 trainers and scores, etc... in pretty grid/table.</p>
-<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
+    <p>display top 10 trainers and scores, etc... in pretty grid/table.</p>
+    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
 
-<table id="myTable" class="table sortable">
-    <thead>
-        <tr class="header">
-            <th onclick="w3.sortHTML('#myTable', '.item', 'td:nth-child(1)')" style="cursor:pointer">
-                Trainer
-                <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
-            </th>
-            <th onclick="w3.sortHTML('#myTable', '.item', 'td:nth-child(2)')" style="cursor:pointer">
-                Score
-                <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
-            </th>
-            <th onclick="w3.sortHTML('#myTable', '.item', 'td:nth-child(3)')" style="cursor:pointer">
-                Pokemon
-                <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var trainer in topTenTrainers)
-        {
-            string team = string.Empty;
-            @foreach (PokemonModel p in trainer.Team.Lineup)
-            {
-                if (string.IsNullOrEmpty(team))
-                    team += p.Name;
-                else
-                {
-                    team += ", ";
-                    team += p.Name;
-                }
-            }
-
-            <tr class="item">
-                <td>@trainer.Handle</td>
-                <td>@trainer.HighScore</td>
-                <td>
-                    @team
-                </td>
+    <table id="myTable" class="table sortable">
+        <thead>
+            <tr class="header">
+                <th onclick="w3.sortHTML('#myTable', '.item', 'td:nth-child(1)')" style="cursor:pointer">
+                    Trainer
+                    <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
+                </th>
+                <th onclick="w3.sortHTML('#myTable', '.item', 'td:nth-child(2)')" style="cursor:pointer">
+                    Score
+                    <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
+                </th>
+                <th onclick="w3.sortHTML('#myTable', '.item', 'td:nth-child(3)')" style="cursor:pointer">
+                    Pokemon
+                    <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
+                </th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var trainer in topTenTrainers)
+            {
+                string team = string.Empty;
+                @foreach (PokemonModel p in trainer.Team.Lineup)
+                {
+                    if (string.IsNullOrEmpty(team))
+                        team += p.Name;
+                    else
+                    {
+                        team += ", ";
+                        team += p.Name;
+                    }
+                }
 
-
-
-<br />
-@*<button class="btn btn-primary" @onclick="Test">Test</button>*@
+                <tr class="item">
+                    <td>@trainer.Handle</td>
+                    <td>@trainer.HighScore</td>
+                    <td>
+                        @team
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
-
-    //int score = 0;
-
     private List<TrainerModel> topTenTrainers = new List<TrainerModel>();
-
-
-    private async Task Test()
-    {
-        var endpoint = $"api/Login/validate/serosenvall@gmail.com";
-        var validator = await client.GetFromJsonAsync<ValidationModel>(endpoint);
-        var Result = validator.RandomCode;
-    }
+    private bool Loading { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        Loading = true;
         topTenTrainers.Add(new TrainerModel()
         {
             Handle = "Spencer",
@@ -78,7 +71,7 @@
             Team = new LineupModel()
             {
                 Lineup = new List<PokemonModel>()
-        {
+{
                     new PokemonModel() { Name = "Charizard" },
                     new PokemonModel() { Name = "Gengar" },
                     new PokemonModel() { Name = "Houndoom" }
@@ -93,7 +86,7 @@
             Team = new LineupModel()
             {
                 Lineup = new List<PokemonModel>()
-        {
+{
                     new PokemonModel() { Name = "Gyrados" },
                     new PokemonModel() { Name = "Articuno" },
                     new PokemonModel() { Name = "Charizard" }
@@ -122,7 +115,7 @@
                 Team = new LineupModel()
                 {
                     Lineup = new List<PokemonModel>()
-        {
+{
                     new PokemonModel() { Name = "Charizard" },
                     new PokemonModel() { Name = "Charizard" },
                     new PokemonModel() { Name = "Charizard" }
@@ -134,6 +127,7 @@
         {
             Console.WriteLine("An error occurred.");
         }
+        Loading = false;
     }
 
 }
