@@ -153,12 +153,15 @@ namespace Web.Server.Controllers
             //Task.WaitAll(gets.Values.ToArray());
             while (true)
             {
-                if (gets.Values.All(x => x.IsCompleted))
+                uint iterates = 0;
+                const uint tryTime = 100; //in 10ths of second 100 = 10 seconds.
+                if (gets.Values.All(x => x.IsCompleted) || iterates >= tryTime)
                 {
                     break;
                 }
                 else
                 {
+                    iterates++;
                     Thread.Sleep(100);
                 }
             }
