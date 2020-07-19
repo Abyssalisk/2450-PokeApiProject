@@ -102,7 +102,7 @@
                                 {
                                     if (!string.IsNullOrEmpty(move.Name))
                                     {
-                                        <button type="button" class="btn btn-primary m-1" style="width: 45%;" @onclick="(() => MoveSelected(OpponentPoke, move))">
+                                        <button type="button" class="btn btn-primary m-1" style="width: 45%;" @onclick="(() => MoveSelection(move))">
                                             <p>@move.Name</p>
                                             <div class="d-flex justify-content-between">
                                                 <span class="type type-@move.Type"></span> <span>@move.Damage</span>
@@ -120,10 +120,10 @@
 }
 
 @code {
-        int score = 0;
-        bool confirmOpponent { get; set; } = false;
-        bool selectPokemon { get; set; } = false;
-        bool lineupLoaded { get; set; } = false;
+    int score = 0;
+    bool confirmOpponent { get; set; } = false;
+    bool selectPokemon { get; set; } = false;
+    bool lineupLoaded { get; set; } = false;
 
     private TrainerModel Opponent = new TrainerModel();
     private TrainerModel Trainer = new TrainerModel();
@@ -148,7 +148,7 @@
         lineupLoaded = false;
     }
 
-    private void MoveSelected(MoveModel move)
+    private void MoveSelection(MoveModel move)
     {
         // determine who goes first
         if (OpponentPoke.Speed > CurrentPoke.Speed)
@@ -160,14 +160,14 @@
         else
         {
             // modifiers, typing, random move?, etc
-            DoDamage(Opponent, move);
+            DoDamage(OpponentPoke, move);
             DoDamage(CurrentPoke, OpponentPoke.MoveSelections[0]); // opponent last
         }
     }
 
-    private void DoDamage(PokemonModel afflictedPokemon, MoveModel move)
+    private void DoDamage(PokemonModel afflictedPoke, MoveModel move)
     {
-
+        afflictedPoke.ActingHP = afflictedPoke.ActingHP - move.Damage;
     }
 
     private void Back()
