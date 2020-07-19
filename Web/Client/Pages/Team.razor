@@ -11,15 +11,49 @@
     <button class="btn btn-primary float-right" @onclick="CreateNewTeam">Create New Team</button>
 
     <h2>@Title</h2>
-
-    @foreach (var lineup in Trainer.Lineups)
+    <br />
+    if (Trainer?.Lineups?.Count > 0)
     {
-        teamCounter++;
-        <br />
-        <div>
-            <h3>Lineup @teamCounter</h3>
-            <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
+        teamCounter = 0;
+        <div class="container-fluid text-center">
+            <div class="row-fluid">
+                <label for="activeLineup"><b>Active Lineup</b></label>
+                <select id="activeLineup" @onchange=@LineupChanged>
+                    @foreach (var lineup in Trainer.Lineups)
+                    {
+                        var viewVal = teamCounter + 1;
+                        <option value=@teamCounter>Lineup @viewVal</option>
+                        teamCounter++;
+                    }
+                </select>
+
+                @if (!string.IsNullOrEmpty(TeamSaved))
+                {
+                    <div>
+                        <div class="badge badge-success">
+                            @TeamSaved
+                        </div>
+                    </div>
+                    <br />
+                }
+            </div>
         </div>
+        <br />
+
+        teamCounter = 0;
+        @foreach (var lineup in Trainer.Lineups)
+        {
+            teamCounter++;
+            <br />
+            <div>
+                <h3>Lineup @teamCounter</h3>
+                <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
+            </div>
+        }
+    }
+    else
+    {
+        <h1 class="text-center">To begin creating a lineup, click 'Create New Team' in the top right corner.</h1>
     }
 }
 else
@@ -34,10 +68,34 @@ else
     private string Title { get; set; }
     private int teamCounter = 0;
     private bool Loading { get; set; }
+    private string TeamSaved { get; set; }
 
     private void CreateNewTeam()
     {
         navMan.NavigateTo("newTeam");
+    }
+
+    protected void LineupChanged(ChangeEventArgs e)
+    {
+        var val = int.Parse(e.Value.ToString());
+        Trainer.Team = Trainer.Lineups[val];
+
+        // save the team
+        Task.Run(() => Poke.UpdateLineup(client, Trainer));
+        TeamSaved = string.Empty; // clear string if team is changing
+
+        // display team saved message
+        Trainer.Team.Lineup.ForEach(p =>
+        {
+            if (!string.IsNullOrEmpty(TeamSaved))
+                TeamSaved += ", " + p.Name;
+            else
+            {
+                val++;
+                TeamSaved += $"Saved Team (Lineup {val}): " + p.Name;
+            }
+
+        });
     }
 
     protected override void OnInitialized()
