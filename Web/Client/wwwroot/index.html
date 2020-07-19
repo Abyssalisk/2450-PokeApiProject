@@ -8,6 +8,10 @@
     <base href="/" />
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
+    <link href="css/scoreTable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script src="https://www.w3schools.com/lib/w3.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
@@ -21,7 +25,7 @@
     <script src="_framework/blazor.webassembly.js"></script>
 
     <script>
-        function WriteCookie (name, value, days) {
+        function WriteCookie(name, value, days) {
             var expires;
             if (days) {
                 var date = new Date();
@@ -53,6 +57,8 @@
         function EraseCookie(name) {
             document.cookie = name + '=; Max-Age=-99999999;';
         }
+    </script>
+    <script src="js/scoreTable.js">
     </script>
 </body>
 
