@@ -1,36 +1,36 @@
 ﻿@inject NavigationManager navMan;
 @inject HttpClient client;
 
-
 @using Web.Shared.Models
 @using Web.Client.Components
-
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
 @if (Loading)
 {
     <LoadingComponent />
 }
 else
 {
-    <h3>NewLineup</h3>
-    <h5>or create a team of preferrably all fire pokemon...</h5>
+    <h3 style="font-family:'Press Start 2P'">Create a New Lineup</h3>
+
     <br />
 
     @if (ShowMessage)
     {
         <h4 style="color: red;">You must select 6 pokemon</h4>
     }
+
     @if (PokemonNames?.Count > 0 && !PokemonGenDone)
     {
-        <button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button>
-        <h3>Name</h3>
+        <h5 style="font-family:'Press Start 2P'">Select 6 Pokemon and Click Continue to Moves</h5>
+        <button class="btn btn-primary" style="font-family:'Press Start 2P'" @onclick=@GenPokemon>Continue to Moves</button>
+
         <div class="row">
             @foreach (var name in @PokemonNames)
             {
-
-                <div class="col-lg-2 col-md-4 col-sm-6">
-
-
-                    <label for="@name.Text">
+                <div class="col-lg-3 col-med-5 col-sm-7">
+                    <label for="@name.Text" style="font-family:'Press Start 2P'">
                         @if (name.Checked)
                         {
                             <input type="checkbox" id="@name.Text" checked="checked"
@@ -44,150 +44,151 @@ else
                     </label>
                 </div>
             }
-            </div>
+        </div>
+    }
+    @if (MayContinue)
+    {
+        <p style="font-family:'Press Start 2P'">Select Moves for each pokemon</p>
+        if (PokemonGenDone)
+        {
+            <div class="container-fluid">
+                <div class="row text-center">
 
-            @if (MayContinue)
-            {
-                <p>Select Moves for each pokemon</p>
-                if (PokemonGenDone)
-                {
-                    <div class="container-fluid">
-                        <div class="row text-center">
+                    @for (int i = 0; i < PokemonSelections.Count; i++)
+                    {
+                        var pokeIndex = i; // I would just reference i and j, but it breaks for whatever reason unless I make a local reference. Took hours to figure this out.
+                        var p = PokemonSelections[pokeIndex];
+                        <div class="col">
+                            <div class="row-fluid">
+                                <img src=@p.FrontImageUri style="height: 50px; width: 50px;" />
+                            </div>
+                            <div class="row-fluid">
+                                @{
+                                    var capatalizedName = char.ToUpper(p.Name[0]) + p.Name.Substring(1);
+                                }
+                                <strong>@(capatalizedName)</strong>
+                            </div>
 
-                            @for (int i = 0; i < PokemonSelections.Count; i++)
-                            {
-                                var pokeIndex = i; // I would just reference i and j, but it breaks for whatever reason unless I make a local reference. Took hours to figure this out.
-                                var p = PokemonSelections[pokeIndex];
-                                <div class="col">
-                                    <div class="row-fluid">
-                                        <img src=@p.FrontImageUri style="height: 50px; width: 50px;" />
+                            <EditForm Model=@p.Moves>
+                                <DataAnnotationsValidator />
+                                <ValidationSummary />
+                                @for (int j = 0; j < 4; j++)
+                                {
+                                    var moveIndex = j;
+                                    <div class="col">
+                                        <InputSelect class="form-group form-control" style="width: inherit;" @bind-Value="@PokemonSelections[pokeIndex].MoveSelections[moveIndex].Name">
+                                            <option selected>select a move</option>
+                                            @foreach (var m in p.Moves)
+                                                                {
+                                                <option value="@m.Name">
+                                                    @m.Name (Type: @m.Type - Damage: @m.Damage - @m.Category)
+                                                </option>
+                                                                }
+                                        </InputSelect>
                                     </div>
-                                    <div class="row-fluid">
-                                        @{
-                                            var capatalizedName = char.ToUpper(p.Name[0]) + p.Name.Substring(1);
-                                        }
-                                        <strong>@(capatalizedName)</strong>
-                                    </div>
-
-                                    <EditForm Model=@p.Moves>
-                                        <DataAnnotationsValidator />
-                                        <ValidationSummary />
-                                        @for (int j = 0; j < 4; j++)
-                                        {
-                                            var moveIndex = j;
-                                            <div class="col">
-                                                <InputSelect class="form-group form-control" style="width: inherit;" @bind-Value="@PokemonSelections[pokeIndex].MoveSelections[moveIndex].Name">
-                                                    <option selected>select a move</option>
-                                                    @foreach (var m in p.Moves)
-                                                                                {
-                                                        <option value="@m.Name">
-                                                            @m.Name (Type: @m.Type - Damage: @m.Damage - @m.Category)
-                                                        </option>
-                                                                                }
-                                                </InputSelect>
-                                            </div>
-                                        }
-                                    </EditForm>
-                                </div>
-                            }
-
+                                }
+                            </EditForm>
                         </div>
-                        <br />
-                        <button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
-                    </div>
-                }
-                else
-                {
-                    <h4 style="color: red;">You must select 6 pokemon</h4>
-                }
-            }
+                    }
+
+                </div>
+                <br />
+                <button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
+            </div>
         }
-            }
+        else
+        {
+            <h4 style="color: red;">You must select 6 pokemon</h4>
+        }
+    }
+}
 
-            @code {
+@code {
 
-                [Parameter]
-                public List<NewTeam.CheckBox> PokemonNames { get; set; }
+    [Parameter]
+    public List<NewTeam.CheckBox> PokemonNames { get; set; }
 
-                [Parameter]
-                public TrainerModel Trainer { get; set; }
+    [Parameter]
+    public TrainerModel Trainer { get; set; }
 
     public List<PokemonModel> PokemonSelections { get; set; }
-        public PokemonService Poke { get; set; }
-        public bool PokemonGenDone { get; set; }
-        public int PokemonNameCheckedCount { get; set; }
-        public int MoveCheckedCount { get; set; } // maybe obsolete
-        private bool ShowMessage { get; set; }
-        private bool MayContinue { get; set; }
-        private bool Loading { get; set; }
+    public PokemonService Poke { get; set; }
+    public bool PokemonGenDone { get; set; }
+    public int PokemonNameCheckedCount { get; set; }
+    public int MoveCheckedCount { get; set; } // maybe obsolete
+    private bool ShowMessage { get; set; }
+    private bool MayContinue { get; set; }
+    private bool Loading { get; set; }
 
-        protected override async Task OnParametersSetAsync()
-        {
-            await Task.Run(() => PokemonSelections = new List<PokemonModel>());
-            PokemonNameCheckedCount = PokemonSelections.Count; // set max count of pokemon
-            MoveCheckedCount = 4;
-        }
 
-        protected override void OnInitialized()
-        {
-            Poke = new PokemonService();
-        }
+    protected override async Task OnParametersSetAsync()
+    {
+        await Task.Run(() => PokemonSelections = new List<PokemonModel>());
+        PokemonNameCheckedCount = PokemonSelections.Count; // set max count of pokemon
+        MoveCheckedCount = 4;
+    }
 
-        private async Task GenPokemon()
+    protected override void OnInitialized()
+    {
+        Poke = new PokemonService();
+    }
+
+    private async Task GenPokemon()
+    {
+        Loading = true;
+        if (PokemonNames.Count(n => n.Checked == true) >= 1) // == 6)
         {
-            Loading = true;
-            if (PokemonNames.Count(n => n.Checked == true) >= 1) // == 6)
+            MayContinue = true;
+
+            var names = PokemonNames.Where(n => n.Checked == true)
+            .Select(n => n.Text)
+            .ToArray();
+
+            for (int i = 0; i < names.Length; i++)
             {
-                MayContinue = true;
 
-                var names = PokemonNames.Where(n => n.Checked == true)
-                .Select(n => n.Text)
-                .ToArray();
-
-                for (int i = 0; i < names.Length; i++)
-                {
-                    var pokemon = await Poke.GetPokemonByName(client, names[i]);
-                    pokemon.MoveSelections = new List<MoveModel>() { new MoveModel(), new MoveModel(), new MoveModel(), new MoveModel() };
-                    PokemonSelections.Add(pokemon);
-                }
-
-                PokemonGenDone = true;
-                Loading = false;
-                ShowMessage = false;
+                var pokemon = await Poke.GetPokemonByName(client, names[i]);
+                pokemon.MoveSelections = new List<MoveModel>() { new MoveModel(), new MoveModel(), new MoveModel(), new MoveModel() };
+                PokemonSelections.Add(pokemon);
             }
-            else
-            {
-                ShowMessage = true;
-            }
+
+            PokemonGenDone = true;
             Loading = false;
+            ShowMessage = false;
         }
-
-        private void SaveMoveSelections()
+        else
         {
-            PokemonSelections.ForEach(p =>
-            {
-                for (int i = 0; i < p.MoveSelections.Count; i++)
-                {
-                    var move = p.Moves.Where(s => s.Name == p.MoveSelections[i].Name).Select(s => s).FirstOrDefault();
-                    p.MoveSelections[i] = move;
-                    p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
-            }
-                p.Moves.Clear();
-            });
+            ShowMessage = true;
         }
+        Loading = false;
+    }
 
-        private async Task SaveTeam()
+    private void SaveMoveSelections()
+    {
+        PokemonSelections.ForEach(p =>
         {
-            SaveMoveSelections();
-            var lineup = new LineupModel() { Lineup = PokemonSelections.ToList() };
-
-            if (!Trainer.Lineups.Contains(lineup))
+            for (int i = 0; i < p.MoveSelections.Count; i++)
             {
-                Trainer.Lineups.Add(lineup);
-                Trainer.Team = lineup;
-
-                var success = await Poke.UpdateLineup(client, Trainer); //add lineup
-                navMan.NavigateTo("team");
-            }
+                var move = p.Moves.Where(s => s.Name == p.MoveSelections[i].Name).Select(s => s).FirstOrDefault();
+                p.MoveSelections[i] = move;
+                p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
         }
-            }
+            p.Moves.Clear();
+        });
+    }
+
+    private async Task SaveTeam()
+    {
+        SaveMoveSelections();
+        var lineup = new LineupModel() { Lineup = PokemonSelections.ToList() };
+
+        if (!Trainer.Lineups.Contains(lineup))
+        {
+            Trainer.Lineups.Add(lineup);
+            Trainer.Team = lineup;
+
+            var success = await Poke.UpdateLineup(client, Trainer); //add lineup
+            navMan.NavigateTo("team");
+        }
+    }
+}
