@@ -6,8 +6,11 @@
 @using Web.Shared.Models
 @using Web.Client.Components
 
-<div class="container-fluid" style="max-width: 100%; float: left;">
+<div class="container-fluid">
     <h1 class="text-center">New Team</h1>
+</div>
+    
+<div>
         @if (PokemonNames?.Count > 0)
         {
             <NewLineupComponent PokemonNames="@PokemonNames" Trainer="@Trainer" />
