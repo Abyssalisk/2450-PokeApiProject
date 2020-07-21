@@ -5,116 +5,116 @@
 @using Web.Shared.Models
 @using Web.Client.Components
 
-@{
-    if (!confirmOpponent)
+@{ if (Loading)
     {
-        <h3>Your next opponent is: <strong>@(Opponent.Handle)</strong></h3>
-
-        @foreach (var lineup in Opponent.Lineups)
-        {
-            <div>
-                <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
-            </div>
-            lineupLoaded = true;
-        }
-
-        if (lineupLoaded)
-        {
-            <p>You are about to challenge @(Opponent.Handle). Continue?</p>
-            <div class="row">
-                <div class="col">
-                    <ButtonComponent buttonType="ok" buttonSpan="block" action="Confirm"></ButtonComponent>
-                </div>
-                <div class="col">
-                    <ButtonComponent buttonType="back" buttonSpan="block" action="Back"></ButtonComponent>
-                </div>
-            </div>
-        }
+        <LoadingComponent />
     }
     else
     {
-        if (CurrentPoke == null) CurrentPoke = Trainer.Lineups.FirstOrDefault().Lineup[0]; 
-        if (OpponentPoke == null) OpponentPoke = Opponent.Lineups.FirstOrDefault().Lineup[0];
-        
-        while (true)
+        if (!confirmOpponent)
         {
-            if (selectPokemon)
-            {
-                <p>Please select a Pokemon to use:</p>
+            <h3>Your next opponent is: <strong>@(Opponent.Handle)</strong></h3>
+            <div>
+                <TeamInfoComponent Team="@Opponent.Team"></TeamInfoComponent>
+            </div>
 
-                @foreach (var pokemon in Trainer.Lineups.FirstOrDefault().Lineup.Where(x => x.IsAlive))
-                {
-                    <button class="btn btn-light m-1" @onclick="(() => PokemonSelected(pokemon.Id))">
-                        <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
-                    </button>
-                }
-            }
-            else
+            lineupLoaded = true;
+            if (lineupLoaded)
             {
-                <p>Commence battle!!</p>
-                <div class="container-fluid" style="max-width:500px">
-                    <div class="row">
-                        <div class="col">
-                            <div class="battle-status opponent">
-                                <strong>@(OpponentPoke.Name)</strong>
-                                HP: @(OpponentPoke.BaseHP.ToString())/@(OpponentPoke.BaseHP.ToString())
-                                <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(OpponentPoke.BaseHP.ToString())/@(OpponentPoke.BaseHP.ToString()) * 100%);" aria-valuenow="@(OpponentPoke.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(OpponentPoke.BaseHP.ToString())"></div>
+                <p>You are about to challenge @(Opponent.Handle). Continue?</p>
+                <div class="row">
+                    <div class="col">
+                        <ButtonComponent buttonType="ok" buttonSpan="block" action="Confirm"></ButtonComponent>
+                    </div>
+                    <div class="col">
+                        <ButtonComponent buttonType="back" buttonSpan="block" action="Back"></ButtonComponent>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            while (true)
+            {
+                if (selectPokemon)
+                {
+                    <p>Please select a Pokemon to use:</p>
+
+                    @foreach (var pokemon in Trainer.Team.Lineup.Where(x => x.IsAlive))
+                    {
+                        <button class="btn btn-light m-1" @onclick="(() => PokemonSelected(pokemon.Id))">
+                            <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
+                        </button>
+                    }
+                }
+                else
+                {
+                    <p>Commence battle!!</p>
+                    <div class="container-fluid" style="max-width:500px">
+                        <div class="row">
+                            <div class="col">
+                                <div class="battle-status opponent">
+                                    <strong>@(OpponentPoke.Name)</strong>
+                                    HP: @(OpponentPoke.ActingHP.ToString())/@(OpponentPoke.BaseHP.ToString())
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(OpponentPoke.ActingHP.ToString())/@(OpponentPoke.BaseHP.ToString()) * 100%);" aria-valuenow="@(OpponentPoke.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(OpponentPoke.BaseHP.ToString())"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <img src="@(OpponentPoke.FrontImageUri)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <img src="@(CurrentPoke.BackImageUri)" />
+                            </div>
+                            <div class="col">
+                                <div class="battle-status trainer">
+                                    <strong>@(CurrentPoke.Name)</strong>
+                                    HP: @(CurrentPoke.ActingHP.ToString())/@(CurrentPoke.BaseHP.ToString())
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(CurrentPoke.ActingHP.ToString())/@(CurrentPoke.BaseHP.ToString()) * 100%);" aria-valuenow="@(CurrentPoke.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(CurrentPoke.BaseHP.ToString())"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col">
-                            <img src="@(OpponentPoke.FrontImageUri)" />
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <img src="@(CurrentPoke.BackImageUri)" />
-                        </div>
-                        <div class="col">
-                            <div class="battle-status trainer">
-                                <strong>@(CurrentPoke.Name)</strong>
-                                HP: @(CurrentPoke.ActingHP.ToString())/@(CurrentPoke.BaseHP.ToString())
-                                <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(CurrentPoke.ActingHP.ToString())/@(CurrentPoke.BaseHP.ToString()) * 100%);" aria-valuenow="@(CurrentPoke.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(CurrentPoke.BaseHP.ToString())"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row dark-menu p-2">
-                        @{
-                            foreach (var status in battleStatus)
-                            {
-                                @status<br />
-                            }
-                        }
-                    </div>
-                    <div class="row">
-                        <div class="col-4">
-                            <h3>Menu</h3>
-                            <button class="btn btn-primary m-1 mb-0" style="width: 100%" @onclick="SelectPokemon">Switch</button>
-                            <button class="btn btn-danger mt-5 m-1" style="width: 100%" @onclick="Back">Forfeit</button>
-                        </div>
-                        <div class="col-8">
-                            <h3>Fight</h3>
+                        <div class="row dark-menu p-2">
                             @{
-                                foreach (var move in CurrentPoke.MoveSelections)
+                                foreach (var status in battleStatus)
                                 {
-                                    if (!string.IsNullOrEmpty(move.Name))
-                                    {
-                                        <button type="button" class="btn btn-primary m-1" style="width: 45%;">
-                                            <p>@move.Name</p>
-                                            <div class="d-flex justify-content-between">
-                                                <span class="type type-@move.Type"></span> <span>@move.Damage</span>
-                                            </div>
-                                        </button>
-                                    }
+                                    @status<br />
                                 }
                             }
                         </div>
+                        <div class="row">
+                            <div class="col-4">
+                                <h3>Menu</h3>
+                                <button class="btn btn-primary m-1 mb-0" style="width: 100%" @onclick="SelectPokemon">Switch</button>
+                                <button class="btn btn-danger mt-5 m-1" style="width: 100%" @onclick="Back">Forfeit</button>
+                            </div>
+                            <div class="col-8">
+                                <h3>Fight</h3>
+                                @{
+                                    foreach (var move in CurrentPoke.MoveSelections)
+                                    {
+                                        if (!string.IsNullOrEmpty(move.Name))
+                                        {
+                                            <button type="button" class="btn btn-primary m-1" style="width: 45%;" @onclick="(() => MoveSelection(move))">
+                                                <p>@move.Name</p>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="type type-@move.Type"></span> <span>@move.Damage</span>
+                                                </div>
+                                            </button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
                     </div>
-                </div>
-            }break;
+                }
+                break;
+            }
         }
     }
 }
@@ -124,9 +124,15 @@
     bool confirmOpponent { get; set; } = false;
     bool selectPokemon { get; set; } = false;
     bool lineupLoaded { get; set; } = false;
+    bool Loading { get; set; } = true;
+
+    private int BattlePosition { get; set; } = 4;
+    private Random Rand { get; set; }
 
     private TrainerModel Opponent = new TrainerModel();
     private TrainerModel Trainer = new TrainerModel();
+
+    private List<TrainerModel> Elite4AndChampion { get; set; }
 
     public PokemonService Poke { get; set; }
     public AuthService Auth { get; set; }
@@ -148,6 +154,89 @@
         lineupLoaded = false;
     }
 
+    private void MoveSelection(MoveModel move)
+    {
+        // determine who goes first
+        if (OpponentPoke.Speed > CurrentPoke.Speed)
+        {
+            // modifiers, typing, random move?, etc
+            DoDamage(CurrentPoke, OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)]); // opponent first
+
+            var dead = CurrentPoke.ActingHP <= 0;
+            if (!dead)
+            {
+                DoDamage(OpponentPoke, move);
+            }
+            else
+            {
+                selectPokemon = true;
+            }
+
+            if (OpponentPoke.ActingHP <= 0) OpponentPokeDead();
+        }
+        else
+        {
+            // modifiers, typing, random move?, etc
+            DoDamage(OpponentPoke, move);
+
+            var dead = OpponentPoke.ActingHP <= 0;
+            if (!dead)
+            {
+                DoDamage(CurrentPoke, OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)]); // opponent last
+
+                if (CurrentPoke.ActingHP <= 0)
+                    selectPokemon = true;
+            }
+            else
+            {
+                OpponentPokeDead();
+            }
+        }
+
+        // no more available pokemon, lose
+        if (!Trainer.Team.Lineup.Any(p => p.ActingHP > 0))
+        {
+            Lose();
+        }
+    }
+
+    private void OpponentPokeDead()
+    {
+        if (!Opponent.Team.Lineup.Any(p => p.ActingHP > 0))
+        {
+            UpdateMessage($"{OpponentPoke} fainted!");
+            BattlePosition--;
+            SetupOpponent();
+            confirmOpponent = false;
+            UpdateMessage($"Opponent sent out {OpponentPoke.Name}!");
+        }
+        else
+        {
+            OpponentPoke = Opponent.Team.Lineup.First(p => p.ActingHP > 0);
+        }
+    }
+
+    private void UpdateMessage(string m)
+    {
+        battleStatus.Add(m);
+
+        if (battleStatus.Count > 2)
+            battleStatus.Remove(battleStatus.First());
+    }
+    private void DoDamage(PokemonModel afflictedPoke, MoveModel move)
+    {
+        afflictedPoke.ActingHP = afflictedPoke.ActingHP - (move.Damage / 5);
+
+        if (afflictedPoke == OpponentPoke)
+        {
+            UpdateMessage($"{CurrentPoke.Name} used {move.Name} for {move.Damage / 5} damage!");
+        }
+        else
+        {
+            UpdateMessage($"{OpponentPoke.Name} used {move.Name} for {move.Damage / 5} damage!");
+        }
+    }
+
     private void Back()
     {
         navMan.NavigateTo("home");
@@ -160,11 +249,11 @@
 
     private void PokemonSelected(int id)
     {
-        foreach (var pokemon in Trainer.Lineups.FirstOrDefault().Lineup.Where(x => x.IsAlive))
+        foreach (var pokemon in Trainer.Team.Lineup.Where(x => x.IsAlive))
         {
-            if(pokemon.Id == id)
+            if (pokemon.Id == id)
             {
-                if(id == CurrentPoke.Id)
+                if (id == CurrentPoke.Id)
                 {
                     UpdateBattleStatus("You have decided to not switch Pokemon.");
                     selectPokemon = false;
@@ -189,7 +278,7 @@
 
     private void Lose()
     {
-        Console.WriteLine("Lose");
+        // record score and stuffz, post to the scoreboard
         navMan.NavigateTo("scoreboard");
     }
 
@@ -198,10 +287,27 @@
         UpdateBattleStatus(CurrentPoke.Name + " used " + move.Name + "!");
     }
 
+    private void SetupOpponent()
+    {
+        if (BattlePosition == -1) // champion defeated
+        {
+            Win();
+        }
+        else
+        {
+            Opponent = Elite4AndChampion[BattlePosition];
+            Opponent.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
+            Trainer.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
+            OpponentPoke = Opponent.Team.Lineup.FirstOrDefault();
+            battleStatus = new List<string>() { $"Trainer {Opponent.Handle} challenges you to a battle." };
+        }
+    }
+
     protected override void OnInitialized()
     {
         Poke = new PokemonService();
         Auth = new AuthService();
+        Rand = new Random();
     }
 
     protected override async Task OnInitializedAsync()
@@ -214,11 +320,16 @@
         }
         else
         {
-            var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
-            Opponent = championAndElite4.Last();
             Trainer = await Poke.GetTrainer(client, trainerHandle);
-            Trainer.Lineups[0].Lineup.Skip(1).ToList().ForEach(p => p.ActingHP = p.BaseHP);
-            battleStatus = new List<string>() { $"{Opponent.Lineups[0].Lineup.First().Name} used fissure!", "You have lost the pokemon game." };
+            Trainer.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
+            CurrentPoke = Trainer.Team.Lineup.FirstOrDefault();
+
+            var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
+            Elite4AndChampion = championAndElite4;
+
+            SetupOpponent();
         }
+
+        Loading = false;
     }
 }
