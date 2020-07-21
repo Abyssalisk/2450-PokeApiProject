@@ -3,15 +3,17 @@
 
 @using Web.Shared.Models
 @using Web.Client.Components
-
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
 @if (Loading)
 {
     <LoadingComponent />
 }
 else
 {
-    <h3>NewLineup</h3>
-    <p>or create a team of preferrably all fire pokemon...</p>
+    <h3 style="font-family:'Press Start 2P'">Create a New Lineup</h3>
+
     <br />
 
     @if (ShowMessage)
@@ -21,37 +23,32 @@ else
 
     @if (PokemonNames?.Count > 0 && !PokemonGenDone)
     {
-        <table class="table-responsive">
-            <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col"><button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var name in @PokemonNames)
-                {
-                    <tr>
-                        <label for="@name.Text">
-                            @if (name.Checked)
-                            {
-                                <input type="checkbox" id="@name.Text" checked="checked"
-                                       @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount--; })" />
-                            }
-                            else
-                            {
-                                <input type="checkbox" id="@name.Text" @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount++; })" />
-                            }
-                            @name.Text
-                        </label>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <h5 style="font-family:'Press Start 2P'">Select 6 Pokemon and Click Continue to Moves</h5>
+        <button class="btn btn-primary" style="font-family:'Press Start 2P'" @onclick=@GenPokemon>Continue to Moves</button>
+
+        <div class="row">
+            @foreach (var name in @PokemonNames)
+            {
+                <div class="col-lg-3 col-med-5 col-sm-7">
+                    <label for="@name.Text" style="font-family:'Press Start 2P'">
+                        @if (name.Checked)
+                        {
+                            <input type="checkbox" id="@name.Text" checked="checked"
+                                   @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount--; })" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" id="@name.Text" @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount++; })" />
+                        }
+                        @name.Text
+                    </label>
+                </div>
+            }
+        </div>
     }
     @if (MayContinue)
     {
-        <p>Select Moves for each pokemon</p>
+        <p style="font-family:'Press Start 2P'">Select Moves for each pokemon</p>
         if (PokemonGenDone)
         {
             <div class="container-fluid">
@@ -149,6 +146,7 @@ else
 
             for (int i = 0; i < names.Length; i++)
             {
+
                 var pokemon = await Poke.GetPokemonByName(client, names[i]);
                 pokemon.MoveSelections = new List<MoveModel>() { new MoveModel(), new MoveModel(), new MoveModel(), new MoveModel() };
                 PokemonSelections.Add(pokemon);
