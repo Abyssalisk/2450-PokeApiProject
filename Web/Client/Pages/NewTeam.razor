@@ -5,17 +5,21 @@
 @inject IJSRuntime JSRuntime;
 @using Web.Shared.Models
 @using Web.Client.Components
-    <head>
-        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    </head>
-    <div class="container-fluid">
-        <h1 class="text-center"  style="font-family: 'Press Start 2P'">New Team</h1>
 
-        @if (PokemonNames?.Count > 0)
-        {
-            <NewLineupComponent PokemonNames="@PokemonNames" Trainer="@Trainer" />
-        }
-    </div>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+    div, h1, h2, h3, h4, h5, a, button, body, p {
+        font-family: 'Press Start 2P', cursive;
+    }
+</style>
+<div class="container-fluid">
+    <h1 class="text-center" style="font-family: 'Press Start 2P'">New Team</h1>
+
+    @if (PokemonNames?.Count > 0)
+    {
+        <NewLineupComponent PokemonNames="@PokemonNames" Trainer="@Trainer" />
+    }
+</div>
 
 @code {
     public TrainerModel Trainer { get; set; }

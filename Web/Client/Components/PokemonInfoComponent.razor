@@ -1,5 +1,10 @@
 ﻿@using Web.Shared.Models
-
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+    div, h1, h2, h3, h4, h5, a, button, body, p {
+        font-family: 'Press Start 2P', cursive;
+    }
+</style>
 
 <div class="card" style="margin: 5px 0 5px 0;">
     <div class="card-body text-center">
@@ -26,8 +31,8 @@
                 <tr>
                     <td>@PascalCaseName(Pokemon.MoveSelections[0].Name) (@Pokemon.MoveSelections[0].Damage) <span class="type type-@Pokemon.MoveSelections[0].Type"></span></td>
                     <td>@PascalCaseName(Pokemon.MoveSelections[1].Name) (@Pokemon.MoveSelections[1].Damage) <span class="type type-@Pokemon.MoveSelections[1].Type"></span></td>
-                </tr>                                                 
-                <tr>                                                  
+                </tr>
+                <tr>
                     <td>@PascalCaseName(Pokemon.MoveSelections[2].Name) (@Pokemon.MoveSelections[2].Damage) <span class="type type-@Pokemon.MoveSelections[2].Type"></span></td>
                     <td>@PascalCaseName(Pokemon.MoveSelections[3].Name) (@Pokemon.MoveSelections[3].Damage) <span class="type type-@Pokemon.MoveSelections[3].Type"></span></td>
                 </tr>
@@ -48,8 +53,8 @@
         var ms = pascalReg.Matches(toPascal);
         char[] ns = toPascal.ToCharArray();
         if (ns.Length > 0)
-        { 
-            ns[0] = char.ToUpper(ns[0]); 
+        {
+            ns[0] = char.ToUpper(ns[0]);
         }
         for (int i = 0; i < ms.Count; i++)
         {
