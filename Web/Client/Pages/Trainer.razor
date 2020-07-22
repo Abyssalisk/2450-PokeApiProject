@@ -5,7 +5,12 @@
 @inject IJSRuntime JSRuntime;
 @using Web.Shared.Models
 @using Web.Client.Components
-
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+    div, h1, h2, h3, h4, h5, a, button, body, p {
+        font-family: 'Press Start 2P', cursive;
+    }
+</style>
 <h1>My Trainer</h1>
 <p>Basic trainer info for @MyTrainer.Handle</p>
 <TrainerInfoComponent Trainer="@MyTrainer" ShowLineups="false"></TrainerInfoComponent>

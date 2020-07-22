@@ -3,7 +3,12 @@
 
 @inject NavigationManager navMan
 @inject HttpClient client
-
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        div, h1, h2, h3, h4, h5, a, button, body, p {
+            font-family: 'Press Start 2P', cursive;
+        }
+    </style>
     <div class="container-fluid" style="max-width: 50%;">
 
         @{
@@ -35,13 +40,13 @@
         </div>
     </div>
 
-@code {
-    private string NewTrainerUri { get; set; }
-    private bool ForgotPassword { get; set; }
-    private bool CodeSent { get; set; }
+    @code {
+        private string NewTrainerUri { get; set; }
+        private bool ForgotPassword { get; set; }
+        private bool CodeSent { get; set; }
 
-    protected override void OnInitialized()
-    {
-        NewTrainerUri = $"{navMan.BaseUri}newTrainer";
+        protected override void OnInitialized()
+        {
+            NewTrainerUri = $"{navMan.BaseUri}newTrainer";
+        }
     }
-}
