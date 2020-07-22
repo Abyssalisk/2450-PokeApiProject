@@ -245,16 +245,6 @@ namespace Web.Server.Controllers
         public List<string> GetAllPokemonNames()
         {
             var names = new List<string>();
-            //using (TextFieldParser parser = new TextFieldParser(Environment.CurrentDirectory + @"\Data\PokemonNames.csv"))
-            //using (TextFieldParser parser = new TextFieldParser(ApplicationDeployment.CurrentDeployment.DataDirectory + @"\Data\PokemonNames.csv"))
-            //{
-            //    parser.TextFieldType = FieldType.Delimited;
-            //    parser.SetDelimiters(",");
-            //    while (!parser.EndOfData)
-            //    {
-            //        names = new List<string>(parser.ReadFields());
-            //    }
-            //}
 
             var con = new DBConnect().MyConnection;
             con.Open();
