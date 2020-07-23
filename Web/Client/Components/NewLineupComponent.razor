@@ -28,10 +28,14 @@ else
     {
         <h5 style="font-family:'Press Start 2P'">Select 6 Pokemon and Click Continue to Moves</h5>
         <button class="btn btn-primary" style="font-family:'Press Start 2P'" @onclick=@GenPokemon>Continue to Moves</button>
+        <br />
+        <br />
 
         <div class="row">
+            @{var index = 0;}
             @foreach (var name in @PokemonNames)
             {
+                index++;
                 <div class="col-lg-3 col-med-5 col-sm-7">
                     <label for="@name.Text" style="font-family:'Press Start 2P'">
                         @if (name.Checked)
@@ -44,6 +48,10 @@ else
                             <input type="checkbox" id="@name.Text" @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount++; })" />
                         }
                         @name.Text
+                        @{
+                            var imgSrc = $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{index}.png";
+                        }
+                        <img src=@imgSrc style="height: 50px; width: 50px;" />
                     </label>
                 </div>
             }
