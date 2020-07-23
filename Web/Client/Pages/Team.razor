@@ -5,15 +5,12 @@
 
 @using Web.Shared.Models
 @using Web.Client.Components
-    <head>
-        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    </head>
 
 @if (!Loading)
 {
-    <button class="btn btn-primary float-right" style="font-family:'Press Start 2P'" @onclick="CreateNewTeam">Create New Team</button>
+    <button class="btn btn-primary float-right" @onclick="CreateNewTeam">Create New Team</button>
 
-    <h2 style="font-family:'Press Start 2P'">@Title</h2>
+    <h2>@Title</h2>
     <br />
     if (Trainer?.Lineups?.Count > 0)
     {
@@ -31,7 +28,7 @@
                         teamCounter++;
                     }
                 </select>
-                <button class="btn btn-danger btn-sm" style="font-family:'Press Start 2P'" @onclick="() => DeleteLineUp(SelectedLineUp)">Delete</button>
+                <button class="btn btn-danger btn-sm" @onclick="() => DeleteLineUp(SelectedLineUp)">Delete</button>
 
                 @if (!string.IsNullOrEmpty(TeamMessage))
                 {
@@ -52,14 +49,14 @@
             teamCounter++;
             <br />
             <div>
-                <h3  style="font-family:'Press Start 2P'">Lineup @teamCounter</h3>
+                <h3 >Lineup @teamCounter</h3>
                 <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
             </div>
         }
     }
     else
     {
-        <h3 class="text-center"  style="font-family:'Press Start 2P'">You have no teams, click Create New Team to begin</h3>
+        <h3 class="text-center" >You have no teams, click Create New Team to begin</h3>
     }
 }
 else

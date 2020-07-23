@@ -1,8 +1,12 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Press Start 2P, Helvetica Neue', Helvetica, Arial, sans-serif;
     background: url("../images/grassbg.png");
+}
+
+div, h1, h2, h3, h4, h5, a, button, body, p {
+    font-family: 'Press Start 2P, Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 a, .btn-link {

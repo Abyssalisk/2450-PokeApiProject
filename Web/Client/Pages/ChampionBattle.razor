@@ -1,23 +1,18 @@
 ﻿@page "/championbattle"
 @inject NavigationManager navMan
 @inject HttpClient client
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        div, h1, h2, h3, h4, h5, a, button, body, p {
-            font-family: 'Press Start 2P', cursive;
-        }
-    </style>
-    <h1>Champion</h1>
 
-    <p>Final champion battle blah blah... if win create new champion (add trainer to trainers table)</p>
-    <button class="btn btn-primary" @onclick="BattleOver">Battle Over</button>
+<h1>Champion</h1>
 
-    @code {
-        //int score = 0;
+<p>Final champion battle blah blah... if win create new champion (add trainer to trainers table)</p>
+<button class="btn btn-primary" @onclick="BattleOver">Battle Over</button>
 
-        private void BattleOver()
-        {
-            Console.WriteLine("Win/Lose");
-            navMan.NavigateTo("scoreboard");
-        }
+@code {
+    //int score = 0;
+
+    private void BattleOver()
+    {
+        Console.WriteLine("Win/Lose");
+        navMan.NavigateTo("scoreboard");
     }
+}
