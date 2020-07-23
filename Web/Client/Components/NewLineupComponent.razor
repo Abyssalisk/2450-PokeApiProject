@@ -95,6 +95,10 @@ else
                     }
 
                 </div>
+                @if (ErrorSavingMoves)
+                {
+                    <h4 style="color: red;">You must select 4 distinct moves per pokemon</h4>
+                }
                 <br />
                 <button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
             </div>
@@ -122,6 +126,7 @@ else
     private bool ShowMessage { get; set; }
     private bool MayContinue { get; set; }
     private bool Loading { get; set; }
+    private bool ErrorSavingMoves { get; set; }
 
 
     protected override async Task OnParametersSetAsync()
@@ -168,30 +173,50 @@ else
 
     private void SaveMoveSelections()
     {
+        ErrorSavingMoves = false;
         PokemonSelections.ForEach(p =>
         {
             for (int i = 0; i < p.MoveSelections.Count; i++)
             {
+                var index = i;
                 var move = p.Moves.Where(s => s.Name == p.MoveSelections[i].Name).Select(s => s).FirstOrDefault();
-                p.MoveSelections[i] = move;
-                p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
-        }
-            p.Moves.Clear();
+                if (p.MoveSelections.Contains(move) && p.MoveSelections[i].Id <= 0 && p.Moves.Count > 3) // 3 means at least one move must be a duplicate
+                {
+                        ErrorSavingMoves = true;
+                }
+                else
+                {
+                    p.MoveSelections[i] = move;
+                    p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
+                }
+            }
         });
+
+        if (!ErrorSavingMoves)
+        {
+            PokemonSelections.ForEach(p =>
+            {
+                p.Moves.Clear(); // garbage clean up
+            });
+        }
     }
 
     private async Task SaveTeam()
     {
         SaveMoveSelections();
-        var lineup = new LineupModel() { Lineup = PokemonSelections.ToList() };
 
-        if (!Trainer.Lineups.Contains(lineup))
+        if (!ErrorSavingMoves)
         {
-            Trainer.Lineups.Add(lineup);
-            Trainer.Team = lineup;
+            var lineup = new LineupModel() { Lineup = PokemonSelections.ToList() };
 
-            var success = await Poke.UpdateLineup(client, Trainer); //add lineup
-            navMan.NavigateTo("team");
+            if (!Trainer.Lineups.Contains(lineup))
+            {
+                Trainer.Lineups.Add(lineup);
+                Trainer.Team = lineup;
+
+                var success = await Poke.UpdateLineup(client, Trainer); //add lineup
+                navMan.NavigateTo("team");
+            }
         }
     }
 }
