@@ -3,19 +3,13 @@
 
 @using Web.Shared.Models
 @using Web.Client.Components
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<style>
-    div, h1, h2, h3, h4, h5, a, button, body, p {
-        font-family: 'Press Start 2P', cursive;
-    }
-</style>
 @if (Loading)
 {
     <LoadingComponent />
 }
 else
 {
-    <h3 style="font-family:'Press Start 2P'">Create a New Lineup</h3>
+    <h3>Create a New Lineup</h3>
 
     <br />
 
@@ -26,8 +20,8 @@ else
 
     @if (PokemonNames?.Count > 0 && !PokemonGenDone)
     {
-        <h5 style="font-family:'Press Start 2P'">Select 6 Pokemon and Click Continue to Moves</h5>
-        <button class="btn btn-primary" style="font-family:'Press Start 2P'" @onclick=@GenPokemon>Continue to Moves</button>
+        <h5>Select 6 Pokemon and Click Continue to Moves</h5>
+        <button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button>
         <br />
         <br />
 
@@ -37,7 +31,7 @@ else
             {
                 index++;
                 <div class="col-lg-3 col-med-5 col-sm-7">
-                    <label for="@name.Text" style="font-family:'Press Start 2P'">
+                    <label for="@name.Text">
                         @if (name.Checked)
                         {
                             <input type="checkbox" id="@name.Text" checked="checked"
@@ -59,7 +53,7 @@ else
     }
     @if (MayContinue)
     {
-        <p style="font-family:'Press Start 2P'">Select Moves for each pokemon</p>
+        <p>Select Moves for each pokemon</p>
         if (PokemonGenDone)
         {
             <div class="container-fluid">

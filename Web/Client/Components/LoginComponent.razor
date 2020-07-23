@@ -4,98 +4,93 @@
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager navMan;
 @inject HttpClient client;
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        div, h1, h2, h3, h4, h5, a, button, body, p {
-            font-family: 'Press Start 2P', cursive;
-        }
-    </style>
-    <h1 class="text-center">Login</h1>
-    <p class="text-center">Login or Create a New Account</p>
-    <EditForm Model="@LoginModel">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <form>
-            <div class="form-group">
-                <label for="TrainerHandle">Username: </label>
-                <InputText id="Username" class="form-control" placeholder="username" @bind-Value="@LoginModel.Username" />
-            </div>
-            <div class="form-group">
-                <label for="Password">Password: </label>
-                <InputText type="password" id="Password" class="form-control" placeholder="password" @bind-Value="@LoginModel.Password" />
-            </div>
-        </form>
-    </EditForm>
-    @if (!string.IsNullOrEmpty(Message))
-    {
-        <div class="text-center">
-            <div class="badge badge-danger">
-                @Message
-            </div>
+
+<h1 class="text-center">Login</h1>
+<p class="text-center">Login or Create a New Account</p>
+<EditForm Model="@LoginModel">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <form>
+        <div class="form-group">
+            <label for="TrainerHandle">Username: </label>
+            <InputText id="Username" class="form-control" placeholder="username" @bind-Value="@LoginModel.Username" />
         </div>
-        <br />
-    }
-    <br />
+        <div class="form-group">
+            <label for="Password">Password: </label>
+            <InputText type="password" id="Password" class="form-control" placeholder="password" @bind-Value="@LoginModel.Password" />
+        </div>
+    </form>
+</EditForm>
+@if (!string.IsNullOrEmpty(Message))
+{
     <div class="text-center">
-        <button class="btn btn-primary" @onclick="Authenticate">Login</button>
+        <div class="badge badge-danger">
+            @Message
+        </div>
     </div>
+    <br />
+}
+<br />
+<div class="text-center">
+    <button class="btn btn-primary" @onclick="Authenticate">Login</button>
+</div>
 
-    @code {
-        public LoginModel LoginModel { get; set; }
-        public string Message { get; set; }
-        private string Response { get; set; }
-        private AuthService Auth { get; set; }
-        private bool LoginFailed { get; set; }
+@code {
+    public LoginModel LoginModel { get; set; }
+    public string Message { get; set; }
+    private string Response { get; set; }
+    private AuthService Auth { get; set; }
+    private bool LoginFailed { get; set; }
 
-        protected override void OnInitialized()
+    protected override void OnInitialized()
+    {
+        LoginModel = new LoginModel();
+        Response = string.Empty;
+        Message = string.Empty;
+        Auth = new AuthService();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var cookie = await GetCookie();
+        if (!string.IsNullOrEmpty(cookie))
         {
-            LoginModel = new LoginModel();
-            Response = string.Empty;
-            Message = string.Empty;
-            Auth = new AuthService();
+            //Console.WriteLine(cookie + " - navigating to team");
+            navMan.NavigateTo("team");
         }
+    }
 
-        protected override async Task OnInitializedAsync()
+    public async Task Authenticate()
+    {
+        if (!string.IsNullOrEmpty(LoginModel.Username) && !string.IsNullOrEmpty(LoginModel.Password))
         {
-            var cookie = await GetCookie();
-            if (!string.IsNullOrEmpty(cookie))
+            Response = await Auth.TryLogin(client, LoginModel);
+            if (Response.Equals("true"))
             {
-                //Console.WriteLine(cookie + " - navigating to team");
-                navMan.NavigateTo("team");
-            }
-        }
-
-        public async Task Authenticate()
-        {
-            if (!string.IsNullOrEmpty(LoginModel.Username) && !string.IsNullOrEmpty(LoginModel.Password))
-            {
-                Response = await Auth.TryLogin(client, LoginModel);
-                if (Response.Equals("true"))
-                {
-                    var username = JsonSerializer.Serialize(LoginModel.Username);
-                    await WriteAuthCookie(username);
-                    navMan.NavigateTo("trainer");
-                }
-                else
-                {
-                    Message = "Failed to login. Check username/password or select Forgot Password";
-                }
+                var username = JsonSerializer.Serialize(LoginModel.Username);
+                await WriteAuthCookie(username);
+                navMan.NavigateTo("trainer");
             }
             else
             {
-                Message = "Enter a username and password, then click Login";
+                Message = "Failed to login. Check username/password or select Forgot Password";
             }
         }
-
-        public async Task WriteAuthCookie(string value)
+        else
         {
-            await Auth.WriteCookieAsync(JSRuntime, "Username", value, 1);
+            Message = "Enter a username and password, then click Login";
         }
-
-        public async Task<string> GetCookie()
-        {
-            var cookie = await Auth.GetCookieAsync(JSRuntime, "Username");
-            return cookie;
-        }
-
     }
+
+    public async Task WriteAuthCookie(string value)
+    {
+        await Auth.WriteCookieAsync(JSRuntime, "Username", value, 1);
+    }
+
+    public async Task<string> GetCookie()
+    {
+        var cookie = await Auth.GetCookieAsync(JSRuntime, "Username");
+        return cookie;
+    }
+
+}
