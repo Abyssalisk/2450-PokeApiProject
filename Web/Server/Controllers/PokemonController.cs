@@ -197,7 +197,7 @@ namespace Web.Server.Controllers
         public List<TrainerModel> GetElite4AndChampion()
         {
             var elite4PlusChampionStrings = new List<string>();
-            var con = new DBConnect().MyConnection;
+            var con = new DBInterface().MyConnection;
             con.Open();
             var query = "SELECT TrainerName FROM sql3346222.userCredentials ORDER BY HighScore DESC LIMIT 5;";
             var rdr = new MySqlCommand(query, con).ExecuteReader();
@@ -223,7 +223,7 @@ namespace Web.Server.Controllers
             if (trainer.Lineups.Any(l => l.Checked == true))
                 trainer.Lineups.Where(l => l.Checked == true).Select(l => l).ToList().ForEach(l => { l.Checked = false; }); // reset the check
 
-            var con = new DBConnect().MyConnection;
+            var con = new DBInterface().MyConnection;
             con.Open();
 
             var json = JsonConvert.SerializeObject(trainer.Team);
@@ -244,7 +244,7 @@ namespace Web.Server.Controllers
                 Handle = name
             };
 
-            var con = new DBConnect().MyConnection;
+            var con = new DBInterface().MyConnection;
             con.Open();
             var querystring = $"SELECT * FROM sql3346222.userCredentials WHERE(TrainerName = '{name}');";
             MySqlCommand cmd = new MySqlCommand(querystring, con);
@@ -282,7 +282,7 @@ namespace Web.Server.Controllers
             //    }
             //}
 
-            var con = new DBConnect().MyConnection;
+            var con = new DBInterface().MyConnection;
             con.Open();
             var querystring = $"SELECT FileContent FROM sql3346222.Files WHERE FileName='AllPokemonGen1CSV'";
             MySqlCommand cmd = new MySqlCommand(querystring, con);

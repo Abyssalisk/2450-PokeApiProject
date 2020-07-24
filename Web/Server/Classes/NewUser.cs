@@ -12,7 +12,7 @@ namespace Web.Server.Classes
             var TrainerName = model.Username;
             var Email = model.Email;
 
-            var con = new DBConnect().MyConnection;
+            var con = new DBInterface().MyConnection;
             if (UserNameValidation(TrainerName, con) == false)
                 return "username already taken"; // username taken
 

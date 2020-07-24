@@ -44,7 +44,7 @@ namespace Web.Server.Controllers
         [HttpGet]
         public string Login([FromQuery] string username, [FromQuery] string password)
         {
-            var accountIsAuth = Validate(username, password, new DBConnect().MyConnection);
+            var accountIsAuth = Validate(username, password, new DBInterface().MyConnection);
 
             if (accountIsAuth)
                 return "true";
@@ -78,7 +78,7 @@ namespace Web.Server.Controllers
                 {
                     var LoginModel = new LoginModel();
 
-                    var con = new DBConnect().MyConnection;
+                    var con = new DBInterface().MyConnection;
                     string lookupEmailByName = $"SELECT TrainerName, Password FROM sql3346222.userCredentials WHERE(Email='{email}') LIMIT 1;";
 
                     con.Open();
