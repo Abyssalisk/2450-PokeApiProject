@@ -86,6 +86,46 @@ namespace Web.Server.Classes
             MyConnection.Close();
         }
 
+        public void ExposeNonQuery(string query)
+        {
+            if (!performingSequentialQuery)
+            {
+                MyConnection.Open();
+            }
+            using (MySqlCommand command = new MySqlCommand(query))
+            {
+                command.Connection = MyConnection;
+                command.ExecuteNonQuery();
+            }
+            if (!performingSequentialQuery)
+            {
+                MyConnection.Close();
+            }
+        }
+
+        public MySqlDataReader ExposeQuery(string query, out Action disposeCallback)
+        {
+            if (!performingSequentialQuery)
+            {
+                MyConnection.Open();
+            }
+            MySqlDataReader reader = null;
+            disposeCallback = () =>
+            {
+                reader?.Close();
+                reader?.Dispose();
+                if (!performingSequentialQuery)
+                {
+                    MyConnection.Close();
+                }
+            };
+            using (MySqlCommand command = new MySqlCommand(query))
+            {
+                command.Connection = MyConnection;
+                return command.ExecuteReader();
+            }
+        }
+
         //public static class DBInterfaceConformanceFail
         //{
 
@@ -105,21 +145,23 @@ namespace Web.Server.Classes
             [RegularExpression(usernameRegex, ErrorMessage = "Error: Provided string for nick contains non-alphanumerics. (Leading and trailing whitespace is fine)."/*, ErrorMessageResourceType = typeof(DBInterfaceConformanceFail)*/)] string nick = null,
             string data = null)
         {
+#warning needs to be asynced.
             name = name.Trim();
             nick = nick.Trim() ?? name;
-            MySqlCommand command = new MySqlCommand("INSERT INTO sql3346222.Users(TrainerName, TrainerTag, PassHash, Email, Data) VALUES(@Name, @Nick, @Pass, @Email, @Data);", MyConnection);
-            command.Parameters.AddWithValue("@Name", name);
-            command.Parameters.AddWithValue("@Nick", nick);
-            command.Parameters.AddWithValue("@Pass", encryptedPass);
-            command.Parameters.AddWithValue("@Email", email);
-            command.Parameters.AddWithValue("@Data", (object)data ?? (object)DBNull.Value);
-#warning needs to be asynced.
             if (!performingSequentialQuery)
             {
                 MyConnection.Open();
             }
-            command.Connection = MyConnection;
-            command.ExecuteNonQuery();
+            using (MySqlCommand command = new MySqlCommand("INSERT INTO sql3346222.Users(TrainerName, TrainerTag, PassHash, Email, Data) VALUES(@Name, @Nick, @Pass, @Email, @Data);", MyConnection))
+            {
+                command.Parameters.AddWithValue("@Name", name);
+                command.Parameters.AddWithValue("@Nick", nick);
+                command.Parameters.AddWithValue("@Pass", encryptedPass);
+                command.Parameters.AddWithValue("@Email", email);
+                command.Parameters.AddWithValue("@Data", (object)data ?? (object)DBNull.Value);
+                command.Connection = MyConnection;
+                command.ExecuteNonQuery();
+            }
             if (!performingSequentialQuery)
             {
                 MyConnection.Close();
@@ -129,17 +171,20 @@ namespace Web.Server.Classes
 
         public bool DoesNameExist([RegularExpression(usernameRegex, ErrorMessage = "Error: Provided string for name contains non-alphanumerics. (Leading and trailing whitespace is fine)."/*, ErrorMessageResourceType = typeof(DBInterfaceConformanceFail)*/)] string name)
         {
-            MySqlCommand command = new MySqlCommand("SELECT sql3346222.Users.TrainerName FROM sql3346222.Users WHERE sql3346222.Users.TrainerName = @Name;");
-            command.Parameters.AddWithValue("@Name", name);
             if (!performingSequentialQuery)
             {
                 MyConnection.Open();
             }
-            command.Connection = MyConnection;
             bool result = false;
-            using (MySqlDataReader reader = command.ExecuteReader())
+            using (MySqlCommand command = new MySqlCommand("SELECT sql3346222.Users.TrainerName FROM sql3346222.Users WHERE sql3346222.Users.TrainerName = @Name;"))
             {
-                result = reader.HasRows;
+                command.Parameters.AddWithValue("@Name", name);
+                command.Connection = MyConnection;
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    result = reader.HasRows;
+                    reader.Close();
+                }
             }
             if (!performingSequentialQuery)
             {
@@ -164,38 +209,43 @@ namespace Web.Server.Classes
             passHash = null;
             email = null;
             data = null;
-            MySqlCommand command = new MySqlCommand("SELECT * FROM sql3346222.Users.TrainerName WHERE sql3346222.Users.UserID = @UID;");
-            command.Parameters.AddWithValue("@UID", userID);
             if (!performingSequentialQuery)
             {
                 MyConnection.Open();
             }
-            command.Connection = MyConnection;
-            using (MySqlDataReader reader = command.ExecuteReader())
+            using (MySqlCommand command = new MySqlCommand("SELECT * FROM sql3346222.Users.TrainerName WHERE sql3346222.Users.UserID = @UID;"))
             {
-                if (reader.HasRows)
+                command.Parameters.AddWithValue("@UID", userID);
+                command.Connection = MyConnection;
+                using (MySqlDataReader reader = command.ExecuteReader())
                 {
-                    bool oneAccount = true;
-                    while (reader.Read())
+                    if (reader.HasRows)
                     {
-                        if (!oneAccount)
+                        bool oneAccount = true;
+                        while (reader.Read())
                         {
-                            throw new ArgumentException("Error: the provided UserID had more than one match in the database. This shouldn't be possible. (This means somehow multiple users have the same UserID).");
+                            if (!oneAccount)
+                            {
+                                reader.Close();
+                                throw new ArgumentException("Error: the provided UserID had more than one match in the database. This shouldn't be possible. (This means somehow multiple users have the same UserID).");
+                            }
+                            else
+                            {
+                                oneAccount = false;
+                            }
+                            trainerName = reader.GetString(1);
+                            trainerTag = reader.GetString(2);
+                            passHash = reader.GetString(3);
+                            email = reader.GetString(4);
+                            data = reader.GetString(5);
                         }
-                        else
-                        {
-                            oneAccount = false;
-                        }
-                        trainerName = reader.GetString(1);
-                        trainerTag = reader.GetString(2);
-                        passHash = reader.GetString(3);
-                        email = reader.GetString(4);
-                        data = reader.GetString(5);
                     }
-                }
-                else
-                {
-                    throw new ArgumentException("Error: no user was found in the database with the given UserID", "userID");
+                    else
+                    {
+                        reader.Close();
+                        throw new ArgumentException("Error: no user was found in the database with the given UserID", "userID");
+                    }
+                    reader.Close();
                 }
             }
             if (!performingSequentialQuery)
@@ -206,15 +256,17 @@ namespace Web.Server.Classes
 
         public void ChangePassword(int userID, [RegularExpression(passHashRegex)] string newPassHash)
         {
-            MySqlCommand command = new MySqlCommand("UPDATE Users SET PassHash = @NewPass WHERE UserID = @UID;");
-            command.Parameters.AddWithValue("@UID", userID);
-            command.Parameters.AddWithValue("@NewPass", newPassHash);
             if (!performingSequentialQuery)
             {
                 MyConnection.Open();
             }
-            command.Connection = MyConnection;
-            command.ExecuteNonQuery();
+            using (MySqlCommand command = new MySqlCommand("UPDATE Users SET PassHash = @NewPass WHERE UserID = @UID;"))
+            {
+                command.Parameters.AddWithValue("@UID", userID);
+                command.Parameters.AddWithValue("@NewPass", newPassHash);
+                command.Connection = MyConnection;
+                command.ExecuteNonQuery();
+            }
             if (!performingSequentialQuery)
             {
                 MyConnection.Close();
@@ -230,35 +282,40 @@ namespace Web.Server.Classes
 
         public bool LoginValidation([RegularExpression(usernameRegex, ErrorMessage = "Error: Provided string for name contains non-alphanumerics. (Leading and trailing whitespace is fine)."/*, ErrorMessageResourceType = typeof(DBInterfaceConformanceFail)*/)] string trainerName, [RegularExpression(passHashRegex)] string passHash)
         {
-            MySqlCommand command = new MySqlCommand("SELECT sql3346222.Users.PassHash FROM sql3346222.Users WHERE sql3346222.Users.TrainerName = @Name;");
-            command.Parameters.AddWithValue("@Name", trainerName);
             if (!performingSequentialQuery)
             {
                 MyConnection.Open();
             }
-            command.Connection = MyConnection;
             string ret = null;
-            using (MySqlDataReader reader = command.ExecuteReader())
+            using (MySqlCommand command = new MySqlCommand("SELECT sql3346222.Users.PassHash FROM sql3346222.Users WHERE sql3346222.Users.TrainerName = @Name;"))
             {
-                if (reader.HasRows)
+                command.Parameters.AddWithValue("@Name", trainerName);
+                command.Connection = MyConnection;
+                using (MySqlDataReader reader = command.ExecuteReader())
                 {
-                    bool oneAccount = true;
-                    while (reader.Read())
+                    if (reader.HasRows)
                     {
-                        if (!oneAccount)
+                        bool oneAccount = true;
+                        while (reader.Read())
                         {
-                            throw new ArgumentException("Error: The provided trainer name had more than one account match. This shouldn't be possible. (Somehow there are multiple accounts with the same name).");
+                            if (!oneAccount)
+                            {
+                                reader.Close();
+                                throw new ArgumentException("Error: The provided trainer name had more than one account match. This shouldn't be possible. (Somehow there are multiple accounts with the same name).");
+                            }
+                            else
+                            {
+                                oneAccount = false;
+                            }
+                            ret = reader.GetString(0);
                         }
-                        else
-                        {
-                            oneAccount = false;
-                        }
-                        ret = reader.GetString(0);
                     }
-                }
-                else
-                {
-                    throw new ArgumentException("Error: The provided trainer name had no matches in the database.", "trainerName");
+                    else
+                    {
+                        reader.Close();
+                        throw new ArgumentException("Error: The provided trainer name had no matches in the database.", "trainerName");
+                    }
+                    reader.Close();
                 }
             }
             if (!performingSequentialQuery)
@@ -275,24 +332,27 @@ namespace Web.Server.Classes
         /// <returns>An array of the user id's of who's accounts matched the given email or null if no accounts associated with the given email were found.</returns>
         public int[] LookupUserByEmail(string email)
         {
-            MySqlCommand command = new MySqlCommand("SELECT sql3346222.Users.UserID FROM sql3346222.Users WHERE sql3346222.Users.Email = @Email;");
-            command.Parameters.AddWithValue("@Email", email);
             if (!performingSequentialQuery)
             {
                 MyConnection.Open();
             }
-            command.Connection = MyConnection;
             int[] result = null;
-            using (MySqlDataReader reader = command.ExecuteReader())
+            using (MySqlCommand command = new MySqlCommand("SELECT sql3346222.Users.UserID FROM sql3346222.Users WHERE sql3346222.Users.Email = @Email;"))
             {
-                if (reader.HasRows)
+                command.Parameters.AddWithValue("@Email", email);
+                command.Connection = MyConnection;
+                using (MySqlDataReader reader = command.ExecuteReader())
                 {
-                    List<int> stuff = new List<int>();
-                    while (reader.Read())
+                    if (reader.HasRows)
                     {
-                        stuff.Add(reader.GetInt32(0));
+                        List<int> stuff = new List<int>();
+                        while (reader.Read())
+                        {
+                            stuff.Add(reader.GetInt32(0));
+                        }
+                        result = stuff.ToArray();
                     }
-                    result = stuff.ToArray();
+                    reader.Close();
                 }
             }
             if (!performingSequentialQuery)
