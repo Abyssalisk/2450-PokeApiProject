@@ -85,9 +85,9 @@ else
                                             <option selected>select a move</option>
                                             @foreach (var m in p.Moves)
                                                                 {
-                                                <option value="@m.Name" class="type type-@m.Type">
-                                                    @m.Name (Type: @m.Type - Damage: @m.Damage - @m.Category)
-                                                </option>
+                                        <option value="@m.Name">
+                                            @PascalCaseName(@m.Name) (Type: @PascalCaseName(@m.Type) - Damage: @m.Damage - @m.Category)
+                                        </option>
                                                                 }
                                         </InputSelect>
                                     </div>
@@ -182,6 +182,7 @@ else
             {
                 var index = i;
                 var move = p.Moves.Where(s => s.Name == p.MoveSelections[i].Name).Select(s => s).FirstOrDefault();
+
                 if (p.MoveSelections.Contains(move) && p.MoveSelections[i].Id <= 0 && p.Moves.Count > 3) // 3 means at least one move must be a duplicate
                 {
                         ErrorSavingMoves = true;
@@ -221,4 +222,25 @@ else
             }
         }
     }
+
+    private static System.Text.RegularExpressions.Regex pascalReg = new System.Text.RegularExpressions.Regex("\\W\\w");
+
+    public static string PascalCaseName(string toPascal)
+    {
+        var ms = pascalReg.Matches(toPascal);
+        char[] ns = toPascal.ToCharArray();
+        if (ns.Length > 0)
+        {
+            ns[0] = char.ToUpper(ns[0]);
+        }
+        for (int i = 0; i < ms.Count; i++)
+        {
+            if (ms[i].Success && ms[i].Index != toPascal.Length - 1)
+            {
+                ns[i] = char.ToUpper(ns[i]);
+            }
+        }
+        return string.Join("", ns);
+    }
 }
+
