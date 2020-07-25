@@ -85,7 +85,7 @@ else
                                             <option selected>select a move</option>
                                             @foreach (var m in p.Moves)
                                                                 {
-                                                <option value="@m.Name">
+                                                <option value="@m.Name" class="type type-@m.Type">
                                                     @m.Name (Type: @m.Type - Damage: @m.Damage - @m.Category)
                                                 </option>
                                                                 }

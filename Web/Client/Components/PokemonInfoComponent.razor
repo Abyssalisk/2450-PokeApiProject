@@ -1,43 +1,94 @@
-﻿@using Web.Shared.Models
+@using Web.Shared.Models
 
-<div class="card" style="margin: 5px 0 5px 0;">
-    <div class="card-body text-center">
-        <h5 class="card-title">
-            <img src=@Pokemon.FrontImageUri style="height: 50px; width: 50px;" />
-            @PascalCaseName(Pokemon.Name)
-            @foreach (var type in Pokemon.Types)
-            {
-                <span class="type type-@type.Name"></span>
-            }
-        </h5>
-        <h7><b>HP:</b> @Pokemon.BaseHP&emsp;<b>ATK:</b> @Pokemon.Attack&emsp;<b>DEF:</b> @Pokemon.Defense</h7><br />
-        <h7><b>Sp. ATK:</b> @Pokemon.SpecialAttack&emsp;<b>Sp. DEF:</b> @Pokemon.SpecialDefense&emsp;<b>SPD:</b> @Pokemon.Speed</h7>
-        <br />
-        <br />
-        <h7 class="text-center"><b>Moves</b></h7>
-        <p class="card-text text-center">
+<style>
+    .card-container {
+        width: 100%;
+        height: 60%;
+    }
 
-            @{
-                Pokemon.MoveSelections = Pokemon.MoveSelections.Where(p => !string.IsNullOrEmpty(p.Name)).ToList(); // double filter out empty moves until that is fixed in back end
-            }
+    .card {
+        transition: transform 1s ease-in-out;
+        transform-style: preserve-3d;
+        height: 72vh;
+        margin-bottom: 15px;
+    }
 
-            <table class="table">
-                <tr>
-                    <td>@PascalCaseName(Pokemon.MoveSelections[0].Name) (@Pokemon.MoveSelections[0].Damage) <span class="type type-@Pokemon.MoveSelections[0].Type"></span></td>
-                    <td>@PascalCaseName(Pokemon.MoveSelections[1].Name) (@Pokemon.MoveSelections[1].Damage) <span class="type type-@Pokemon.MoveSelections[1].Type"></span></td>
-                </tr>
-                <tr>
-                    <td>@PascalCaseName(Pokemon.MoveSelections[2].Name) (@Pokemon.MoveSelections[2].Damage) <span class="type type-@Pokemon.MoveSelections[2].Type"></span></td>
-                    <td>@PascalCaseName(Pokemon.MoveSelections[3].Name) (@Pokemon.MoveSelections[3].Damage) <span class="type type-@Pokemon.MoveSelections[3].Type"></span></td>
-                </tr>
+    .card-container:hover .card {
+        transform: rotateY(180deg);
+    }
 
-            </table>
-        </p>
+    .card figure {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .card .front {
+        text-align: center;
+        border-radius: 10px;
+        border-style: solid;
+        border-width: 10px;
+        border-color: #fccd1b;
+        background-image: none;
+        fill-opacity: 0.8;
+    }
+
+    .card .back {
+        transform: rotateY(180deg);
+        background-image: url('https://cf.geekdo-images.com/itemrep/img/QpwheqfDlxt0-Pfz0r8hOTwxEvg=/fit-in/246x300/pic1807805.jpg');
+        background-size: cover;
+        background-position: center; 
+    }
+</style>
+<div class="card-container">
+    <div class="card" style="background-color: @TypeColor(Pokemon.Types.FirstOrDefault().Name)">
+        <div class="text-right" style="margin: 15px;">
+            <h7><b>@Pokemon.BaseHP HP</b></h7>
+        </div>
+        <figure class="front">
+            <br />
+            <img src=@Pokemon.FrontImageUri style="height: 60%; width: 60%; margin: 10px; border-color: #fccd1b; border-width: 5px; border-style: solid; background-color: white;" />
+            <h5 class="card-title">
+                @PascalCaseName(Pokemon.Name)
+                @foreach (var type in Pokemon.Types)
+                {
+                    <span class="type type-@type.Name"></span>
+                }
+            </h5>
+            <br />
+            <h7 class="text-center"><b>ATK:</b> @Pokemon.Attack&emsp;<b>DEF:</b> @Pokemon.Defense</h7><br />
+            <h7><b>Sp. ATK:</b> @Pokemon.SpecialAttack&emsp;<b>Sp. DEF:</b> @Pokemon.SpecialDefense&emsp;</h7>
+            <h7><b>SPD:</b> @Pokemon.Speed</h7>
+            <br />
+            <br />
+            <h7 class="text-center"><b>Moves</b></h7>
+            <p class="card-text text-center">
+
+                @{
+                    Pokemon.MoveSelections = Pokemon.MoveSelections.Where(p => !string.IsNullOrEmpty(p.Name)).ToList(); // double filter out empty moves until that is fixed in back end
+                }
+
+                <table class="table">
+                    <tr>
+                        <td>@PascalCaseName(Pokemon.MoveSelections[0].Name) (@Pokemon.MoveSelections[0].Damage) <span class="type type-@Pokemon.MoveSelections[0].Type"></span></td>
+                        <td>@PascalCaseName(Pokemon.MoveSelections[1].Name) (@Pokemon.MoveSelections[1].Damage) <span class="type type-@Pokemon.MoveSelections[1].Type"></span></td>
+                    </tr>
+                    <tr>
+                        <td>@PascalCaseName(Pokemon.MoveSelections[2].Name) (@Pokemon.MoveSelections[2].Damage) <span class="type type-@Pokemon.MoveSelections[2].Type"></span></td>
+                        <td>@PascalCaseName(Pokemon.MoveSelections[3].Name) (@Pokemon.MoveSelections[3].Damage) <span class="type type-@Pokemon.MoveSelections[3].Type"></span></td>
+                    </tr>
+                </table>
+            </p>
+        </figure>
+        <figure class="back" />
     </div>
 </div>
-
 @code {
-
     [Parameter] public PokemonModel Pokemon { get; set; }
 
     private static System.Text.RegularExpressions.Regex pascalReg = new System.Text.RegularExpressions.Regex("\\W\\w");
@@ -59,4 +110,33 @@
         }
         return string.Join("", ns);
     }
+
+    private string TypeColor(string type)
+    {
+        switch (type.ToLower())
+        {
+            // 15 types for gen 1 pokemon
+            case "fire": return "rgb(240, 127, 47, 0.75)";
+            case "water": return "rgb(104, 144, 240, 0.75)";
+            case "grass": return "rgb(120, 200, 79, 0.75)";
+            case "rock": return "rgb(139, 133, 105, 0.75)";
+
+            case "flying": return "rgb(168, 144, 240, 0.75)";
+            case "poison": return "rgb(160, 64, 161, 0.75)";
+            case "ice": return "rgb(152, 216, 216, 0.75)";
+            case "dragon": return "rgb(112, 56, 249, 0.75)";
+
+            case "normal": return "rgb(169, 168, 120, 0.75)";
+            case "pyschic": return "rgb(246, 88, 136, 0.75)";
+            case "ground": return "rgb(184, 146, 38, 0.75)";
+            case "ghost": return "rgb(112, 87, 152, 0.75)";
+
+            case "fighting": return "rgb(192, 48, 40, 0.75)";
+            case "bug": return "rgb(168, 184, 33, 0.75)";
+            case "electric": return "rgb(197, 170, 7, 0.75)";
+
+            default: return "rgb(233, 109, 180, 0.75)";
+        }
+    }
+
 }
