@@ -1,8 +1,12 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: url("../images/grassbg.png");
+}
+
+html, body, h1, h2, h3, h4, h5, h6, div, p, a, button {
+    font-family: 'Press Start 2P', cursive !important;
 }
 
 a, .btn-link {

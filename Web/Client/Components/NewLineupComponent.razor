@@ -3,16 +3,13 @@
 
 @using Web.Shared.Models
 @using Web.Client.Components
-<head>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-</head>
 @if (Loading)
 {
     <LoadingComponent />
 }
 else
 {
-    <h3 style="font-family:'Press Start 2P'">Create a New Lineup</h3>
+    <h3>Create a New Lineup</h3>
 
     <br />
 
@@ -23,14 +20,18 @@ else
 
     @if (PokemonNames?.Count > 0 && !PokemonGenDone)
     {
-        <h5 style="font-family:'Press Start 2P'">Select 6 Pokemon and Click Continue to Moves</h5>
-        <button class="btn btn-primary" style="font-family:'Press Start 2P'" @onclick=@GenPokemon>Continue to Moves</button>
+        <h5>Select 6 Pokemon and Click Continue to Moves</h5>
+        <button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button>
+        <br />
+        <br />
 
         <div class="row">
+            @{var index = 0;}
             @foreach (var name in @PokemonNames)
             {
+                index++;
                 <div class="col-lg-3 col-med-5 col-sm-7">
-                    <label for="@name.Text" style="font-family:'Press Start 2P'">
+                    <label for="@name.Text">
                         @if (name.Checked)
                         {
                             <input type="checkbox" id="@name.Text" checked="checked"
@@ -41,6 +42,10 @@ else
                             <input type="checkbox" id="@name.Text" @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount++; })" />
                         }
                         @name.Text
+                        @{
+                            var imgSrc = $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{index}.png";
+                        }
+                        <img src=@imgSrc style="height: 50px; width: 50px;" />
                     </label>
                 </div>
             }
@@ -48,7 +53,7 @@ else
     }
     @if (MayContinue)
     {
-        <p style="font-family:'Press Start 2P'">Select Moves for each pokemon</p>
+        <p>Select Moves for each pokemon</p>
         if (PokemonGenDone)
         {
             <div class="container-fluid">
@@ -92,6 +97,10 @@ else
                     }
 
                 </div>
+                @if (ErrorSavingMoves)
+                {
+                    <h4 style="color: red;">You must select 4 distinct moves per pokemon</h4>
+                }
                 <br />
                 <button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
             </div>
@@ -119,6 +128,7 @@ else
     private bool ShowMessage { get; set; }
     private bool MayContinue { get; set; }
     private bool Loading { get; set; }
+    private bool ErrorSavingMoves { get; set; }
 
 
     protected override async Task OnParametersSetAsync()
@@ -165,30 +175,51 @@ else
 
     private void SaveMoveSelections()
     {
+        ErrorSavingMoves = false;
         PokemonSelections.ForEach(p =>
         {
             for (int i = 0; i < p.MoveSelections.Count; i++)
             {
+                var index = i;
                 var move = p.Moves.Where(s => s.Name == p.MoveSelections[i].Name).Select(s => s).FirstOrDefault();
-                p.MoveSelections[i] = move;
-                p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
+
+                if (p.MoveSelections.Contains(move) && p.MoveSelections[i].Id <= 0 && p.Moves.Count > 3) // 3 means at least one move must be a duplicate
+                {
+                        ErrorSavingMoves = true;
+                }
+                else
+                {
+                    p.MoveSelections[i] = move;
+                    p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
+                }
             }
-            p.Moves.Clear();
         });
+
+        if (!ErrorSavingMoves)
+        {
+            PokemonSelections.ForEach(p =>
+            {
+                p.Moves.Clear(); // garbage clean up
+            });
+        }
     }
 
     private async Task SaveTeam()
     {
         SaveMoveSelections();
-        var lineup = new LineupModel() { Lineup = PokemonSelections.ToList() };
 
-        if (!Trainer.Lineups.Contains(lineup))
+        if (!ErrorSavingMoves)
         {
-            Trainer.Lineups.Add(lineup);
-            Trainer.Team = lineup;
+            var lineup = new LineupModel() { Lineup = PokemonSelections.ToList() };
 
-            var success = await Poke.UpdateLineup(client, Trainer); //add lineup
-            navMan.NavigateTo("team");
+            if (!Trainer.Lineups.Contains(lineup))
+            {
+                Trainer.Lineups.Add(lineup);
+                Trainer.Team = lineup;
+
+                var success = await Poke.UpdateLineup(client, Trainer); //add lineup
+                navMan.NavigateTo("team");
+            }
         }
     }
 

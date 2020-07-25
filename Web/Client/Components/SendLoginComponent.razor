@@ -3,63 +3,63 @@
 @inject NavigationManager navMan
 @inject HttpClient client
 
-<h1 class="text-center">Send User and Password</h1>
-<p class="text-center">Fill out form and click send</p>
-<EditForm Model="@SendLoginModel">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <form>
-        <div class="form-group">
-            <label for="Password">Email: </label>
-            <InputText id="Email" class="form-control" placeholder="email" @bind-Value="@SendLoginModel.Email" />
-        </div>
-    </form>
-</EditForm>
-<br />
-<div class="text-center">
-    <button class="btn btn-primary" @onclick="SendLoginCreds">Send</button>
-</div>
+    <h1 class="text-center">Send User and Password</h1>
+    <p class="text-center">Fill out form and click send</p>
+    <EditForm Model="@SendLoginModel">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <form>
+            <div class="form-group">
+                <label for="Password">Email: </label>
+                <InputText id="Email" class="form-control" placeholder="email" @bind-Value="@SendLoginModel.Email" />
+            </div>
+        </form>
+    </EditForm>
+    <br />
+    <div class="text-center">
+        <button class="btn btn-primary" @onclick="SendLoginCreds">Send</button>
+    </div>
 
-@code {
+    @code {
 
-    public SendLoginModel SendLoginModel { get; set; }
-    private string Response { get; set; }
-    private AuthService Auth { get; set; }
+        public SendLoginModel SendLoginModel { get; set; }
+        private string Response { get; set; }
+        private AuthService Auth { get; set; }
 
-    private bool _forgotPassword { get; set; }
-    [Parameter]
-    public bool ForgotPassword { get; set; }
-    [Parameter]
-    public EventCallback<bool> ForgotPasswordChanged { get; set; }
+        private bool _forgotPassword { get; set; }
+        [Parameter]
+        public bool ForgotPassword { get; set; }
+        [Parameter]
+        public EventCallback<bool> ForgotPasswordChanged { get; set; }
 
-    private bool _codeSent { get; set; }
-    [Parameter]
-    public bool CodeSent { get; set; }
-    [Parameter]
-    public EventCallback<bool> CodeSentChanged { get; set; }
+        private bool _codeSent { get; set; }
+        [Parameter]
+        public bool CodeSent { get; set; }
+        [Parameter]
+        public EventCallback<bool> CodeSentChanged { get; set; }
 
-    protected override void OnInitialized()
-    {
-        _forgotPassword = true;
-        SendLoginModel = new SendLoginModel();
-        Auth = new AuthService();
-    }
-
-    private async Task SendLoginCreds()
-    {
-        if (!string.IsNullOrEmpty(SendLoginModel.Email))
+        protected override void OnInitialized()
         {
-            Auth.SendLogin(client, SendLoginModel);
-            StateHasChanged();
-            System.Threading.Thread.Sleep(1000);
+            _forgotPassword = true;
+            SendLoginModel = new SendLoginModel();
+            Auth = new AuthService();
+        }
 
-            _codeSent = !_codeSent;
-            if (CodeSentChanged.HasDelegate)
-                await CodeSentChanged.InvokeAsync(_codeSent);
+        private async Task SendLoginCreds()
+        {
+            if (!string.IsNullOrEmpty(SendLoginModel.Email))
+            {
+                Auth.SendLogin(client, SendLoginModel);
+                StateHasChanged();
+                System.Threading.Thread.Sleep(1000);
 
-            _forgotPassword = !_forgotPassword;
-            if (ForgotPasswordChanged.HasDelegate)
-                await ForgotPasswordChanged.InvokeAsync(_forgotPassword);
+                _codeSent = !_codeSent;
+                if (CodeSentChanged.HasDelegate)
+                    await CodeSentChanged.InvokeAsync(_codeSent);
+
+                _forgotPassword = !_forgotPassword;
+                if (ForgotPasswordChanged.HasDelegate)
+                    await ForgotPasswordChanged.InvokeAsync(_forgotPassword);
+            }
         }
     }
-}
