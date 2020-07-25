@@ -1,16 +1,74 @@
-﻿@using Web.Shared.Models
+@using Web.Shared.Models
 
-<div class="card" style="margin: 5px 0 5px 0;">
-    <div class="card-body text-center">
-        <h5 class="card-title">
-            <img src=@Pokemon.FrontImageUri style="height: 50px; width: 50px;" />
+<style>
+.container{
+    width: 100%; 
+    height: 100vh; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.card-container{
+    width: 100%; 
+    height: 60%; 
+}
+
+.card{
+    width: 100%; 
+    height: 100%; 
+    transition: transform 1s ease-in-out; 
+    transform-style: preserve-3d; 
+}
+
+.card-container:hover .card{
+    transform: rotateY(180deg); 
+}
+
+.card figure{
+    width: 100%; 
+    height: 100%; 
+    position: absolute; 
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    flex-direction: column; 
+}
+
+.card .front{
+    text-align: center; 
+    background: yellow; 
+    border-radius: 10px; 
+    border-style: solid; 
+    border-width: 10px; 
+    border-color: gold; 
+}
+
+.card .back{
+    transform: rotateY(180deg); 
+    background: blue; 
+}
+
+.pokeball_pic{
+    width: 60%; 
+    height: 60%; 
+}
+</style>
+
+<div class="container">
+    <div class="card-container">
+        <div class="card">
+            <figure class="front">
+                    <img src=@Pokemon.FrontImageUri style="height: 60%; width: 60%;" />
+        <h5 class="card-title">  
             @PascalCaseName(Pokemon.Name)
             @foreach (var type in Pokemon.Types)
             {
                 <span class="type type-@type.Name"></span>
             }
         </h5>
-        <h7><b>HP:</b> @Pokemon.BaseHP&emsp;<b>ATK:</b> @Pokemon.Attack&emsp;<b>DEF:</b> @Pokemon.Defense</h7><br />
+                <h7><b>HP:</b> @Pokemon.BaseHP&emsp;<b>ATK:</b> @Pokemon.Attack&emsp;<b>DEF:</b> @Pokemon.Defense</h7><br />
         <h7><b>Sp. ATK:</b> @Pokemon.SpecialAttack&emsp;<b>Sp. DEF:</b> @Pokemon.SpecialDefense&emsp;<b>SPD:</b> @Pokemon.Speed</h7>
         <br />
         <br />
@@ -25,19 +83,23 @@
                 <tr>
                     <td>@PascalCaseName(Pokemon.MoveSelections[0].Name) (@Pokemon.MoveSelections[0].Damage) <span class="type type-@Pokemon.MoveSelections[0].Type"></span></td>
                     <td>@PascalCaseName(Pokemon.MoveSelections[1].Name) (@Pokemon.MoveSelections[1].Damage) <span class="type type-@Pokemon.MoveSelections[1].Type"></span></td>
-                </tr>
-                <tr>
+                </tr>                                                 
+                <tr>                                                  
                     <td>@PascalCaseName(Pokemon.MoveSelections[2].Name) (@Pokemon.MoveSelections[2].Damage) <span class="type type-@Pokemon.MoveSelections[2].Type"></span></td>
                     <td>@PascalCaseName(Pokemon.MoveSelections[3].Name) (@Pokemon.MoveSelections[3].Damage) <span class="type type-@Pokemon.MoveSelections[3].Type"></span></td>
                 </tr>
 
             </table>
         </p>
+            </figure>
+            <figure class="back">
+                <img src="images/pokeball.png" class="pokeball_pic">
+            </figure>
+        </div>
     </div>
 </div>
 
 @code {
-
     [Parameter] public PokemonModel Pokemon { get; set; }
 
     private static System.Text.RegularExpressions.Regex pascalReg = new System.Text.RegularExpressions.Regex("\\W\\w");
