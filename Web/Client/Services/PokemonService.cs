@@ -38,6 +38,11 @@ namespace Web.Client.Services
             var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/trainer/update", trainer);
             return result.IsSuccessStatusCode;
         }
+        public async Task<bool> UpdateScore(HttpClient client, TrainerModel trainer)
+        {
+            var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/score/update", trainer);
+            return result.IsSuccessStatusCode;
+        }
         public async Task<bool> UpdateLineup(HttpClient client, TrainerModel trainer)
         {
             var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/lineup", trainer);

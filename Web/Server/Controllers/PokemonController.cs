@@ -59,6 +59,15 @@ namespace Web.Server.Controllers
             return response;
         }
 
+        [HttpPost("score/update")] // https://localhost:44392/api/pokemon/lineup?trainername=srosy
+        public HttpResponseMessage UpdateScore([FromBody] TrainerModel trainer)
+        {
+            UpdateHighScore(trainer);
+            var response = new HttpResponseMessage();
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
+        }
+
         [HttpGet("trainer/{name}")] // https://localhost:44392/api/pokemon/trainer/srosy
         public TrainerModel GetTrainer(string name)
         {
@@ -120,8 +129,8 @@ namespace Web.Server.Controllers
                 BackImageUri = obj.Sprites.BackMale,
                 FrontImageUri = obj.Sprites.FrontMale,
 
-                BaseHP = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("hp")).Select(s => s.BaseValue).FirstOrDefault() * 10,
-                ActingHP = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("hp")).Select(s => s.BaseValue).FirstOrDefault() * 10,
+                BaseHP = 5 * obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("hp")).Select(s => s.BaseValue).FirstOrDefault(),
+                ActingHP = 5 * obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("hp")).Select(s => s.BaseValue).FirstOrDefault(),
                 Attack = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("attack")).Select(s => s.BaseValue).FirstOrDefault(),
                 Defense = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("defense")).Select(s => s.BaseValue).FirstOrDefault(),
                 SpecialAttack = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("special-attack")).Select(s => s.BaseValue).FirstOrDefault(),
@@ -211,6 +220,16 @@ namespace Web.Server.Controllers
             con.Close();
         }
 
+        public void UpdateHighScore(TrainerModel trainer)
+        {
+            var con = new DBConnect().MyConnection;
+            con.Open();
+
+            var querystring = $"UPDATE sql3346222.userCredentials SET HighScore = {trainer.HighScore} WHERE TrainerName= '{trainer.Handle}';";
+            new MySqlCommand(querystring, con).ExecuteNonQuery();
+
+            con.Close();
+        }
         public TrainerModel GetTrainerFromDB(string name)
         {
             var trainer = new TrainerModel()

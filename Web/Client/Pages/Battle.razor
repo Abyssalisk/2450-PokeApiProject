@@ -100,7 +100,7 @@
                                     {
                                         if (!string.IsNullOrEmpty(move.Name))
                                         {
-                                            <button type="button" class="btn btn-primary m-1" style="width: 45%;" @onclick="(() => MoveSelection(move))">
+                                            <button type="button" class="btn btn-primary m-1" style="background-color: @TypeColor(move.Type); width: 45%; height: 38%" @onclick="(() => MoveSelection(move))">
                                                 <p>@move.Name</p>
                                                 <div class="d-flex justify-content-between">
                                                     <span class="type type-@move.Type"></span> <span>@move.Damage</span>
@@ -120,7 +120,6 @@
 }
 
 @code {
-    int score = 0;
     bool confirmOpponent { get; set; } = false;
     bool selectPokemon { get; set; } = false;
     bool lineupLoaded { get; set; } = false;
@@ -160,12 +159,12 @@
         if (OpponentPoke.Speed > CurrentPoke.Speed)
         {
             // modifiers, typing, random move?, etc
-            DoDamage(CurrentPoke, OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)]); // opponent first
+            DoDamage(OpponentPoke, CurrentPoke, OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)]); // opponent first
 
             var dead = CurrentPoke.ActingHP <= 0;
             if (!dead)
             {
-                DoDamage(OpponentPoke, move);
+                DoDamage(CurrentPoke, OpponentPoke, move);
             }
             else
             {
@@ -177,12 +176,12 @@
         else
         {
             // modifiers, typing, random move?, etc
-            DoDamage(OpponentPoke, move);
+            DoDamage(CurrentPoke, OpponentPoke, move);
 
             var dead = OpponentPoke.ActingHP <= 0;
             if (!dead)
             {
-                DoDamage(CurrentPoke, OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)]); // opponent last
+                DoDamage(OpponentPoke, CurrentPoke, OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)]); // opponent last
 
                 if (CurrentPoke.ActingHP <= 0)
                     selectPokemon = true;
@@ -223,22 +222,35 @@
         if (battleStatus.Count > 2)
             battleStatus.Remove(battleStatus.First());
     }
-    private void DoDamage(PokemonModel afflictedPoke, MoveModel move)
+
+    private void DoDamage(PokemonModel attackingPoke, PokemonModel afflictedPoke, MoveModel move)
     {
-        afflictedPoke.ActingHP = afflictedPoke.ActingHP - (move.Damage / 5);
+        int damage;
+
+        if (move.Type == "physical")
+        {
+            damage = (move.Damage * attackingPoke.Attack / afflictedPoke.Defense);
+            afflictedPoke.ActingHP = afflictedPoke.ActingHP - damage;
+        } else
+        {
+            damage = (move.Damage * attackingPoke.SpecialAttack / afflictedPoke.SpecialDefense);
+            afflictedPoke.ActingHP = afflictedPoke.ActingHP - damage;
+        }
 
         if (afflictedPoke == OpponentPoke)
         {
-            UpdateMessage($"{CurrentPoke.Name} used {move.Name} for {move.Damage / 5} damage!");
+            UpdateMessage($"{CurrentPoke.Name} used {move.Name} for {damage} damage!" + Trainer.CurrentScore);
         }
         else
         {
-            UpdateMessage($"{OpponentPoke.Name} used {move.Name} for {move.Damage / 5} damage!");
+            UpdateMessage($"{OpponentPoke.Name} used {move.Name} for {damage} damage!");
         }
     }
 
     private void Back()
     {
+        Opponent.HighScore = Trainer.CurrentScore++;
+        Task.Run(() => Poke.UpdateScore(client, Opponent));
         navMan.NavigateTo("home");
     }
 
@@ -261,8 +273,8 @@
                 else
                 {
                     CurrentPoke = pokemon;
-                    UpdateBattleStatus("You have selected " + CurrentPoke.Name);
 
+                    UpdateBattleStatus("You have selected " + CurrentPoke.Name);
                     selectPokemon = false;
                 }
             }
@@ -272,13 +284,15 @@
     private void Win()
     {
         Console.WriteLine("Win");
-        // let's say that all 4 elite 4 are defeated, so move onto champion
+        // update trainer Highscore
         navMan.NavigateTo("championbattle");
     }
 
     private void Lose()
     {
-        // record score and stuffz, post to the scoreboard
+        Opponent.HighScore = Trainer.CurrentScore++;
+        Task.Run(() => Poke.UpdateScore(client, Opponent));
+        // update trainer highscores
         navMan.NavigateTo("scoreboard");
     }
 
@@ -289,6 +303,9 @@
 
     private void SetupOpponent()
     {
+        Trainer.HighScore = Opponent.HighScore + 1000;
+        Task.Run(() => Poke.UpdateScore(client, Trainer));
+
         if (BattlePosition == -1) // champion defeated
         {
             Win();
@@ -300,6 +317,34 @@
             Trainer.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
             OpponentPoke = Opponent.Team.Lineup.FirstOrDefault();
             battleStatus = new List<string>() { $"Trainer {Opponent.Handle} challenges you to a battle." };
+        }
+    }
+
+    private string TypeColor(string type)
+    {
+        switch (type.ToLower())
+        {
+            // 15 types for gen 1 pokemon
+            case "fire": return "rgb(240, 127, 47, 0.75)";
+            case "water": return "rgb(104, 144, 240, 0.75)";
+            case "grass": return "rgb(120, 200, 79, 0.75)";
+            case "rock": return "rgb(139, 133, 105, 0.75)";
+
+            case "flying": return "rgb(168, 144, 240, 0.75)";
+            case "poison": return "rgb(160, 64, 161, 0.75)";
+            case "ice": return "rgb(152, 216, 216, 0.75)";
+            case "dragon": return "rgb(112, 56, 249, 0.75)";
+
+            case "normal": return "rgb(169, 168, 120, 0.75)";
+            case "pyschic": return "rgb(246, 88, 136, 0.75)";
+            case "ground": return "rgb(184, 146, 38, 0.75)";
+            case "ghost": return "rgb(112, 87, 152, 0.75)";
+
+            case "fighting": return "rgb(192, 48, 40, 0.75)";
+            case "bug": return "rgb(168, 184, 33, 0.75)";
+            case "electric": return "rgb(197, 170, 7, 0.75)";
+
+            default: return "rgb(233, 109, 180, 0.75)";
         }
     }
 
