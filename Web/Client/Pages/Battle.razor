@@ -203,6 +203,8 @@
     {
         if (!Opponent.Team.Lineup.Any(p => p.ActingHP > 0))
         {
+            Trainer.HighScore = Opponent.HighScore + 1000;
+            Task.Run(() => Poke.UpdateScore(client, Trainer));
             UpdateMessage($"{OpponentPoke} fainted!");
             BattlePosition--;
             SetupOpponent();
@@ -249,8 +251,8 @@
 
     private void Back()
     {
-        Opponent.HighScore = Trainer.CurrentScore++;
-        Task.Run(() => Poke.UpdateScore(client, Opponent));
+        Trainer.HighScore = Opponent.HighScore - 10;
+        Task.Run(() => Poke.UpdateScore(client, Trainer));
         navMan.NavigateTo("home");
     }
 
@@ -290,8 +292,8 @@
 
     private void Lose()
     {
-        Opponent.HighScore = Trainer.CurrentScore++;
-        Task.Run(() => Poke.UpdateScore(client, Opponent));
+        Trainer.HighScore = Opponent.HighScore - 10;
+        Task.Run(() => Poke.UpdateScore(client, Trainer));
         // update trainer highscores
         navMan.NavigateTo("scoreboard");
     }
@@ -303,9 +305,6 @@
 
     private void SetupOpponent()
     {
-        Trainer.HighScore = Opponent.HighScore + 1000;
-        Task.Run(() => Poke.UpdateScore(client, Trainer));
-
         if (BattlePosition == -1) // champion defeated
         {
             Win();
