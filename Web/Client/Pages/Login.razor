@@ -3,6 +3,7 @@
 
 @inject NavigationManager navMan
 @inject HttpClient client
+@inject IJSRuntime JSRuntime
 
 <div class="container-fluid" style="max-width: 50%;">
 
@@ -42,6 +43,7 @@
 
     protected override void OnInitialized()
     {
+        JSRuntime.InvokeAsync<string>("PlayMusic", "openingMusic");
         NewTrainerUri = $"{navMan.BaseUri}newTrainer";
     }
 }

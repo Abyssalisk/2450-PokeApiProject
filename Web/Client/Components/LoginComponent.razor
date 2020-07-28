@@ -69,6 +69,7 @@
             {
                 var username = JsonSerializer.Serialize(LoginModel.Username);
                 await WriteAuthCookie(username);
+                Shared.NavMenu.IsLoggedIn = true;
                 navMan.NavigateTo("trainer");
             }
             else

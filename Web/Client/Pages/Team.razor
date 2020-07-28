@@ -129,6 +129,7 @@ else
     protected override void OnInitialized()
     {
         Loading = true;
+        JSRuntime.InvokeAsync<string>("PlayMusic", "routeMusic");
         Title = "My Teams";
         Poke = new PokemonService();
         Auth = new AuthService();

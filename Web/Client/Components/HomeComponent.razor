@@ -1,9 +1,23 @@
 ﻿@inject NavigationManager navMan
 @inject HttpClient client
 
-<h1 class="text-center">Home</h1>
-<p class="text-center">There's no place like home...</p>
+    <style>
+        .banner {
+            background-image: url("/images/logo.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            background-position: center;
+            height: 100px;
+        }
+    </style>
+    <br />
+    <div class="jumbotron banner"></div>
+    <br />
+    <br />
+    <h1 class="text-center">Welcome to POKEMANZ!</h1>
+    <p class="text-left">Hello there! Welcome to the world of Pokémanz! we're the C# group! People call us the programmers! This world is inhabited by creatures called Pokéman! For some people, Pokéman are pets. Other use them for fights. Ourselves… we use Pokémanz as a project.</p>
 
-@code {
+    @code {
 
-}
+    }

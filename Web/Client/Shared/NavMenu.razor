@@ -1,4 +1,7 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inject IJSRuntime JSRuntime
+@inject NavigationManager navMan
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href=""><img src="/images/logo.png" /></a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -7,11 +10,6 @@
 
 <div class="@NavMenuCssClass dark-menu" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        @*<li class="nav-item px-3">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                    <span class="navLink homeNavLink" aria-hidden="true"></span> Home
-                </NavLink>
-            </li>*@
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="trainer">
                 <span class="navLink loginNavLink" aria-hidden="true"></span> My Trainer
@@ -22,19 +20,9 @@
                 <span class="navLink teamNavLink" aria-hidden="true"></span> My Teams
             </NavLink>
         </li>
-        @*<li class="nav-item px-3">
-                <NavLink class="nav-link disabled" href="newTeam">
-                    <span class="navLink createNewTeamNavLink" aria-hidden="true"></span> Create New Team
-                </NavLink>
-            </li>*@
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="battle">
                 <span class="navLink battleNavLink" aria-hidden="true"></span> Battle
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="champion">
-                <span class="navLink championNavLink" aria-hidden="true"></span> Champion
             </NavLink>
         </li>
         <li class="nav-item px-3">
@@ -42,16 +30,41 @@
                 <span class="navLink scoreboardNavLink" aria-hidden="true"></span> Score Board
             </NavLink>
         </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="champion">
+                <span class="navLink championNavLink" aria-hidden="true"></span> Champion
+            </NavLink>
+        </li>
+        @if (IsLoggedIn)
+        {
+            <li class="nav-item px-3 text-center">
+                <button class="btn btn-danger" @onclick="LogOut">LOGOUT</button>
+            </li>
+        }
     </ul>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
-
+    public static bool IsLoggedIn { get; set; } = false;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private AuthService Auth { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth = new AuthService();
+        var trainerHandle = await Task.Run(async () => await Auth.GetCookieAsync(JSRuntime, "Username"));
+        IsLoggedIn = !string.IsNullOrEmpty(trainerHandle);
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+    private async Task LogOut()
+    {
+        await AuthService.EraseCookieAsync(JSRuntime, "Username");
+        IsLoggedIn = false;
+        navMan.NavigateTo("home");
     }
 }

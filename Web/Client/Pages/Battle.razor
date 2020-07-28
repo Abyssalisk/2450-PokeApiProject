@@ -233,7 +233,8 @@
         {
             damage = (move.Damage * attackingPoke.Attack / afflictedPoke.Defense);
             afflictedPoke.ActingHP = afflictedPoke.ActingHP - damage;
-        } else
+        }
+        else
         {
             damage = (move.Damage * attackingPoke.SpecialAttack / afflictedPoke.SpecialDefense);
             afflictedPoke.ActingHP = afflictedPoke.ActingHP - damage;
@@ -287,7 +288,7 @@
     {
         Console.WriteLine("Win");
         // update trainer Highscore
-        navMan.NavigateTo("championbattle");
+        navMan.NavigateTo("scoreboard");
     }
 
     private void Lose()
@@ -315,7 +316,16 @@
             Opponent.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
             Trainer.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
             OpponentPoke = Opponent.Team.Lineup.FirstOrDefault();
-            battleStatus = new List<string>() { $"Trainer {Opponent.Handle} challenges you to a battle." };
+
+            //champion
+            if (BattlePosition == 0)
+            {
+                JSRuntime.InvokeAsync<string>("PlayMusic", "championMusic");
+                battleStatus = new List<string>() { $"Champion {Opponent.Handle} challenges you to a battle. " +
+                    $"I am the Pokemanz League Champion! Do you know what that means? I'll tell you! I am the most powerful trainer in the world!" };
+            }
+            else
+                battleStatus = new List<string>() { $"Trainer {Opponent.Handle} challenges you to a battle." };
         }
     }
 
@@ -349,6 +359,7 @@
 
     protected override void OnInitialized()
     {
+        JSRuntime.InvokeAsync<string>("PlayMusic", "battleMusic");
         Poke = new PokemonService();
         Auth = new AuthService();
         Rand = new Random();

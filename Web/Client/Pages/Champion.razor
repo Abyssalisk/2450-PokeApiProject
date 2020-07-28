@@ -5,10 +5,10 @@
 @using Web.Shared.Models
 @using Web.Client.Components
 
-<h1>Champion</h1>
+<h1>Champion Info</h1>
 
-<p>Champion info page that shows the current champion and their lineup</p>
-
+<p>This is the current PokeManz league champion to beat with the respective lineup</p>
+<br />
 <TrainerInfoComponent Trainer="@ChampionInfo" ShowLineups="true"></TrainerInfoComponent>
 
 @code {
@@ -22,6 +22,7 @@
     {
         Poke = new PokemonService();
         Auth = new AuthService();
+        JSRuntime.InvokeAsync<string>("PlayMusic", "rivalMusic");
     }
 
     protected override async Task OnInitializedAsync()
@@ -35,6 +36,10 @@
         {
             var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
             ChampionInfo = championAndElite4.First();
+
+            //show only the team used for league on champion info page, doesn't save 
+            ChampionInfo.Lineups.Clear();
+            ChampionInfo.Lineups.Add(ChampionInfo.Team);
         }
     }
 }

@@ -26,7 +26,9 @@
     protected override void OnInitialized()
     {
         Auth = new AuthService();
+        JSRuntime.InvokeAsync<string>("PlayMusic", "endingMusic");
     }
+
 
     private void PlayAgain()
     {
@@ -36,6 +38,7 @@
     private async Task Exit()
     {
         await AuthService.EraseCookieAsync(JSRuntime, "Username");
+        Shared.NavMenu.IsLoggedIn = false;
         navMan.NavigateTo("home");
     }
 }
