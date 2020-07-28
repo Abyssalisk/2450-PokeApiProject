@@ -38,6 +38,7 @@
     private async Task Exit()
     {
         await AuthService.EraseCookieAsync(JSRuntime, "Username");
+        Shared.NavMenu.IsLoggedIn = false;
         navMan.NavigateTo("home");
     }
 }

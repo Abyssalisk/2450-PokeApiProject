@@ -1,4 +1,7 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inject IJSRuntime JSRuntime
+@inject NavigationManager navMan
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href=""><img src="/images/logo.png" /></a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -32,16 +35,36 @@
                 <span class="navLink championNavLink" aria-hidden="true"></span> Champion
             </NavLink>
         </li>
+        @if (IsLoggedIn)
+        {
+            <li class="nav-item px-3 text-center">
+                <button class="btn btn-danger" @onclick="LogOut">LOGOUT</button>
+            </li>
+        }
     </ul>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
-
+    public static bool IsLoggedIn { get; set; } = false;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private AuthService Auth { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth = new AuthService();
+        var trainerHandle = await Task.Run(async () => await Auth.GetCookieAsync(JSRuntime, "Username"));
+        IsLoggedIn = !string.IsNullOrEmpty(trainerHandle);
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+    private async Task LogOut()
+    {
+        await AuthService.EraseCookieAsync(JSRuntime, "Username");
+        IsLoggedIn = false;
+        navMan.NavigateTo("home");
     }
 }

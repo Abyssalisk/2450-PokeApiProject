@@ -18,6 +18,7 @@
 
     protected override void OnInitialized()
     {
+        Shared.NavMenu.IsLoggedIn = true;
         Poke = new PokemonService();
         Auth = new AuthService();
         JSRuntime.InvokeAsync<string>("PlayMusic", "trainerMusic");
