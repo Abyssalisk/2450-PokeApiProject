@@ -20,6 +20,7 @@
     {
         Poke = new PokemonService();
         Auth = new AuthService();
+        JSRuntime.InvokeAsync<string>("PlayMusic", "trainer");
     }
 
     protected override async Task OnInitializedAsync()

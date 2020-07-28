@@ -23,6 +23,38 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="/js/Music.js"></script>
+
+    <audio id="championMusic" src="/media/PokemonRedChampionMusic.mp3" />
+    <audio id="battleMusic" src="/media/PokemonRedBattle.mp3" />
+    <audio id="endingMusic" src="/media/PokemonRedEnding.mp3" />
+    <audio id="openingMusic" src="/media/PokemonRedOpening.mp3" />
+    <audio id="routeMusic" src="/media/PokemonRedRoute1.mp3" />
+    <audio id="trainerMusic" src="/media/PokemonRedPokemonCenter.mp3" />
+    <audio id="rivalMusic" src="/media/PokemonRedRival.mp3" />
+    <script>
+        function PlayMusic(type) {
+            PauseMusic();
+
+            if (type == 'opening') document.getElementById('openingMusic').play();
+            if (type == 'ending') document.getElementById('endingMusic').play();
+            if (type == 'battle') document.getElementById('battleMusic').play();
+            if (type == 'champion') document.getElementById('championMusic').play();
+            if (type == 'route') document.getElementById('routeMusic').play();
+            if (type == 'trainer') document.getElementById('trainerMusic').play();
+            if (type == 'rival') document.getElementById('trainerMusic').play();
+        }
+
+        function PauseMusic() {
+            document.getElementById('championMusic').pause();
+            document.getElementById('battleMusic').pause();
+            document.getElementById('endingMusic').pause();
+            document.getElementById('openingMusic').pause();
+            document.getElementById('routeMusic').pause();
+            document.getElementById('trainerMusic').pause();
+            document.getElementById('rivalMusic').pause();
+        }
+    </script>
 
     <script>
         function WriteCookie(name, value, days) {
