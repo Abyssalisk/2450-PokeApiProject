@@ -9,8 +9,8 @@
 }
 else
 {
-    <h3>Create a New Lineup</h3>
-
+    <br />
+    <h3 class="text-center">Create a New Lineup</h3>
     <br />
 
     @if (ShowMessage)
@@ -20,8 +20,10 @@ else
 
     @if (PokemonNames?.Count > 0 && !PokemonGenDone)
     {
-        <h5>Select 6 Pokemon and Click Continue to Moves</h5>
-        <button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button>
+        <h5 class="text-center">Select up to 6 Pokemon and then click Continue to Moves</h5>
+        <div class="text-center">
+        <button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button> <span><b style="color: @CheckedCountColor()">Selected: @PokemonNameCheckedCount / 6</b></span>
+        </div>
         <br />
         <br />
 
@@ -31,7 +33,7 @@ else
             {
                 index++;
                 <div class="col-lg-3 col-med-5 col-sm-7">
-                    <label for="@name.Text">
+                    <label for="@name.Text" style="padding: 5px; background-color: @CheckedColor(name.Checked)">
                         @if (name.Checked)
                         {
                             <input type="checkbox" id="@name.Text" checked="checked"
@@ -141,6 +143,16 @@ else
     protected override void OnInitialized()
     {
         Poke = new PokemonService();
+    }
+
+    private string CheckedColor(bool isChecked)
+    {
+        return isChecked ? "lightgreen" : "none";
+    }
+
+    private string CheckedCountColor()
+    {
+        return PokemonNameCheckedCount > 0 && PokemonNameCheckedCount <= 6 ? "green" : "red";
     }
 
     private async Task GenPokemon()
