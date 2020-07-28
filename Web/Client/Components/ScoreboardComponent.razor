@@ -8,9 +8,8 @@
 }
 else
 {
-    <h1>Scoreboard</h1>
+    <h1>Pokemanz TOP 10</h1>
 
-    <p>display top 10 trainers and scores, etc... in pretty grid/table.</p>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
 
     <table id="myTable" class="table sortable">
@@ -58,75 +57,26 @@ else
 }
 
 @code {
-    private List<TrainerModel> topTenTrainers = new List<TrainerModel>();
+    private List<TrainerModel> topTenTrainers { get; set; }
     private bool Loading { get; set; }
+    private PokemonService Poke { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Poke = new PokemonService();
+        Loading = true;
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        Loading = true;
-        topTenTrainers.Add(new TrainerModel()
+        topTenTrainers = await Poke.GetTopTenTrainers(client);
+
+        // filter out peeps that don't have teams/highscores
+        if (topTenTrainers.Any(t => t.Team == null))
         {
-            Handle = "Spencer",
-            HighScore = 10,
-            Team = new LineupModel()
-            {
-                Lineup = new List<PokemonModel>()
-{
-                    new PokemonModel() { Name = "Charizard" },
-                    new PokemonModel() { Name = "Gengar" },
-                    new PokemonModel() { Name = "Houndoom" }
-                }
-            }
-        });
-
-        topTenTrainers.Add(new TrainerModel()
-        {
-            Handle = "Gavin",
-            HighScore = 15324500,
-            Team = new LineupModel()
-            {
-                Lineup = new List<PokemonModel>()
-{
-                    new PokemonModel() { Name = "Gyrados" },
-                    new PokemonModel() { Name = "Articuno" },
-                    new PokemonModel() { Name = "Charizard" }
-                }
-            }
-        });
-
-        var testpokemon1 = new PokemonModel();
-        var testpokemon2 = new PokemonModel();
-        var testpokemon3 = new PokemonModel();
-
-
-        // Test Web.Server.Controllers
-        try
-        {
-            var url = client.BaseAddress + "api/Pokemon/1";
-            Console.WriteLine(url);
-            testpokemon1 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/blastoise");
-            testpokemon2 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/charizard");
-            testpokemon3 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/bulbasaur");
-
-            topTenTrainers.Add(new TrainerModel()
-            {
-                Handle = "hello from the controller",
-                HighScore = 314159,
-                Team = new LineupModel()
-                {
-                    Lineup = new List<PokemonModel>()
-{
-                    new PokemonModel() { Name = "Charizard" },
-                    new PokemonModel() { Name = "Charizard" },
-                    new PokemonModel() { Name = "Charizard" }
-                }
-                }
-            });
+            topTenTrainers = topTenTrainers.Where(t => t.Team != null).ToList();
         }
-        catch // Non success
-        {
-            Console.WriteLine("An error occurred.");
-        }
+
         Loading = false;
     }
 
