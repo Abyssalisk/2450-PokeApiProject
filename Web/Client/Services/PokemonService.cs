@@ -61,6 +61,12 @@ namespace Web.Client.Services
             return result;
         }
 
+        public async Task<List<TrainerModel>> GetTopTenTrainers(HttpClient client)
+        {
+            var result = await client.GetFromJsonAsync<List<TrainerModel>>($"api/pokemon/trainer/topten");
+            return result;
+        }
+
         public async Task<TrainerModel> GetTrainer(HttpClient client, string trainerHandle)
         {
             var result = await client.GetFromJsonAsync<TrainerModel>($"api/pokemon/trainer/{trainerHandle}");
