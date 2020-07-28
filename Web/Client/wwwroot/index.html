@@ -33,16 +33,21 @@
     <audio id="trainerMusic" src="/media/PokemonRedPokemonCenter.mp3" />
     <audio id="rivalMusic" src="/media/PokemonRedRival.mp3" />
     <script>
-        function PlayMusic(type) {
+        function PlayMusic(id) {
             PauseMusic();
+            document.getElementById(id).loop = true;
+            document.getElementById(id).play();
 
-            if (type == 'opening') document.getElementById('openingMusic').play();
-            if (type == 'ending') document.getElementById('endingMusic').play();
-            if (type == 'battle') document.getElementById('battleMusic').play();
-            if (type == 'champion') document.getElementById('championMusic').play();
-            if (type == 'route') document.getElementById('routeMusic').play();
-            if (type == 'trainer') document.getElementById('trainerMusic').play();
-            if (type == 'rival') document.getElementById('trainerMusic').play();
+            //if (type == 'opening') document.getElementById('openingMusic').play();
+            //if (type == 'ending') document.getElementById('endingMusic').play();
+            //if (type == 'battle') document.getElementById('battleMusic').play();
+            //if (type == 'champion') document.getElementById('championMusic').play();
+            //if (type == 'route') document.getElementById('routeMusic').play();
+            //if (type == 'trainer') document.getElementById('trainerMusic').play();
+            //if (type == 'rival') document.getElementById('rivalMusic').play();
+
+            //var audioId = type + 'Music';
+            //docum
         }
 
         function PauseMusic() {

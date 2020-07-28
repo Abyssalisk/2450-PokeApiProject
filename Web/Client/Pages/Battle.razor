@@ -318,11 +318,11 @@
             OpponentPoke = Opponent.Team.Lineup.FirstOrDefault();
 
             //champion
-            if (BattlePosition == 5)
+            if (BattlePosition == 0)
             {
-                JSRuntime.InvokeAsync<string>("PlayMusic", "champion");
+                JSRuntime.InvokeAsync<string>("PlayMusic", "championMusic");
                 battleStatus = new List<string>() { $"Champion {Opponent.Handle} challenges you to a battle. " +
-                    $"I am the Pokémon League Champion! Do you know what that means? I'll tell you! I am the most powerful trainer in the world!" };
+                    $"I am the Pokemanz League Champion! Do you know what that means? I'll tell you! I am the most powerful trainer in the world!" };
             }
             else
                 battleStatus = new List<string>() { $"Trainer {Opponent.Handle} challenges you to a battle." };
@@ -359,7 +359,7 @@
 
     protected override void OnInitialized()
     {
-        JSRuntime.InvokeAsync<string>("PlayMusic", "battle");
+        JSRuntime.InvokeAsync<string>("PlayMusic", "battleMusic");
         Poke = new PokemonService();
         Auth = new AuthService();
         Rand = new Random();

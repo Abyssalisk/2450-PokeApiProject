@@ -16,7 +16,9 @@
 @code {
     protected override void OnInitialized()
     {
-        JSRuntime.InvokeAsync<string>("PlayMusic", "opening");
+        JSRuntime.InvokeAsync<string>("PlayMusic", "openingMusic");
+        // gonna have small consule error because of auto play, but that's okay
+        // https://stackoverflow.com/questions/52963608/getting-error-uncaught-in-promise-domexception-play-failed-because-the-us
     }
 
     private void Start()
