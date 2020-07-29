@@ -12,6 +12,8 @@ namespace Web.Shared.Models
         public int Speed { get; set; }
         public List<PokemonType> Types { get; set; } = new List<PokemonType>();
         public List<string> TypeWeaknesses { get; set; } = new List<string>();
+        public List<string> HardlyEffectiveTypes { get; set; } = new List<string>();
+        public List<string> NotEffectiveTypes { get; set; }
         public List<MoveModel> Moves { get; set; } = new List<MoveModel>();
         public string BackImageUri { get; set; }
         public string FrontImageUri { get; set; }
