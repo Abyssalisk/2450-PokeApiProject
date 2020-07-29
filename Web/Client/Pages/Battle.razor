@@ -384,10 +384,12 @@
             else
             {
                 // modifiers, typing, random move?, etc
-                var opponentMove = OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)];
+                var opponentMove = GenOpponentMove(OpponentPoke.MoveSelections);
                 if (IsCoolDownMove(opponentMove))
                     OpponentSkipNextTurn = true;
                 DoDamage(OpponentPoke, CurrentPoke, opponentMove);
+                if (OpponentPoke.ActingHP <= 0)
+                    OpponentPokeDead(); // explosion!!!
             }
 
             StateHasChanged();
@@ -437,7 +439,7 @@
                 }
                 else
                 {
-                    var opponentMove = OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)];
+                    var opponentMove = GenOpponentMove(OpponentPoke.MoveSelections);
                     if (IsCoolDownMove(opponentMove))
                         OpponentSkipNextTurn = true;
                     DoDamage(OpponentPoke, CurrentPoke, opponentMove);
@@ -445,6 +447,8 @@
 
                 if (CurrentPoke.ActingHP <= 0)
                     selectPokemon = true;
+                if (OpponentPoke.ActingHP <= 0)
+                    OpponentPokeDead(); // explosion!!!
             }
             else
             {
@@ -457,6 +461,39 @@
         {
             Lose();
         }
+    }
+
+    private MoveModel GenOpponentMove(List<MoveModel> moves)
+    {
+        Tuple<int, MoveModel> bestMove = new Tuple<int, MoveModel>(0, null);
+
+        moves.ForEach(m => {
+            var damage = m.Damage;
+            damage = AddDamageModifiers(damage, m, CurrentPoke, OpponentPoke.Types.Any(t => t.Name == m.Type));
+
+            if (IsCoolDownMove(m) && (CurrentPoke.ActingHP > CurrentPoke.BaseHP * 0.5)
+                || IsCoolDownMove(m) && OpponentPoke.ActingHP < OpponentPoke.BaseHP * 0.5
+                && OpponentPoke.Speed > CurrentPoke.Speed) // only use recharge moves if opponent has a lot of health left and as a last shot before dying
+            {
+                // go ahead and do the recharge move, it's worth it
+                Console.WriteLine($"{m.Name} is worth it");
+            }
+            else if (IsCoolDownMove(m)) // consider what's better if expected to live two more turns
+            {
+                damage = damage / 2; //sometimes it's better to take the lower hitting move to get more out of it
+            }
+
+            if (damage > bestMove.Item1)
+            {
+                bestMove = new Tuple<int, MoveModel>(damage, m);
+            }
+        });
+
+        Console.WriteLine(bestMove.Item2.Name + "is the best move");
+        return bestMove.Item2;
+
+        // 20% chance for random move intead of best move
+        //return Rand.Next(0, 9) < 2 ? moves.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)] : bestMove.Item2;
     }
 
     private void OpponentPokeDead()
@@ -527,6 +564,7 @@
 
         if (IsSelfDestructiveMove(move))
             attackingPoke.ActingHP = 0;
+
     }
 
     private int AddDamageModifiers(int damage, MoveModel move, PokemonModel afflictedPokemon, bool isStab)
@@ -617,7 +655,7 @@
     {
         Trainer.HighScore = Opponent.HighScore - 10;
         Task.Run(() => Poke.UpdateScore(client, Trainer));
-        navMan.NavigateTo("home");
+        navMan.NavigateTo("scoreboard");
     }
 
     private void SelectPokemon()
@@ -684,6 +722,8 @@
             Opponent.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
             Trainer.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
             OpponentPoke = Opponent.Team.Lineup.FirstOrDefault();
+            OpponentSkipNextTurn = false;
+            PlayerSkipNextTurn = false;
 
             //champion
             if (BattlePosition == 0)
