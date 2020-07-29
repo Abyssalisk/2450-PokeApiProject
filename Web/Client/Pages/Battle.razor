@@ -361,10 +361,10 @@
         {
 
             case "annihilation": return true;
-            case "blast burn": return true;
-            case "frenzy plant": return true;
-            case "hydro cannon": return true;
-            case "hyper beam": return true;
+            case "blast-burn": return true;
+            case "frenzy-plant": return true;
+            case "hydro-cannon": return true;
+            case "hyper-beam": return true;
             case "solar-beam": return true;
             default:
                 return false;
@@ -471,6 +471,7 @@
         }
         else
         {
+            OpponentSkipNextTurn = false;
             OpponentPoke = Opponent.Team.Lineup.First(p => p.ActingHP > 0);
         }
     }
@@ -636,11 +637,16 @@
                 }
                 else
                 {
+                    if (CurrentPoke.ActingHP <= 0)
+                    {
+                        PlayerSkipNextTurn = false;
+                    }
+                    else PlayerSkipNextTurn = true;
+
                     CurrentPoke = pokemon;
 
                     UpdateBattleStatus("You have selected " + CurrentPoke.Name);
                     selectPokemon = false;
-                    PlayerSkipNextTurn = true;
                 }
             }
         }
@@ -749,7 +755,6 @@
 
             SetupOpponent();
         }
-
         Loading = false;
     }
 }
