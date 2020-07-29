@@ -359,12 +359,13 @@
     {
         switch (move.Name.ToLower())
         {
-
+            case "focus-punch": return true;
+            case "giga-impact": return true;
             case "annihilation": return true;
-            case "blast burn": return true;
-            case "frenzy plant": return true;
-            case "hydro cannon": return true;
-            case "hyper beam": return true;
+            case "blast-burn": return true;
+            case "frenzy-plant": return true;
+            case "hydro-cannon": return true;
+            case "hyper-beam": return true;
             case "solar-beam": return true;
             default:
                 return false;
@@ -383,9 +384,10 @@
             else
             {
                 // modifiers, typing, random move?, etc
-                DoDamage(OpponentPoke, CurrentPoke, OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)]); // opponent first
-                if (IsCoolDownMove(move))
+                var opponentMove = OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)];
+                if (IsCoolDownMove(opponentMove))
                     OpponentSkipNextTurn = true;
+                DoDamage(OpponentPoke, CurrentPoke, opponentMove);
             }
 
             StateHasChanged();
@@ -400,9 +402,9 @@
                 }
                 else
                 {
-                    DoDamage(CurrentPoke, OpponentPoke, move);
                     if (IsCoolDownMove(move))
                         PlayerSkipNextTurn = true;
+                    DoDamage(CurrentPoke, OpponentPoke, move);
                 }
             }
             else
@@ -421,9 +423,9 @@
             }
             else
             {
-                DoDamage(CurrentPoke, OpponentPoke, move);
                 if (IsCoolDownMove(move))
                     PlayerSkipNextTurn = true;
+                DoDamage(CurrentPoke, OpponentPoke, move);
             }
 
             var dead = OpponentPoke.ActingHP <= 0;
@@ -436,9 +438,9 @@
                 else
                 {
                     var opponentMove = OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)];
-                    DoDamage(OpponentPoke, CurrentPoke, opponentMove); // opponent last
                     if (IsCoolDownMove(opponentMove))
                         OpponentSkipNextTurn = true;
+                    DoDamage(OpponentPoke, CurrentPoke, opponentMove);
                 }
 
                 if (CurrentPoke.ActingHP <= 0)
@@ -461,7 +463,6 @@
     {
         if (!Opponent.Team.Lineup.Any(p => p.ActingHP > 0))
         {
-            Trainer.HighScore = Opponent.HighScore + 1000;
             Task.Run(() => Poke.UpdateScore(client, Trainer));
             UpdateMessage($"{OpponentPoke} fainted!");
             BattlePosition--;
@@ -471,6 +472,7 @@
         }
         else
         {
+            OpponentSkipNextTurn = false;
             OpponentPoke = Opponent.Team.Lineup.First(p => p.ActingHP > 0);
         }
     }
@@ -636,11 +638,16 @@
                 }
                 else
                 {
+                    if (CurrentPoke.ActingHP <= 0)
+                    {
+                        PlayerSkipNextTurn = false;
+                    }
+                    else PlayerSkipNextTurn = true;
+
                     CurrentPoke = pokemon;
 
                     UpdateBattleStatus("You have selected " + CurrentPoke.Name);
                     selectPokemon = false;
-                    PlayerSkipNextTurn = true;
                 }
             }
         }
@@ -648,8 +655,8 @@
 
     private void Win()
     {
+        Trainer.HighScore = Opponent.HighScore + 1000;
         Console.WriteLine("Win");
-        // update trainer Highscore
         navMan.NavigateTo("scoreboard");
     }
 
@@ -657,7 +664,6 @@
     {
         Trainer.HighScore = Opponent.HighScore - 10;
         Task.Run(() => Poke.UpdateScore(client, Trainer));
-        // update trainer highscores
         navMan.NavigateTo("scoreboard");
     }
 
@@ -749,7 +755,6 @@
 
             SetupOpponent();
         }
-
         Loading = false;
     }
 }
