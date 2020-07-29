@@ -32,6 +32,7 @@
     <audio id="routeMusic" src="/media/PokemonRedRoute1.mp3" />
     <audio id="trainerMusic" src="/media/PokemonRedPokemonCenter.mp3" />
     <audio id="rivalMusic" src="/media/PokemonRedRival.mp3" />
+    <audio id="pikachu" src="/media/Pikachu.mp3" />
     <script>
         function PlayMusic(id) {
             PauseMusic();
@@ -47,6 +48,10 @@
             document.getElementById('routeMusic').pause();
             document.getElementById('trainerMusic').pause();
             document.getElementById('rivalMusic').pause();
+        }
+
+        function PlayPikachuSound() {
+            document.getElementById('pikachu').play();
         }
     </script>
 
