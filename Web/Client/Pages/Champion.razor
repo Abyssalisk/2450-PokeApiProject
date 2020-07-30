@@ -9,17 +9,26 @@
 
 <p>This is the current PokeManz league champion to beat with the respective lineup</p>
 <br />
-<TrainerInfoComponent Trainer="@ChampionInfo" ShowLineups="true"></TrainerInfoComponent>
+@if (Loading)
+{
+    <LoadingComponent />
+}
+else
+{
+    <TrainerInfoComponent Trainer="@ChampionInfo" ShowLineups="true"></TrainerInfoComponent>
+}
 
 @code {
 
     private TrainerModel ChampionInfo = new TrainerModel();
     public PokemonService Poke { get; set; }
     public AuthService Auth { get; set; }
+    private bool Loading { get; set; }
 
 
     protected override void OnInitialized()
     {
+        Loading = true;
         Poke = new PokemonService();
         Auth = new AuthService();
         JSRuntime.InvokeAsync<string>("PlayMusic", "rivalMusic");
@@ -37,9 +46,10 @@
             var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
             ChampionInfo = championAndElite4.First();
 
-            //show only the team used for league on champion info page, doesn't save 
+            //show only the team used for league on champion info page, doesn't save
             ChampionInfo.Lineups.Clear();
             ChampionInfo.Lineups.Add(ChampionInfo.Team);
         }
+        Loading = false;
     }
 }

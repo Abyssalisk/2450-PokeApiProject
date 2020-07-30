@@ -11,12 +11,18 @@
     }
     else
     {
+        var trainersLeft = BattlePosition + 1;
+
         if (!confirmOpponent)
         {
-            <h3>Your next opponent is: <strong>@(Opponent.Handle)</strong></h3>
-            <div>
-                <TeamInfoComponent Team="@Opponent.Team"></TeamInfoComponent>
-            </div>
+            <h3 class="text-center">You have challenged the elite 4! </h3>
+            <br />
+            <p class="text-center">Strong Pokemanz.<br /><br />Weak Pokemanz.<br /><br />That is only the selfish perception of people.<br /><br />Truly skilled trainers should try to win with their favorites.</p>
+            <br />
+            <h3 class="text-center">Your next opponent is: <strong>@(Opponent.Handle)</strong></h3>
+            <h3 class="text-center">Remaining Trainers to defeat: @trainersLeft</h3>
+            <br />
+            <TeamInfoComponent Team="@Opponent.Team"></TeamInfoComponent>
 
             lineupLoaded = true;
             if (lineupLoaded)
@@ -38,19 +44,21 @@
             {
                 if (selectPokemon)
                 {
-                    <p>Please select a Pokemon to use:</p>
-
-                    @foreach (var pokemon in Trainer.Team.Lineup.Where(x => x.IsAlive))
-                    {
-                        <button class="btn btn-light m-1" @onclick="(() => PokemonSelected(pokemon.Id))">
-                            <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
-                        </button>
-                    }
+                    <p>Please select a Pokeman to use:</p>
+                    <div class="row">
+                        @foreach (var pokemon in Trainer.Team.Lineup.Where(x => x.IsAlive))
+                        {
+                            <div class="col-md-4">
+                                <button class="btn btn-light m-1" style="width: 100%; background-color: transparent;" @onclick="(() => PokemonSelected(pokemon.Id))">
+                                    <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
+                                </button>
+                            </div>
+                        }
+                    </div>
                 }
                 else
                 {
-                    <p>Commence battle!!</p>
-                    <div class="container-fluid" style="max-width:500px">
+                    <div class="container-fluid" style="max-width:800px">
                         <div class="row">
                             <div class="col">
                                 <div class="battle-status opponent">
@@ -61,13 +69,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col">
-                                <img src="@(OpponentPoke.FrontImageUri)" />
+                            <div class="col text-center">
+                                <img src="@(OpponentPoke.FrontImageUri)" style="height: 25vh; width: 25vh;" />
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row text-center">
                             <div class="col">
-                                <img src="@(CurrentPoke.BackImageUri)" />
+                                <img src="@(CurrentPoke.BackImageUri)" style="height: 25vh; width: 25vh;" />
                             </div>
                             <div class="col">
                                 <div class="battle-status trainer">
@@ -167,6 +175,7 @@
     {
         confirmOpponent = true;
         lineupLoaded = false;
+        JSRuntime.InvokeAsync<string>("PlayMusic", "battleMusic");
     }
 
     private void SetupNotEffectiveMap()
@@ -495,13 +504,14 @@
 
             if (IsCoolDownMove(m))
             {
-                if (damage > CurrentPoke.ActingHP)
+                if ((damage > CurrentPoke.ActingHP) || (OpponentPoke.ActingHP < OpponentPoke.BaseHP / 3)
+                || ((OpponentPoke.ActingHP < OpponentPoke.BaseHP / 2) && (CurrentPoke.Speed > OpponentPoke.Speed)))
                 {
-                    // don't change damage, it's worth it
-                }
+                // don't change damage, it's worth it
+            }
                 else
                     damage = damage / 2; // half the damage because you're using 2 turns and expect to live the 2 turns
-            }
+        }
 
             if (damage > bestMove.Item1)
             {
@@ -509,7 +519,7 @@
             }
         });
 
-        Console.WriteLine(bestMove.Item2.Name + " is the best move");
+        //Console.WriteLine(bestMove.Item2.Name + " is the best move");
         return bestMove.Item2;
 
         // 20% chance for random move intead of best move
@@ -556,7 +566,9 @@
             if (OpponentExplosion)
             {
                 OpponentExplosion = false;
-                UpdateMessage($"{OpponentPoke.Name} exploded."); // do -1 here in index
+                //UpdateMessage($"{Opponent.Team.Lineup[OpponentPoke].in} exploded."); // do -1 here in index
+                var index = Opponent.Team.Lineup.IndexOf(OpponentPoke) - 1;
+                UpdateMessage($"{Opponent.Team.Lineup[index].Name} fainted."); // do -1 here in index
             }
             else
             {
@@ -770,6 +782,8 @@
         }
         else
         {
+            if (BattlePosition < 4) JSRuntime.InvokeAsync<string>("PlayMusic", "victoryMusic");
+
             Opponent = Elite4AndChampion[BattlePosition];
             Opponent.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
             Trainer.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
@@ -823,7 +837,7 @@
     protected override void OnInitialized()
     {
         JSRuntime.InvokeAsync<string>
-            ("PlayMusic", "battleMusic");
+            ("PlayMusic", "elite4Music");
         Poke = new PokemonService();
         Auth = new AuthService();
         Rand = new Random();

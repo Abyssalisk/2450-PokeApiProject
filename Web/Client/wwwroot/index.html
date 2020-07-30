@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <app>Loading...</app>
+    <app>Your Pokemanz adventure awaits...</app>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
@@ -33,10 +33,14 @@
     <audio id="trainerMusic" src="/media/PokemonRedPokemonCenter.mp3" />
     <audio id="rivalMusic" src="/media/PokemonRedRival.mp3" />
     <audio id="pikachu" src="/media/Pikachu.mp3" />
+    <audio id="route2Music" src="/media/PokemonRedRoute2.mp3" />
+    <audio id="victoryMusic" src="/media/PokemonRedVictory.mp3" />
+    <audio id="elite4Music" src="/media/PokemonRedElite4.mp3" />
     <script>
         function PlayMusic(id) {
             PauseMusic();
             document.getElementById(id).loop = true;
+            document.getElementById(id).currentTime = 0;
             document.getElementById(id).play();
         }
 
@@ -48,6 +52,9 @@
             document.getElementById('routeMusic').pause();
             document.getElementById('trainerMusic').pause();
             document.getElementById('rivalMusic').pause();
+            document.getElementById('route2Music').pause();
+            document.getElementById('victoryMusic').pause();
+            document.getElementById('elite4Music').pause();
         }
 
         function PlayPikachuSound() {
