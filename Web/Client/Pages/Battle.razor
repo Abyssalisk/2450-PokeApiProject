@@ -567,7 +567,7 @@
             {
                 OpponentExplosion = false;
                 //UpdateMessage($"{Opponent.Team.Lineup[OpponentPoke].in} exploded."); // do -1 here in index
-                var index = Opponent.Team.Lineup.IndexOf(OpponentPoke) - 1;
+                var index = Opponent.Team.Lineup.IndexOf(OpponentPoke);// - 1;
                 UpdateMessage($"{Opponent.Team.Lineup[index].Name} fainted."); // do -1 here in index
             }
             else
