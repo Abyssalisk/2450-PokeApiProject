@@ -5,6 +5,11 @@
 @using Web.Client.Components
 @if (Loading)
 {
+    @foreach (var m in LoadingMessage)
+    {
+        <h5 class="text-center">@m</h5>
+    }
+    <br />
     <LoadingComponent />
 }
 else
@@ -22,7 +27,7 @@ else
     {
         <h5 class="text-center">Select up to 6 Pokemon and then click Continue to Moves</h5>
         <div class="text-center">
-        <button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button> <span><b style="color: @CheckedCountColor()">Selected: @PokemonNameCheckedCount / 6</b></span>
+            <button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button> <span><b style="color: @CheckedCountColor()">Selected: @PokemonNameCheckedCount / 6</b></span>
         </div>
         <br />
         <br />
@@ -87,9 +92,9 @@ else
                                             <option selected>select a move</option>
                                             @foreach (var m in p.Moves)
                                                                 {
-                                        <option value="@m.Name">
-                                            @PascalCaseName(@m.Name) (Type: @PascalCaseName(@m.Type) - Damage: @m.Damage - @m.Category)
-                                        </option>
+                                                <option value="@m.Name">
+                                                    @PascalCaseName(@m.Name) (Type: @PascalCaseName(@m.Type) - Damage: @m.Damage - @m.Category)
+                                                </option>
                                                                 }
                                         </InputSelect>
                                     </div>
@@ -131,6 +136,7 @@ else
     private bool MayContinue { get; set; }
     private bool Loading { get; set; }
     private bool ErrorSavingMoves { get; set; }
+    private List<string> LoadingMessage { get; set; } = new List<string>();
 
 
     protected override async Task OnParametersSetAsync()
@@ -157,8 +163,13 @@ else
 
     private async Task GenPokemon()
     {
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        System.Diagnostics.Stopwatch sw2 = new System.Diagnostics.Stopwatch();
+        sw.Start();
+        sw2.Start();
+
         Loading = true;
-        if (PokemonNames.Count(n => n.Checked == true) >= 1) // == 6)
+        if (PokemonNames.Count(n => n.Checked == true) >= 1) // == 6) // six is optional
         {
             MayContinue = true;
 
@@ -168,11 +179,23 @@ else
 
             for (int i = 0; i < names.Length; i++)
             {
-
                 var pokemon = await Poke.GetPokemonByName(client, names[i]);
+
+                var message = $"Loaded {pokemon.Name} at {sw.Elapsed}";
+                Console.WriteLine(message);
+                LoadingMessage.Add($"{message}");
+                StateHasChanged();
+
                 pokemon.MoveSelections = new List<MoveModel>() { new MoveModel(), new MoveModel(), new MoveModel(), new MoveModel() };
                 PokemonSelections.Add(pokemon);
+                sw.Reset();
+                sw.Start();
             }
+
+            sw2.Stop();
+            sw.Stop();
+            Console.WriteLine("Total load time elapsed={0}", sw2.Elapsed);
+            LoadingMessage.Add($"Total load time elapsed={sw2.Elapsed}");
 
             PokemonGenDone = true;
             Loading = false;
@@ -196,14 +219,14 @@ else
                 var move = p.Moves.Where(s => s.Name == p.MoveSelections[i].Name).Select(s => s).FirstOrDefault();
 
                 if (p.MoveSelections.Contains(move) && p.MoveSelections[i].Id <= 0 && p.Moves.Count > 3) // 3 means at least one move must be a duplicate
-                {
+            {
                     ErrorSavingMoves = true;
                 }
                 else
                 {
                     p.MoveSelections[i] = move;
                     p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
-                }
+            }
             }
         });
 
@@ -212,7 +235,7 @@ else
             PokemonSelections.ForEach(p =>
             {
                 p.Moves.Clear(); // garbage clean up
-            });
+        });
         }
     }
 
