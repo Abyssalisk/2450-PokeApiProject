@@ -124,6 +124,9 @@
     private bool selectPokemon { get; set; } = false;
     private bool lineupLoaded { get; set; } = false;
     private bool Loading { get; set; } = true;
+    private bool PlayerExplosion { get; set; } = false;
+    private bool OpponentExplosion { get; set; } = false;
+    private bool NewOpponent { get; set; } = false;
 
     // type map for damage, keeps track of types that are half effective
     private Dictionary<string, List<string>> HalfEffectiveMap { get; set; }
@@ -385,11 +388,18 @@
             {
                 // modifiers, typing, random move?, etc
                 var opponentMove = GenOpponentMove(OpponentPoke.MoveSelections);
+
                 if (IsCoolDownMove(opponentMove))
                     OpponentSkipNextTurn = true;
+
                 DoDamage(OpponentPoke, CurrentPoke, opponentMove);
+
+                // explosion!!!
                 if (OpponentPoke.ActingHP <= 0)
-                    OpponentPokeDead(); // explosion!!!
+                {
+                    OpponentExplosion = true;
+                    PlayerSkipNextTurn = true;
+                }
             }
 
             StateHasChanged();
@@ -406,7 +416,9 @@
                 {
                     if (IsCoolDownMove(move))
                         PlayerSkipNextTurn = true;
-                    DoDamage(CurrentPoke, OpponentPoke, move);
+
+                    if (OpponentPoke.ActingHP > 0)
+                        DoDamage(CurrentPoke, OpponentPoke, move);
                 }
             }
             else
@@ -427,6 +439,7 @@
             {
                 if (IsCoolDownMove(move))
                     PlayerSkipNextTurn = true;
+
                 DoDamage(CurrentPoke, OpponentPoke, move);
             }
 
@@ -440,15 +453,23 @@
                 else
                 {
                     var opponentMove = GenOpponentMove(OpponentPoke.MoveSelections);
+
                     if (IsCoolDownMove(opponentMove))
                         OpponentSkipNextTurn = true;
+
                     DoDamage(OpponentPoke, CurrentPoke, opponentMove);
                 }
 
                 if (CurrentPoke.ActingHP <= 0)
                     selectPokemon = true;
+
+                // explosion!!!
                 if (OpponentPoke.ActingHP <= 0)
-                    OpponentPokeDead(); // explosion!!!
+                {
+                    OpponentPokeDead();
+                    OpponentExplosion = true;
+                    PlayerSkipNextTurn = true;
+                }
             }
             else
             {
@@ -467,20 +488,19 @@
     {
         Tuple<int, MoveModel> bestMove = new Tuple<int, MoveModel>(0, null);
 
-        moves.ForEach(m => {
+        moves.ForEach(m =>
+        {
             var damage = m.Damage;
             damage = AddDamageModifiers(damage, m, CurrentPoke, OpponentPoke.Types.Any(t => t.Name == m.Type));
 
-            if (IsCoolDownMove(m) && (CurrentPoke.ActingHP > CurrentPoke.BaseHP * 0.5)
-                || IsCoolDownMove(m) && OpponentPoke.ActingHP < OpponentPoke.BaseHP * 0.5
-                && OpponentPoke.Speed > CurrentPoke.Speed) // only use recharge moves if opponent has a lot of health left and as a last shot before dying
+            if (IsCoolDownMove(m))
             {
-                // go ahead and do the recharge move, it's worth it
-                Console.WriteLine($"{m.Name} is worth it");
-            }
-            else if (IsCoolDownMove(m)) // consider what's better if expected to live two more turns
-            {
-                damage = damage / 2; //sometimes it's better to take the lower hitting move to get more out of it
+                if (damage > CurrentPoke.ActingHP)
+                {
+                    // don't change damage, it's worth it
+                }
+                else
+                    damage = damage / 2; // half the damage because you're using 2 turns and expect to live the 2 turns
             }
 
             if (damage > bestMove.Item1)
@@ -489,7 +509,7 @@
             }
         });
 
-        Console.WriteLine(bestMove.Item2.Name + "is the best move");
+        Console.WriteLine(bestMove.Item2.Name + " is the best move");
         return bestMove.Item2;
 
         // 20% chance for random move intead of best move
@@ -518,12 +538,31 @@
     {
         if (pokemon == OpponentPoke)
         {
-            UpdateMessage($"{OpponentPoke.Name} is recharging.");
+            if (PlayerExplosion)
+            {
+                PlayerExplosion = false;
+                UpdateMessage($"{CurrentPoke.Name} exploded.");
+            }
+            else
+            {
+                UpdateMessage($"{OpponentPoke.Name} is recharging.");
+            }
+
             OpponentSkipNextTurn = false;
+
         }
         else
         {
-            UpdateMessage($"{CurrentPoke.Name} is recharging.");
+            if (OpponentExplosion)
+            {
+                OpponentExplosion = false;
+                UpdateMessage($"{OpponentPoke.Name} exploded."); // do -1 here in index
+            }
+            else
+            {
+                UpdateMessage($"{CurrentPoke.Name} is recharging.");
+            }
+
             PlayerSkipNextTurn = false;
         }
     }
@@ -563,7 +602,19 @@
         }
 
         if (IsSelfDestructiveMove(move))
+        {
             attackingPoke.ActingHP = 0;
+
+            if (attackingPoke != CurrentPoke)
+            {
+                OpponentExplosion = true;
+
+                if (!Opponent.Team.Lineup.Any(p => p.ActingHP > 0))
+                    PlayerSkipNextTurn = true;
+            }
+            else PlayerExplosion = true;
+
+        }
 
     }
 
@@ -581,7 +632,8 @@
         if (afflictedPokemon.NotEffectiveTypes == null)
         {
             afflictedPokemon.Types = afflictedPokemon.Types.Where(t => !string.IsNullOrEmpty(t.Name)).ToList();
-            afflictedPokemon.NotEffectiveTypes = new List<string>();
+            afflictedPokemon.NotEffectiveTypes = new List<string>
+    ();
 
             afflictedPokemon.Types.ForEach(t =>
             {
@@ -728,12 +780,15 @@
             //champion
             if (BattlePosition == 0)
             {
-                JSRuntime.InvokeAsync<string>("PlayMusic", "championMusic");
-                battleStatus = new List<string>() { $"Champion {Opponent.Handle} challenges you to a battle. " +
-                    $"I am the Pokemanz League Champion! Do you know what that means? I'll tell you! I am the most powerful trainer in the world!" };
+                JSRuntime.InvokeAsync<string>
+                    ("PlayMusic", "championMusic");
+                battleStatus = new List<string>
+                    () { $"Champion {Opponent.Handle} challenges you to a battle. " +
+            $"I am the Pokemanz League Champion! Do you know what that means? I'll tell you! I am the most powerful trainer in the world!" };
             }
             else
-                battleStatus = new List<string>() { $"Trainer {Opponent.Handle} challenges you to a battle." };
+                battleStatus = new List<string>
+                    () { $"Trainer {Opponent.Handle} challenges you to a battle." };
         }
     }
 
@@ -767,7 +822,8 @@
 
     protected override void OnInitialized()
     {
-        JSRuntime.InvokeAsync<string>("PlayMusic", "battleMusic");
+        JSRuntime.InvokeAsync<string>
+            ("PlayMusic", "battleMusic");
         Poke = new PokemonService();
         Auth = new AuthService();
         Rand = new Random();
