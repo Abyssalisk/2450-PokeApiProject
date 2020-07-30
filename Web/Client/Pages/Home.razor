@@ -23,6 +23,7 @@
 
     private void Start()
     {
+        JSRuntime.InvokeAsync<string>("PlayPikachuSound");
         navMan.NavigateTo("login");
     }
 }

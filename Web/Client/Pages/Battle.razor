@@ -11,12 +11,18 @@
     }
     else
     {
+        var trainersLeft = BattlePosition + 1;
+
         if (!confirmOpponent)
         {
-            <h3>Your next opponent is: <strong>@(Opponent.Handle)</strong></h3>
-            <div>
-                <TeamInfoComponent Team="@Opponent.Team"></TeamInfoComponent>
-            </div>
+            <h3 class="text-center">You have challenged the elite 4! </h3>
+            <br />
+            <p class="text-center">Strong Pokemanz.<br /><br />Weak Pokemanz.<br /><br />That is only the selfish perception of people.<br /><br />Truly skilled trainers should try to win with their favorites.</p>
+            <br />
+            <h3 class="text-center">Your next opponent is: <strong>@(Opponent.Handle)</strong></h3>
+            <h3 class="text-center">Remaining Trainers to defeat: @trainersLeft</h3>
+            <br />
+            <TeamInfoComponent Team="@Opponent.Team"></TeamInfoComponent>
 
             lineupLoaded = true;
             if (lineupLoaded)
@@ -38,19 +44,21 @@
             {
                 if (selectPokemon)
                 {
-                    <p>Please select a Pokemon to use:</p>
-
-                    @foreach (var pokemon in Trainer.Team.Lineup.Where(x => x.IsAlive))
-                    {
-                        <button class="btn btn-light m-1" @onclick="(() => PokemonSelected(pokemon.Id))">
-                            <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
-                        </button>
-                    }
+                    <p>Please select a Pokeman to use:</p>
+                    <div class="row">
+                        @foreach (var pokemon in Trainer.Team.Lineup.Where(x => x.IsAlive))
+                        {
+                            <div class="col-md-4">
+                                <button class="btn btn-light m-1" style="width: 100%; background-color: transparent;" @onclick="(() => PokemonSelected(pokemon.Id))">
+                                    <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
+                                </button>
+                            </div>
+                        }
+                    </div>
                 }
                 else
                 {
-                    <p>Commence battle!!</p>
-                    <div class="container-fluid" style="max-width:500px">
+                    <div class="container-fluid" style="max-width:800px">
                         <div class="row">
                             <div class="col">
                                 <div class="battle-status opponent">
@@ -61,13 +69,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col">
-                                <img src="@(OpponentPoke.FrontImageUri)" />
+                            <div class="col text-center">
+                                <img src="@(OpponentPoke.FrontImageUri)" style="height: 25vh; width: 25vh;" />
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row text-center">
                             <div class="col">
-                                <img src="@(CurrentPoke.BackImageUri)" />
+                                <img src="@(CurrentPoke.BackImageUri)" style="height: 25vh; width: 25vh;" />
                             </div>
                             <div class="col">
                                 <div class="battle-status trainer">
@@ -124,6 +132,9 @@
     private bool selectPokemon { get; set; } = false;
     private bool lineupLoaded { get; set; } = false;
     private bool Loading { get; set; } = true;
+    private bool PlayerExplosion { get; set; } = false;
+    private bool OpponentExplosion { get; set; } = false;
+    private bool NewOpponent { get; set; } = false;
 
     // type map for damage, keeps track of types that are half effective
     private Dictionary<string, List<string>> HalfEffectiveMap { get; set; }
@@ -164,6 +175,7 @@
     {
         confirmOpponent = true;
         lineupLoaded = false;
+        JSRuntime.InvokeAsync<string>("PlayMusic", "battleMusic");
     }
 
     private void SetupNotEffectiveMap()
@@ -384,10 +396,19 @@
             else
             {
                 // modifiers, typing, random move?, etc
-                var opponentMove = OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)];
+                var opponentMove = GenOpponentMove(OpponentPoke.MoveSelections);
+
                 if (IsCoolDownMove(opponentMove))
                     OpponentSkipNextTurn = true;
+
                 DoDamage(OpponentPoke, CurrentPoke, opponentMove);
+
+                // explosion!!!
+                if (OpponentPoke.ActingHP <= 0)
+                {
+                    OpponentExplosion = true;
+                    PlayerSkipNextTurn = true;
+                }
             }
 
             StateHasChanged();
@@ -404,7 +425,9 @@
                 {
                     if (IsCoolDownMove(move))
                         PlayerSkipNextTurn = true;
-                    DoDamage(CurrentPoke, OpponentPoke, move);
+
+                    if (OpponentPoke.ActingHP > 0)
+                        DoDamage(CurrentPoke, OpponentPoke, move);
                 }
             }
             else
@@ -425,6 +448,7 @@
             {
                 if (IsCoolDownMove(move))
                     PlayerSkipNextTurn = true;
+
                 DoDamage(CurrentPoke, OpponentPoke, move);
             }
 
@@ -437,14 +461,24 @@
                 }
                 else
                 {
-                    var opponentMove = OpponentPoke.MoveSelections.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)];
+                    var opponentMove = GenOpponentMove(OpponentPoke.MoveSelections);
+
                     if (IsCoolDownMove(opponentMove))
                         OpponentSkipNextTurn = true;
+
                     DoDamage(OpponentPoke, CurrentPoke, opponentMove);
                 }
 
                 if (CurrentPoke.ActingHP <= 0)
                     selectPokemon = true;
+
+                // explosion!!!
+                if (OpponentPoke.ActingHP <= 0)
+                {
+                    OpponentPokeDead();
+                    OpponentExplosion = true;
+                    PlayerSkipNextTurn = true;
+                }
             }
             else
             {
@@ -457,6 +491,39 @@
         {
             Lose();
         }
+    }
+
+    private MoveModel GenOpponentMove(List<MoveModel> moves)
+    {
+        Tuple<int, MoveModel> bestMove = new Tuple<int, MoveModel>(0, null);
+
+        moves.ForEach(m =>
+        {
+            var damage = m.Damage;
+            damage = AddDamageModifiers(damage, m, CurrentPoke, OpponentPoke.Types.Any(t => t.Name == m.Type));
+
+            if (IsCoolDownMove(m))
+            {
+                if ((damage > CurrentPoke.ActingHP) || (OpponentPoke.ActingHP < OpponentPoke.BaseHP / 3)
+                || ((OpponentPoke.ActingHP < OpponentPoke.BaseHP / 2) && (CurrentPoke.Speed > OpponentPoke.Speed)))
+                {
+                // don't change damage, it's worth it
+            }
+                else
+                    damage = damage / 2; // half the damage because you're using 2 turns and expect to live the 2 turns
+        }
+
+            if (damage > bestMove.Item1)
+            {
+                bestMove = new Tuple<int, MoveModel>(damage, m);
+            }
+        });
+
+        //Console.WriteLine(bestMove.Item2.Name + " is the best move");
+        return bestMove.Item2;
+
+        // 20% chance for random move intead of best move
+        //return Rand.Next(0, 9) < 2 ? moves.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)] : bestMove.Item2;
     }
 
     private void OpponentPokeDead()
@@ -481,12 +548,33 @@
     {
         if (pokemon == OpponentPoke)
         {
-            UpdateMessage($"{OpponentPoke.Name} is recharging.");
+            if (PlayerExplosion)
+            {
+                PlayerExplosion = false;
+                UpdateMessage($"{CurrentPoke.Name} exploded.");
+            }
+            else
+            {
+                UpdateMessage($"{OpponentPoke.Name} is recharging.");
+            }
+
             OpponentSkipNextTurn = false;
+
         }
         else
         {
-            UpdateMessage($"{CurrentPoke.Name} is recharging.");
+            if (OpponentExplosion)
+            {
+                OpponentExplosion = false;
+                //UpdateMessage($"{Opponent.Team.Lineup[OpponentPoke].in} exploded."); // do -1 here in index
+                var index = Opponent.Team.Lineup.IndexOf(OpponentPoke) - 1;
+                UpdateMessage($"{Opponent.Team.Lineup[index].Name} fainted."); // do -1 here in index
+            }
+            else
+            {
+                UpdateMessage($"{CurrentPoke.Name} is recharging.");
+            }
+
             PlayerSkipNextTurn = false;
         }
     }
@@ -526,7 +614,20 @@
         }
 
         if (IsSelfDestructiveMove(move))
+        {
             attackingPoke.ActingHP = 0;
+
+            if (attackingPoke != CurrentPoke)
+            {
+                OpponentExplosion = true;
+
+                if (!Opponent.Team.Lineup.Any(p => p.ActingHP > 0))
+                    PlayerSkipNextTurn = true;
+            }
+            else PlayerExplosion = true;
+
+        }
+
     }
 
     private int AddDamageModifiers(int damage, MoveModel move, PokemonModel afflictedPokemon, bool isStab)
@@ -543,7 +644,8 @@
         if (afflictedPokemon.NotEffectiveTypes == null)
         {
             afflictedPokemon.Types = afflictedPokemon.Types.Where(t => !string.IsNullOrEmpty(t.Name)).ToList();
-            afflictedPokemon.NotEffectiveTypes = new List<string>();
+            afflictedPokemon.NotEffectiveTypes = new List<string>
+    ();
 
             afflictedPokemon.Types.ForEach(t =>
             {
@@ -617,7 +719,7 @@
     {
         Trainer.HighScore = Opponent.HighScore - 10;
         Task.Run(() => Poke.UpdateScore(client, Trainer));
-        navMan.NavigateTo("home");
+        navMan.NavigateTo("scoreboard");
     }
 
     private void SelectPokemon()
@@ -680,20 +782,27 @@
         }
         else
         {
+            if (BattlePosition < 4) JSRuntime.InvokeAsync<string>("PlayMusic", "victoryMusic");
+
             Opponent = Elite4AndChampion[BattlePosition];
             Opponent.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
             Trainer.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
             OpponentPoke = Opponent.Team.Lineup.FirstOrDefault();
+            OpponentSkipNextTurn = false;
+            PlayerSkipNextTurn = false;
 
             //champion
             if (BattlePosition == 0)
             {
-                JSRuntime.InvokeAsync<string>("PlayMusic", "championMusic");
-                battleStatus = new List<string>() { $"Champion {Opponent.Handle} challenges you to a battle. " +
-                    $"I am the Pokemanz League Champion! Do you know what that means? I'll tell you! I am the most powerful trainer in the world!" };
+                JSRuntime.InvokeAsync<string>
+                    ("PlayMusic", "championMusic");
+                battleStatus = new List<string>
+                    () { $"Champion {Opponent.Handle} challenges you to a battle. " +
+            $"I am the Pokemanz League Champion! Do you know what that means? I'll tell you! I am the most powerful trainer in the world!" };
             }
             else
-                battleStatus = new List<string>() { $"Trainer {Opponent.Handle} challenges you to a battle." };
+                battleStatus = new List<string>
+                    () { $"Trainer {Opponent.Handle} challenges you to a battle." };
         }
     }
 
@@ -727,7 +836,8 @@
 
     protected override void OnInitialized()
     {
-        JSRuntime.InvokeAsync<string>("PlayMusic", "battleMusic");
+        JSRuntime.InvokeAsync<string>
+            ("PlayMusic", "elite4Music");
         Poke = new PokemonService();
         Auth = new AuthService();
         Rand = new Random();
