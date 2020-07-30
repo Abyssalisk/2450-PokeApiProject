@@ -65,15 +65,17 @@
     <script>
         function WriteCookie(name, value, days) {
             var expires;
+            var samesite;
             if (days) {
                 var date = new Date();
                 date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
                 expires = "; expires=" + date.toGMTString();
+                samesite = "; SameSite=None; Secure";
             }
             else {
                 expires = "";
             }
-            document.cookie = name + "=" + value + expires + "; path=/";
+            document.cookie = name + "=" + value + expires + samesite + "; path=/";
         }
 
         function GetCookie(name) {
