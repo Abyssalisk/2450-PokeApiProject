@@ -103,8 +103,19 @@ namespace Web.Server.Classes
             }
         }
 
-        public MySqlDataReader ExposeQuery(string query, out Action disposeCallback)
+        /// <summary>
+        /// Exposes the internal connection to make custom queries. (Make sure to parameterize and mitigate SQL injections).
+        /// </summary>
+        /// <param name="query">The query to run</param>
+        /// <param name="disposeCallback">Callback to call when you're done with all query resources. (When you're done with MySqlDataReader, call this method)</param>
+        /// <returns>Data reader for the query.</returns>
+        public MySqlDataReader ExposeQuery(MySqlCommand query, out Action disposeCallback)
         {
+            if (query == null)
+            {
+                disposeCallback = null;
+                return null;
+            }
             if (!performingSequentialQuery)
             {
                 MyConnection.Open();
@@ -113,17 +124,20 @@ namespace Web.Server.Classes
             disposeCallback = () =>
             {
                 reader?.Close();
-                reader?.Dispose();
+                reader?.DisposeAsync();
+                query?.DisposeAsync();
                 if (!performingSequentialQuery)
                 {
                     MyConnection.Close();
                 }
             };
-            using (MySqlCommand command = new MySqlCommand(query))
-            {
-                command.Connection = MyConnection;
-                return command.ExecuteReader();
-            }
+            query.Connection = MyConnection;
+            return reader = query.ExecuteReader();
+            //using (MySqlCommand command = new MySqlCommand(query))
+            //{
+            //    command.Connection = MyConnection;
+            //    return reader = command.ExecuteReader();
+            //}
         }
 
         //public static class DBInterfaceConformanceFail
