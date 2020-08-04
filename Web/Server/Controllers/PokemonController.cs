@@ -18,6 +18,8 @@ using Web.Client;
 using System;
 using System.Net.Http;
 using System.Net;
+using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 
 namespace Web.Server.Controllers
 {
@@ -59,6 +61,15 @@ namespace Web.Server.Controllers
             return response;
         }
 
+        [HttpPost("score/update")] // https://localhost:44392/api/pokemon/lineup?trainername=srosy
+        public HttpResponseMessage UpdateScore([FromBody] TrainerModel trainer)
+        {
+            UpdateHighScore(trainer);
+            var response = new HttpResponseMessage();
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
+        }
+
         [HttpGet("trainer/{name}")] // https://localhost:44392/api/pokemon/trainer/srosy
         public TrainerModel GetTrainer(string name)
         {
@@ -74,6 +85,14 @@ namespace Web.Server.Controllers
             List<TrainerModel> elite4AndChampion = new List<TrainerModel>();
             elite4AndChampion = GetElite4AndChampion();
             return elite4AndChampion;
+        }
+
+        [HttpGet("trainer/topten")] // https://localhost:44392/api/pokemon/trainer/topten
+        public List<TrainerModel> GetTopTen()
+        {
+            List<TrainerModel> topTen = new List<TrainerModel>();
+            topTen = GetTopTenTrainers();
+            return topTen;
         }
 
         // GET api/<PokemonController>/name
@@ -100,9 +119,9 @@ namespace Web.Server.Controllers
         }
 
         [HttpGet("info/{uri}")] // can be used to get any additional info on types, moves, etc
-        public async Task<IDictionary<string, object>> GetInfo(string uri)
+        public IDictionary<string, object> GetInfo(string uri)
         {
-            var infoObj = await GetAdditionInfo(uri);
+            var infoObj = GetAdditionInfo(uri);
             return infoObj;
         }
 
@@ -110,88 +129,89 @@ namespace Web.Server.Controllers
         [HttpGet] // https://localhost:44392/api/pokemon?name=charizard
         public async Task<PokemonModel> GetPokemon([FromQuery] string name)
         {
-            var obj = await DataFetcher.GetNamedApiObject<Pokemon>(name.ToLower()); // wrapper can't handle any uppercase letters, wah wah
+            var client = new RestClient($"https://pokeapi.co/api/v2/pokemon/{name.ToLower()}");
+            var request = new RestRequest(Method.GET);
+            IRestResponse response = client.Execute(request);
+
+            dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(response.Content, new ExpandoObjectConverter());
+            //var obj = await DataFetcher.GetNamedApiObject<Pokemon>(name.ToLower()); // wrapper stopped working 7/29/2020
 
             // create PokemonModel from PokeApi.Pokemon
-            var pokemon = new PokemonModel()
-            {
-                Id = obj.ID,
-                Name = obj.Name,
-                BackImageUri = obj.Sprites.BackMale,
-                FrontImageUri = obj.Sprites.FrontMale,
+            var pokemon = new PokemonModel();
+            pokemon.Id = Convert.ToInt32(obj.id);
+            pokemon.Name = obj.name.ToString();
+            pokemon.BackImageUri = obj.sprites.back_default.ToString();
+            pokemon.FrontImageUri = obj.sprites.front_default.ToString();
 
-                BaseHP = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("hp")).Select(s => s.BaseValue).FirstOrDefault() * 10,
-                ActingHP = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("hp")).Select(s => s.BaseValue).FirstOrDefault() * 10,
-                Attack = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("attack")).Select(s => s.BaseValue).FirstOrDefault(),
-                Defense = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("defense")).Select(s => s.BaseValue).FirstOrDefault(),
-                SpecialAttack = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("special-attack")).Select(s => s.BaseValue).FirstOrDefault(),
-                SpecialDefense = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("special-defense")).Select(s => s.BaseValue).FirstOrDefault(),
-                Speed = obj.Stats.Where(s => s.Stat.Name.ToLower().Equals("speed")).Select(s => s.BaseValue).FirstOrDefault()
-            };
+            //0 hp, 1 attack, 2 defense, 3 special attack, 4 special defense, 5 speed
+            pokemon.BaseHP = (int)obj.stats[0].base_stat * 5;
+            pokemon.ActingHP = (int)pokemon.BaseHP;
+            pokemon.Attack = (int)obj.stats[1].base_stat;
+            pokemon.Defense = (int)obj.stats[2].base_stat;
+            pokemon.SpecialAttack = (int)obj.stats[3].base_stat;
+            pokemon.SpecialDefense = (int)obj.stats[4].base_stat;
+            pokemon.Speed = (int)obj.stats[5].base_stat;
 
-            // add list of available moves to pokemon
-            obj.Moves.Select(m => m.Move).ToList().ForEach(m =>
-            {
-                pokemon.Moves.Add(
-                    new MoveModel()
-                    {
-                        Name = m.Name,
-                        ResourceUri = m.Url.AbsoluteUri.ToString()
-                    });
-            });
-
-            Dictionary<string, Task<IDictionary<string, object>>> gets = new Dictionary<string, Task<IDictionary<string, object>>>();
-
-            pokemon.Moves.ForEach(x => 
-            { 
-                if (!gets.ContainsKey(x.ResourceUri)) 
-                { 
-                    gets.Add(x.ResourceUri, GetAdditionInfo(x.ResourceUri)); 
-                } 
-            });
-
-            //Task.WaitAll(gets.Values.ToArray());
-            while (true)
-            {
-                uint iterates = 0;
-                const uint tryTime = 100; //in 10ths of second 100 = 10 seconds.
-                if (gets.Values.All(x => x.IsCompleted) || iterates >= tryTime)
-                {
-                    break;
-                }
-                else
-                {
-                    iterates++;
-                    Thread.Sleep(100);
-                }
-            }
-
-            foreach (var m in pokemon.Moves)
-            {
-                var info = gets[m.ResourceUri].Result;
-
-                if (info != null && info.Count > 0)
-                {
-                    m.Id = info.ContainsKey("id") ? int.Parse(info?["id"].ToString()) : 0;
-                    m.Damage = info.ContainsKey("power") && info?["power"] != null ? int.Parse(info?["power"].ToString()) : 0;
-                    m.Category = info.ContainsKey("damage_class") && info?["damage_class"] != null ? ((ExpandoObject)info?["damage_class"]).First().Value.ToString() : string.Empty;
-                    m.Type = info.ContainsKey("type") ? ((ExpandoObject)info?["type"]).First().Value.ToString() : string.Empty;
-                }
-            }
-
-            pokemon.Moves.RemoveAll(m => m.Damage == 0); // get rid of moves without damage
+            pokemon.Moves = DoParallelMoves((List<object>)obj.moves);
+            pokemon.Moves.RemoveAll(m => m.Damage == 0);
+            pokemon.Moves = pokemon.Moves.OrderByDescending(m => m.Damage).ToList();
 
             // add any types to the pokemon
-            obj.Types.ToList().ForEach(t =>
+            foreach (var t in obj.types)
             {
+                var type = ((dynamic)t).type;
                 pokemon.Types.Add(new Shared.Models.PokemonType
                 {
-                    Name = t.Type.Name,
-                    ResourceUri = t.Type.Url.AbsoluteUri.ToString()
+                    Name = type.name.ToString(),
+                    ResourceUri = type.url.ToString()
                 });
-            });
+            }
 
             return pokemon;
+        }
+
+        private List<MoveModel> DoParallelMoves(List<object> moves, [Optional] List<MoveModel> movesOut)
+        {
+            if (movesOut == null) movesOut = new List<MoveModel>();
+
+            var tasks = new List<Task<MoveModel>>();
+            moves.ToList().ForEach(
+            m =>
+            {
+                Task<MoveModel> task = Task.Run(() => ProcessMove(m));
+                tasks.Add(task);
+            });
+            Task.WaitAll(tasks.ToArray());
+            tasks.ForEach(t =>
+            {
+                if (!movesOut.Any(x => x.Id == t.Result.Id))
+                    movesOut.Add(t.Result);
+            });
+
+            return movesOut;
+        }
+
+        private MoveModel ProcessMove(dynamic m)
+        {
+            var move = ((dynamic)m).move;
+            var newMove = new MoveModel();
+            newMove.Name = move.name.ToString();
+            newMove.ResourceUri = move.url.ToString();
+
+            var info = GetAdditionInfo(newMove.ResourceUri);
+            if (info != null && info.Count > 0)
+            {
+                newMove.Id = info.ContainsKey("id") ? int.Parse(info?["id"].ToString()) : 0;
+                newMove.Damage = info.ContainsKey("power") && info?["power"] != null ? int.Parse(info?["power"].ToString()) : 0;
+                newMove.Category = info.ContainsKey("damage_class") && info?["damage_class"] != null ? ((ExpandoObject)info?["damage_class"]).First().Value.ToString() : string.Empty;
+                newMove.Type = info.ContainsKey("type") ? ((ExpandoObject)info?["type"]).First().Value.ToString() : string.Empty;
+            }
+
+            if (newMove.Type == null)
+            {
+                ProcessMove(m);
+            }
+            return newMove;
         }
 
         public List<TrainerModel> GetElite4AndChampion()
@@ -218,6 +238,30 @@ namespace Web.Server.Controllers
             return elite4PlusChampion;
         }
 
+        public List<TrainerModel> GetTopTenTrainers()
+        {
+            var topTenNames = new List<string>();
+            var con = new DBConnect().MyConnection;
+            con.Open();
+            var query = "SELECT TrainerName FROM sql3346222.userCredentials ORDER BY HighScore DESC LIMIT 10;";
+            var rdr = new MySqlCommand(query, con).ExecuteReader();
+
+            while (rdr.Read())
+            {
+                topTenNames.Add(rdr[0].ToString());
+            }
+            rdr.Close();
+            con.Close();
+
+            var topTenTrainers = new List<TrainerModel>();
+            topTenNames.ForEach(t =>
+            {
+                topTenTrainers.Add(GetTrainerFromDB(t));
+            });
+
+            return topTenTrainers;
+        }
+
         public void UpdateLineups(TrainerModel trainer)
         {
             if (trainer.Lineups.Any(l => l.Checked == true))
@@ -237,6 +281,16 @@ namespace Web.Server.Controllers
             con.Close();
         }
 
+        public void UpdateHighScore(TrainerModel trainer)
+        {
+            var con = new DBConnect().MyConnection;
+            con.Open();
+
+            var querystring = $"UPDATE sql3346222.userCredentials SET HighScore = {trainer.HighScore} WHERE TrainerName= '{trainer.Handle}';";
+            new MySqlCommand(querystring, con).ExecuteNonQuery();
+
+            con.Close();
+        }
         public TrainerModel GetTrainerFromDB(string name)
         {
             var trainer = new TrainerModel()
@@ -262,25 +316,9 @@ namespace Web.Server.Controllers
             return trainer;
         }
 
-        public List<PokemonModel> GetLineUp(string trainerName)
-        {
-            //todo @derek
-            return null;
-        }
-
         public List<string> GetAllPokemonNames()
         {
             var names = new List<string>();
-            //using (TextFieldParser parser = new TextFieldParser(Environment.CurrentDirectory + @"\Data\PokemonNames.csv"))
-            //using (TextFieldParser parser = new TextFieldParser(ApplicationDeployment.CurrentDeployment.DataDirectory + @"\Data\PokemonNames.csv"))
-            //{
-            //    parser.TextFieldType = FieldType.Delimited;
-            //    parser.SetDelimiters(",");
-            //    while (!parser.EndOfData)
-            //    {
-            //        names = new List<string>(parser.ReadFields());
-            //    }
-            //}
 
             var con = new DBInterface().MyConnection;
             con.Open();
@@ -298,17 +336,14 @@ namespace Web.Server.Controllers
             return names;
         }
 
-        public async Task<IDictionary<string, object>> GetAdditionInfo(string uri)
+        public IDictionary<string, object> GetAdditionInfo(string uri)
         {
             var client = new RestClient(uri);
             var request = new RestRequest(Method.GET);
-            var response = await client.ExecuteAsync(request, new CancellationToken());
+            var response =  client.Execute(request);
 
             var obj = (IDictionary<string, object>)JsonConvert.DeserializeObject<ExpandoObject>(response.Content, new ExpandoObjectConverter());
             return obj;
         }
-
-
-
     }
 }

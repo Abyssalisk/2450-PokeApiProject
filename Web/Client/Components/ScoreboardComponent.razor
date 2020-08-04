@@ -2,255 +2,81 @@
 @inject HttpClient client
 @using Web.Shared.Models
 
-<h1>Scoreboard</h1>
+@if (Loading)
+{
+    <LoadingComponent />
+}
+else
+{
+    <h1>Pokemanz TOP 10</h1>
 
-<p>display top 10 trainers and scores, etc... in pretty grid/table.</p>
-<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
+    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
 
-<table id="myTable" class="table sortable">
-    <thead>
-        <tr class="header">
-            <th @onclick="(() => Sort(topTenTrainers, By.NameTog))" style="cursor:pointer">
-                Trainer
-                <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
-            </th>
-            <th @onclick="(() => Sort(topTenTrainers, By.ScoreTog))" style="cursor:pointer">
-                Score
-                <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
-            </th>
-            <th @onclick="(() => Sort(topTenTrainers, By.TeamTog))" style="cursor:pointer">
-                Pokemon
-                <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var trainer in topTenTrainers)
-        {
-            string team = string.Join(", ", trainer.Team.Lineup.Select(x => x.Name));
-            <tr class="item">
-                <td>@trainer.Handle</td>
-                <td>@trainer.HighScore</td>
-                <td>
-                    @team
-                </td>
+    <table id="myTable" class="table sortable">
+        <thead>
+            <tr class="header">
+                <th onclick="w3.sortHTML('#myTable', '.item', 'td:nth-child(1)')" style="cursor:pointer">
+                    Trainer
+                    <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
+                </th>
+                <th onclick="w3.sortHTML('#myTable', '.item', 'td:nth-child(2)')" style="cursor:pointer">
+                    Score
+                    <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
+                </th>
+                <th onclick="w3.sortHTML('#myTable', '.item', 'td:nth-child(3)')" style="cursor:pointer">
+                    Pokemon
+                    <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
+                </th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var trainer in topTenTrainers)
+            {
+                string team = string.Empty;
+                @foreach (PokemonModel p in trainer.Team.Lineup)
+                {
+                    if (string.IsNullOrEmpty(team))
+                        team += p.Name;
+                    else
+                    {
+                        team += ", ";
+                        team += p.Name;
+                    }
+                }
 
-
-
-<br />
-@*<button class="btn btn-primary" @onclick="Test">Test</button>*@
+                <tr class="item">
+                    <td>@trainer.Handle</td>
+                    <td>@trainer.HighScore</td>
+                    <td>
+                        @team
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
+    private List<TrainerModel> topTenTrainers { get; set; }
+    private bool Loading { get; set; }
+    private PokemonService Poke { get; set; }
 
-    //int score = 0;
-
-    private List<TrainerModel> topTenTrainers = new List<TrainerModel>();
-
-
-    private async Task Test()
+    protected override void OnInitialized()
     {
-        var endpoint = $"api/Login/validate/serosenvall@gmail.com";
-        var validator = await client.GetFromJsonAsync<ValidationModel>(endpoint);
-        var Result = validator.RandomCode;
+        Poke = new PokemonService();
+        Loading = true;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        topTenTrainers.Add(new TrainerModel()
+        topTenTrainers = await Poke.GetTopTenTrainers(client);
+
+        // filter out peeps that don't have teams/highscores
+        if (topTenTrainers.Any(t => t.Team == null))
         {
-            Handle = "Spencer",
-            HighScore = 10,
-            Team = new LineupModel()
-            {
-                Lineup = new List<PokemonModel>()
-                {
-                    new PokemonModel() { Name = "Charizard" },
-                    new PokemonModel() { Name = "Gengar" },
-                    new PokemonModel() { Name = "Houndoom" }
-                }
-            }
-        });
-
-        topTenTrainers.Add(new TrainerModel()
-        {
-            Handle = "Gavin",
-            HighScore = 15324500,
-            Team = new LineupModel()
-            {
-                Lineup = new List<PokemonModel>()
-                {
-                    new PokemonModel() { Name = "Gyrados" },
-                    new PokemonModel() { Name = "Articuno" },
-                    new PokemonModel() { Name = "Charizard" }
-                }
-            }
-        });
-
-        topTenTrainers.Add(new TrainerModel()
-        {
-            Handle = "TestBoi",
-            HighScore = 5454,
-            Team = new LineupModel()
-            {
-                Lineup = new List<PokemonModel>()
-                {
-                    new PokemonModel() { Name = "Ekans" },
-                    new PokemonModel() { Name = "Sudowoodo" },
-                    new PokemonModel() { Name = "Umbreon" }
-                }
-            }
-        });
-
-        var testpokemon1 = new PokemonModel();
-        var testpokemon2 = new PokemonModel();
-        var testpokemon3 = new PokemonModel();
-
-
-        // Test Web.Server.Controllers
-        try
-        {
-            var url = client.BaseAddress + "api/Pokemon/1";
-            Console.WriteLine(url);
-            testpokemon1 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/blastoise");
-            testpokemon2 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/charizard");
-            testpokemon3 = await client.GetFromJsonAsync<PokemonModel>("api/Pokemon/name/bulbasaur");
-
-            topTenTrainers.Add(new TrainerModel()
-            {
-                Handle = "hello from the controller",
-                HighScore = 314159,
-                Team = new LineupModel()
-                {
-                    Lineup = new List<PokemonModel>()
-{
-                    new PokemonModel() { Name = "Charizard" },
-                    new PokemonModel() { Name = "Charizard" },
-                    new PokemonModel() { Name = "Charizard" }
-                }
-                }
-            });
-        }
-        catch // Non success
-        {
-            Console.WriteLine("An error occurred.");
+            topTenTrainers = topTenTrainers.Where(t => t.Team != null).ToList();
         }
 
-        //after the trainers have been added
-        Sort(topTenTrainers, By.ScoreDesc);
+        Loading = false;
     }
-
-    #region Sorting Stuff
-    public enum By
-    {
-        NameAsc = 0,
-        NameDesc,
-        NameTog,
-        ScoreAsc,
-        ScoreDesc,
-        ScoreTog,
-        TeamAsc,
-        TeamDesc,
-        TeamTog
-    }
-
-    static bool nameToggle = false;
-    static bool scoreToggle = false;
-    static bool teamToggle = false;
-
-    public static void Sort(List<TrainerModel> team, By key)
-    {
-        bool togged = false;
-        if (key == By.NameTog)
-        {
-            togged = true;
-            nameToggle = !nameToggle;
-            if (nameToggle)
-            {
-                key = By.NameDesc;
-            }
-            else
-            {
-                key = By.NameAsc;
-            }
-        }
-        else if (key == By.ScoreTog)
-        {
-            togged = true;
-            scoreToggle = !scoreToggle;
-            if (scoreToggle)
-            {
-                key = By.ScoreDesc;
-            }
-            else
-            {
-                key = By.ScoreAsc;
-            }
-        }
-        else if (key == By.TeamTog)
-        {
-            togged = true;
-            teamToggle = !teamToggle;
-            if (teamToggle)
-            {
-                key = By.TeamDesc;
-            }
-            else
-            {
-                key = By.TeamAsc;
-            }
-        }
-        team.ForEach(x => x.Team.Lineup.Sort((x, y) => string.Compare(x.Name, y.Name)));
-        switch (key)
-        {
-            case By.NameAsc:
-                nameToggle = togged ? nameToggle : false;
-                team.Sort((x, y) =>
-                {
-                    return string.Compare(x.Handle, y.Handle);
-                });
-                break;
-            case By.NameDesc:
-                nameToggle = togged ? nameToggle : true;
-                team.Sort((x, y) =>
-                {
-                    return string.Compare(y.Handle, x.Handle);
-                });
-                break;
-            case By.ScoreAsc:
-                scoreToggle = togged ? scoreToggle : false;
-                team.Sort((x, y) =>
-                {
-                    return x.HighScore - y.HighScore;
-                });
-                break;
-            case By.ScoreDesc:
-                scoreToggle = togged ? scoreToggle : true;
-                team.Sort((x, y) =>
-                {
-                    return y.HighScore - x.HighScore;
-                });
-                break;
-            case By.TeamAsc:
-                teamToggle = togged ? teamToggle : false;
-                team.Sort((x, y) =>
-                {
-                    return string.Compare(string.Join(", ", x.Team.Lineup.Select(z => z.Name)), string.Join(", ", y.Team.Lineup.Select(z => z.Name)));
-                });
-                break;
-            case By.TeamDesc:
-                teamToggle = togged ? teamToggle : true;
-                team.Sort((x, y) =>
-                {
-                    return string.Compare(string.Join(", ", y.Team.Lineup.Select(z => z.Name)), string.Join(", ", x.Team.Lineup.Select(z => z.Name)));
-                });
-                break;
-            default:
-                throw new Exception("Error: The sort method tried to interpret an invalid sorting method");
-        }
-    }
-    #endregion
 }

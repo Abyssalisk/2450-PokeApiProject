@@ -62,6 +62,7 @@
 
     public async Task Authenticate()
     {
+        await JSRuntime.InvokeAsync<string>("PlayPikachuSound");
         if (!string.IsNullOrEmpty(LoginModel.Username) && !string.IsNullOrEmpty(LoginModel.Password))
         {
             Response = await Auth.TryLogin(client, LoginModel);
@@ -69,6 +70,7 @@
             {
                 var username = JsonSerializer.Serialize(LoginModel.Username);
                 await WriteAuthCookie(username);
+                Shared.NavMenu.IsLoggedIn = true;
                 navMan.NavigateTo("trainer");
             }
             else

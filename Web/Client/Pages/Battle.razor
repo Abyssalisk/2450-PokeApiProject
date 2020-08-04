@@ -5,128 +5,157 @@
 @using Web.Shared.Models
 @using Web.Client.Components
 
-@{
-    if (!confirmOpponent)
+@{ if (Loading)
     {
-        <h3>Your next opponent is: <strong>@(Opponent.Handle)</strong></h3>
-
-        @foreach (var lineup in Opponent.Lineups)
-        {
-            <div>
-                <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
-            </div>
-            lineupLoaded = true;
-        }
-
-        if (lineupLoaded)
-        {
-            <p>You are about to challenge @(Opponent.Handle). Continue?</p>
-            <div class="row">
-                <div class="col">
-                    <ButtonComponent buttonType="ok" buttonSpan="block" action="Confirm"></ButtonComponent>
-                </div>
-                <div class="col">
-                    <ButtonComponent buttonType="back" buttonSpan="block" action="Back"></ButtonComponent>
-                </div>
-            </div>
-        }
+        <LoadingComponent />
     }
     else
     {
-        if (CurrentPoke == null) CurrentPoke = Trainer.Lineups.FirstOrDefault().Lineup[0]; 
-        if (OpponentPoke == null) OpponentPoke = Opponent.Lineups.FirstOrDefault().Lineup[0];
-        
-        while (true)
-        {
-            if (selectPokemon)
-            {
-                <p>Please select a Pokemon to use:</p>
+        var trainersLeft = BattlePosition + 1;
 
-                @foreach (var pokemon in Trainer.Lineups.FirstOrDefault().Lineup.Where(x => x.IsAlive))
-                {
-                    <button class="btn btn-light m-1" @onclick="(() => PokemonSelected(pokemon.Id))">
-                        <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
-                    </button>
-                }
-            }
-            else
+        if (!confirmOpponent)
+        {
+            <h3 class="text-center">You have challenged the elite 4! </h3>
+            <br />
+            <p class="text-center">Strong Pokemanz.<br /><br />Weak Pokemanz.<br /><br />That is only the selfish perception of people.<br /><br />Truly skilled trainers should try to win with their favorites.</p>
+            <br />
+            <h3 class="text-center">Your next opponent is: <strong>@(Opponent.Handle)</strong></h3>
+            <h3 class="text-center">Remaining Trainers to defeat: @trainersLeft</h3>
+            <br />
+            <TeamInfoComponent Team="@Opponent.Team"></TeamInfoComponent>
+
+            lineupLoaded = true;
+            if (lineupLoaded)
             {
-                <p>Commence battle!!</p>
-                <div class="container-fluid" style="max-width:500px">
-                    <div class="row">
-                        <div class="col">
-                            <div class="battle-status opponent">
-                                <strong>@(OpponentPoke.Name)</strong>
-                                HP: @(OpponentPoke.BaseHP.ToString())/@(OpponentPoke.BaseHP.ToString())
-                                <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(OpponentPoke.BaseHP.ToString())/@(OpponentPoke.BaseHP.ToString()) * 100%);" aria-valuenow="@(OpponentPoke.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(OpponentPoke.BaseHP.ToString())"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <img src="@(OpponentPoke.FrontImageUri)" />
-                        </div>
+                <p>You are about to challenge @(Opponent.Handle). Continue?</p>
+                <div class="row">
+                    <div class="col">
+                        <ButtonComponent buttonType="ok" buttonSpan="block" action="Confirm"></ButtonComponent>
                     </div>
-                    <div class="row">
-                        <div class="col">
-                            <img src="@(CurrentPoke.BackImageUri)" />
-                        </div>
-                        <div class="col">
-                            <div class="battle-status trainer">
-                                <strong>@(CurrentPoke.Name)</strong>
-                                HP: @(CurrentPoke.ActingHP.ToString())/@(CurrentPoke.BaseHP.ToString())
-                                <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(CurrentPoke.ActingHP.ToString())/@(CurrentPoke.BaseHP.ToString()) * 100%);" aria-valuenow="@(CurrentPoke.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(CurrentPoke.BaseHP.ToString())"></div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col">
+                        <ButtonComponent buttonType="back" buttonSpan="block" action="Back"></ButtonComponent>
                     </div>
-                    <div class="row dark-menu p-2">
-                        @{
-                            foreach (var status in battleStatus)
-                            {
-                                @status<br />
-                            }
+                </div>
+            }
+        }
+        else
+        {
+            while (true)
+            {
+                if (selectPokemon)
+                {
+                    <p>Please select a Pokeman to use:</p>
+                    <div class="row">
+                        @foreach (var pokemon in Trainer.Team.Lineup.Where(x => x.IsAlive))
+                        {
+                            <div class="col-md-4">
+                                <button class="btn btn-light m-1" style="width: 100%; background-color: transparent;" @onclick="(() => PokemonSelected(pokemon.Id))">
+                                    <PokemonInfoComponent Pokemon="@pokemon"></PokemonInfoComponent>
+                                </button>
+                            </div>
                         }
                     </div>
-                    <div class="row">
-                        <div class="col-4">
-                            <h3>Menu</h3>
-                            <button class="btn btn-primary m-1 mb-0" style="width: 100%" @onclick="SelectPokemon">Switch</button>
-                            <button class="btn btn-danger mt-5 m-1" style="width: 100%" @onclick="Back">Forfeit</button>
+                }
+                else
+                {
+                    <div class="container-fluid" style="max-width:800px">
+                        <div class="row">
+                            <div class="col">
+                                <div class="battle-status opponent">
+                                    <strong>@(OpponentPoke.Name)</strong>
+                                    HP: @(OpponentPoke.ActingHP.ToString())/@(OpponentPoke.BaseHP.ToString())
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(OpponentPoke.ActingHP.ToString())/@(OpponentPoke.BaseHP.ToString()) * 100%);" aria-valuenow="@(OpponentPoke.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(OpponentPoke.BaseHP.ToString())"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col text-center">
+                                <img src="@(OpponentPoke.FrontImageUri)" style="height: 25vh; width: 25vh;" />
+                            </div>
                         </div>
-                        <div class="col-8">
-                            <h3>Fight</h3>
+                        <div class="row text-center">
+                            <div class="col">
+                                <img src="@(CurrentPoke.BackImageUri)" style="height: 25vh; width: 25vh;" />
+                            </div>
+                            <div class="col">
+                                <div class="battle-status trainer">
+                                    <strong>@(CurrentPoke.Name)</strong>
+                                    HP: @(CurrentPoke.ActingHP.ToString())/@(CurrentPoke.BaseHP.ToString())
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: calc(@(CurrentPoke.ActingHP.ToString())/@(CurrentPoke.BaseHP.ToString()) * 100%);" aria-valuenow="@(CurrentPoke.ActingHP.ToString())" aria-valuemin="0" aria-valuemax="@(CurrentPoke.BaseHP.ToString())"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row dark-menu p-2">
                             @{
-                                foreach (var move in CurrentPoke.MoveSelections)
+                                foreach (var status in battleStatus)
                                 {
-                                    if (!string.IsNullOrEmpty(move.Name))
-                                    {
-                                        <button type="button" class="btn btn-primary m-1" style="width: 45%;">
-                                            <p>@move.Name</p>
-                                            <div class="d-flex justify-content-between">
-                                                <span class="type type-@move.Type"></span> <span>@move.Damage</span>
-                                            </div>
-                                        </button>
-                                    }
+                                    @status<br />
                                 }
                             }
                         </div>
+                        <div class="row">
+                            <div class="col-4">
+                                <h3>Menu</h3>
+                                <button class="btn btn-primary m-1 mb-0" style="width: 100%" @onclick="SelectPokemon">Switch</button>
+                                <button class="btn btn-danger mt-5 m-1" style="width: 100%" @onclick="Back">Forfeit</button>
+                            </div>
+                            <div class="col-8">
+                                <h3>Fight</h3>
+                                @{
+                                    foreach (var move in CurrentPoke.MoveSelections)
+                                    {
+                                        if (!string.IsNullOrEmpty(move.Name))
+                                        {
+                                            <button type="button" class="btn btn-primary m-1" style="background-color: @TypeColor(move.Type); width: 45%; height: 38%" @onclick="(() => MoveSelection(move))">
+                                                <p>@move.Name</p>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="type type-@move.Type"></span> <span>@move.Damage</span>
+                                                </div>
+                                            </button>
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
                     </div>
-                </div>
-            }break;
+                }
+                break;
+            }
         }
     }
 }
 
 @code {
-    int score = 0;
-    bool confirmOpponent { get; set; } = false;
-    bool selectPokemon { get; set; } = false;
-    bool lineupLoaded { get; set; } = false;
+    private bool confirmOpponent { get; set; } = false;
+    private bool selectPokemon { get; set; } = false;
+    private bool lineupLoaded { get; set; } = false;
+    private bool Loading { get; set; } = true;
+    private bool PlayerExplosion { get; set; } = false;
+    private bool OpponentExplosion { get; set; } = false;
+    private bool NewOpponent { get; set; } = false;
+
+    // type map for damage, keeps track of types that are half effective
+    private Dictionary<string, List<string>> HalfEffectiveMap { get; set; }
+
+    // type map for damage, keeps track of types that are double effective
+    private Dictionary<string, List<string>> DoubleEffectiveMap { get; set; }
+
+    // type map for damage, keeps track of types that are not effective
+    private Dictionary<string, List<string>> NotEffectiveMap { get; set; }
+
+    // if moves require cooldown
+    private bool PlayerSkipNextTurn { get; set; } = false;
+    private bool OpponentSkipNextTurn { get; set; } = false;
+
+    private int BattlePosition { get; set; } = 4;
+    private Random Rand { get; set; }
 
     private TrainerModel Opponent = new TrainerModel();
     private TrainerModel Trainer = new TrainerModel();
+
+    private List<TrainerModel> Elite4AndChampion { get; set; }
 
     public PokemonService Poke { get; set; }
     public AuthService Auth { get; set; }
@@ -146,11 +175,551 @@
     {
         confirmOpponent = true;
         lineupLoaded = false;
+        JSRuntime.InvokeAsync<string>("PlayMusic", "battleMusic");
+    }
+
+    private void SetupNotEffectiveMap()
+    {
+        // https://img.pokemondb.net/images/typechart-gen1.png
+        NotEffectiveMap = new Dictionary<string, List<string>>();
+
+        // normal
+        NotEffectiveMap.Add("normal", new List<string>() {
+        "ghost"
+        });
+
+        // ground
+        NotEffectiveMap.Add("ground", new List<string>() {
+        "electric"
+        });
+
+        // flying
+        NotEffectiveMap.Add("flying", new List<string>() {
+        "ground"
+        });
+
+        // psychic
+        NotEffectiveMap.Add("psychic", new List<string>() {
+        "ghost"
+        });
+
+        // ghost
+        NotEffectiveMap.Add("ghost", new List<string>() {
+        "normal", "fighting", "poison", "flying", "bug"
+        });
+    }
+
+    private void SetupDoubleEffectiveMap()
+    {
+        // https://img.pokemondb.net/images/typechart-gen1.png
+        DoubleEffectiveMap = new Dictionary<string, List<string>>();
+
+        // normal
+        DoubleEffectiveMap.Add("normal", new List<string>() {
+        "fighting"
+        });
+
+        // fire
+        DoubleEffectiveMap.Add("fire", new List<string>() {
+        "water", "ground", "rock"
+        });
+
+        // water
+        DoubleEffectiveMap.Add("water", new List<string>() {
+        "electric", "grass"
+        });
+
+        // electric
+        DoubleEffectiveMap.Add("electric", new List<string>() {
+        "ground"
+        });
+
+        // grass
+        DoubleEffectiveMap.Add("grass", new List<string>() {
+        "fire", "ice", "poison", "flying", "bug"
+        });
+
+        // ice
+        DoubleEffectiveMap.Add("ice", new List<string>() {
+        "fire", "fighting", "rock"
+        });
+
+        // fighting
+        DoubleEffectiveMap.Add("fighting", new List<string>() {
+        "flying", "psychic"
+        });
+
+        // poison
+        DoubleEffectiveMap.Add("poison", new List<string>() {
+        "ground", "psychic", "bug"
+        });
+
+        // ground
+        DoubleEffectiveMap.Add("ground", new List<string>() {
+        "water", "grass", "ice"
+        });
+
+        // flying
+        DoubleEffectiveMap.Add("flying", new List<string>() {
+        "electric", "ice", "rock"
+        });
+
+        // psychic
+        DoubleEffectiveMap.Add("psychic", new List<string>() {
+        "bug"
+        });
+
+        // bug
+        DoubleEffectiveMap.Add("bug", new List<string>() {
+        "fire", "poison", "flying", "rock"
+        });
+
+        // rock
+        DoubleEffectiveMap.Add("rock", new List<string>() {
+        "water", "grass", "fighting", "ground"
+        });
+
+        // ghost
+        DoubleEffectiveMap.Add("ghost", new List<string>()
+{
+            "ghost"
+        });
+
+        // dragon
+        DoubleEffectiveMap.Add("dragon", new List<string>() {
+        "ice", "dragon"
+        });
+    }
+
+    private void SetupHalfEffectiveMap()
+    {
+        // https://img.pokemondb.net/images/typechart-gen1.png
+        HalfEffectiveMap = new Dictionary<string, List<string>>();
+
+        // fire
+        HalfEffectiveMap.Add("fire", new List<string>() {
+        "fire", "grass", "bug"
+        });
+
+        // water
+        HalfEffectiveMap.Add("water", new List<string>() {
+        "fire", "water", "ice"
+        });
+
+        // electric
+        HalfEffectiveMap.Add("electric", new List<string>() {
+        "electric", "flying"
+        });
+
+        // grass
+        HalfEffectiveMap.Add("grass", new List<string>() {
+        "water", "electric", "grass", "ground"
+        });
+
+        // ice
+        HalfEffectiveMap.Add("ice", new List<string>() {
+        "ice"
+        });
+
+        // fighting
+        HalfEffectiveMap.Add("fighting", new List<string>() {
+        "bug", "rock"
+        });
+
+        // poison
+        HalfEffectiveMap.Add("poison", new List<string>() {
+        "grass", "fighting", "poison"
+        });
+
+        // ground
+        HalfEffectiveMap.Add("ground", new List<string>() {
+        "posion", "rock"
+        });
+
+        // flying
+        HalfEffectiveMap.Add("flying", new List<string>() {
+        "grass", "fighting", "bug"
+        });
+
+        // psychic
+        HalfEffectiveMap.Add("psychic", new List<string>() {
+        "fighting", "psychic"
+        });
+
+        // bug
+        HalfEffectiveMap.Add("bug", new List<string>() {
+        "grass", "fighting", "ground"
+        });
+
+        // rock
+        HalfEffectiveMap.Add("rock", new List<string>() {
+        "normal", "fire", "poison", "flying"
+        });
+
+        // ghost
+        HalfEffectiveMap.Add("ghost", new List<string>() {
+        "posion"
+        });
+
+        // dragon
+        HalfEffectiveMap.Add("dragon", new List<string>() {
+        "fire", "water", "electric", "grass"
+        });
+    }
+
+    private bool IsCoolDownMove(MoveModel move)
+    {
+        switch (move.Name.ToLower())
+        {
+            case "focus-punch": return true;
+            case "giga-impact": return true;
+            case "annihilation": return true;
+            case "blast-burn": return true;
+            case "frenzy-plant": return true;
+            case "hydro-cannon": return true;
+            case "hyper-beam": return true;
+            case "solar-beam": return true;
+            default:
+                return false;
+        }
+    }
+
+    private void MoveSelection(MoveModel move)
+    {
+        // determine who goes first
+        if (OpponentPoke.Speed > CurrentPoke.Speed)
+        {
+            if (OpponentSkipNextTurn)
+            {
+                SkipTurn(OpponentPoke);
+            }
+            else
+            {
+                // modifiers, typing, random move?, etc
+                var opponentMove = GenOpponentMove(OpponentPoke.MoveSelections);
+
+                if (IsCoolDownMove(opponentMove))
+                    OpponentSkipNextTurn = true;
+
+                DoDamage(OpponentPoke, CurrentPoke, opponentMove);
+
+                // explosion!!!
+                if (OpponentPoke.ActingHP <= 0)
+                {
+                    OpponentExplosion = true;
+                    PlayerSkipNextTurn = true;
+                }
+            }
+
+            StateHasChanged();
+            Task.Delay(1000);
+
+            var dead = CurrentPoke.ActingHP <= 0;
+            if (!dead)
+            {
+                if (PlayerSkipNextTurn)
+                {
+                    SkipTurn(CurrentPoke);
+                }
+                else
+                {
+                    if (IsCoolDownMove(move))
+                        PlayerSkipNextTurn = true;
+
+                    if (OpponentPoke.ActingHP > 0)
+                        DoDamage(CurrentPoke, OpponentPoke, move);
+                }
+            }
+            else
+            {
+                selectPokemon = true;
+            }
+
+            if (OpponentPoke.ActingHP <= 0) OpponentPokeDead();
+        }
+        else
+        {
+
+            if (PlayerSkipNextTurn)
+            {
+                SkipTurn(CurrentPoke);
+            }
+            else
+            {
+                if (IsCoolDownMove(move))
+                    PlayerSkipNextTurn = true;
+
+                DoDamage(CurrentPoke, OpponentPoke, move);
+            }
+
+            var dead = OpponentPoke.ActingHP <= 0;
+            if (!dead)
+            {
+                if (OpponentSkipNextTurn)
+                {
+                    SkipTurn(OpponentPoke);
+                }
+                else
+                {
+                    var opponentMove = GenOpponentMove(OpponentPoke.MoveSelections);
+
+                    if (IsCoolDownMove(opponentMove))
+                        OpponentSkipNextTurn = true;
+
+                    DoDamage(OpponentPoke, CurrentPoke, opponentMove);
+                }
+
+                if (CurrentPoke.ActingHP <= 0)
+                    selectPokemon = true;
+
+                // explosion!!!
+                if (OpponentPoke.ActingHP <= 0)
+                {
+                    OpponentPokeDead();
+                    OpponentExplosion = true;
+                    PlayerSkipNextTurn = true;
+                }
+            }
+            else
+            {
+                OpponentPokeDead();
+            }
+        }
+
+        // no more available pokemon, lose
+        if (!Trainer.Team.Lineup.Any(p => p.ActingHP > 0))
+        {
+            Lose();
+        }
+    }
+
+    private MoveModel GenOpponentMove(List<MoveModel> moves)
+    {
+        Tuple<int, MoveModel> bestMove = new Tuple<int, MoveModel>(0, null);
+
+        moves.ForEach(m =>
+        {
+            var damage = m.Damage;
+            damage = AddDamageModifiers(damage, m, CurrentPoke, OpponentPoke.Types.Any(t => t.Name == m.Type));
+
+            if (IsCoolDownMove(m))
+            {
+                if ((damage > CurrentPoke.ActingHP) || (OpponentPoke.ActingHP < OpponentPoke.BaseHP / 3)
+                || ((OpponentPoke.ActingHP < OpponentPoke.BaseHP / 2) && (CurrentPoke.Speed > OpponentPoke.Speed)))
+                {
+                // don't change damage, it's worth it
+            }
+                else
+                    damage = damage / 2; // half the damage because you're using 2 turns and expect to live the 2 turns
+        }
+
+            if (damage > bestMove.Item1)
+            {
+                bestMove = new Tuple<int, MoveModel>(damage, m);
+            }
+        });
+
+        //Console.WriteLine(bestMove.Item2.Name + " is the best move");
+        return bestMove.Item2;
+
+        // 20% chance for random move intead of best move
+        //return Rand.Next(0, 9) < 2 ? moves.Where(m => m.Damage > 0).ToList()[Rand.Next(0, 3)] : bestMove.Item2;
+    }
+
+    private void OpponentPokeDead()
+    {
+        if (!Opponent.Team.Lineup.Any(p => p.ActingHP > 0))
+        {
+            Task.Run(() => Poke.UpdateScore(client, Trainer));
+            UpdateMessage($"{OpponentPoke} fainted!");
+            BattlePosition--;
+            SetupOpponent();
+            confirmOpponent = false;
+            UpdateMessage($"Opponent sent out {OpponentPoke.Name}!");
+        }
+        else
+        {
+            OpponentSkipNextTurn = false;
+            OpponentPoke = Opponent.Team.Lineup.First(p => p.ActingHP > 0);
+        }
+    }
+
+    private void SkipTurn(PokemonModel pokemon)
+    {
+        if (pokemon == OpponentPoke)
+        {
+            if (PlayerExplosion)
+            {
+                PlayerExplosion = false;
+                UpdateMessage($"{CurrentPoke.Name} exploded.");
+            }
+            else
+            {
+                UpdateMessage($"{OpponentPoke.Name} is recharging.");
+            }
+
+            OpponentSkipNextTurn = false;
+
+        }
+        else
+        {
+            if (OpponentExplosion)
+            {
+                OpponentExplosion = false;
+                //UpdateMessage($"{Opponent.Team.Lineup[OpponentPoke].in} exploded."); // do -1 here in index
+                var index = Opponent.Team.Lineup.IndexOf(OpponentPoke) - 1;
+                UpdateMessage($"{Opponent.Team.Lineup[index].Name} fainted."); // do -1 here in index
+            }
+            else
+            {
+                UpdateMessage($"{CurrentPoke.Name} is recharging.");
+            }
+
+            PlayerSkipNextTurn = false;
+        }
+    }
+
+    private void UpdateMessage(string m)
+    {
+        battleStatus.Add(m);
+
+        if (battleStatus.Count > 2)
+            battleStatus.Remove(battleStatus.First());
+    }
+
+    private void DoDamage(PokemonModel attackingPoke, PokemonModel afflictedPoke, MoveModel move)
+    {
+        int damage;
+
+        if (move.Type == "physical")
+        {
+            damage = (move.Damage * attackingPoke.Attack / afflictedPoke.Defense);
+            damage = AddDamageModifiers(damage, move, afflictedPoke, attackingPoke.Types.Any(t => t.Name == move.Type));
+            afflictedPoke.ActingHP = afflictedPoke.ActingHP - damage;
+        }
+        else
+        {
+            damage = (move.Damage * attackingPoke.SpecialAttack / afflictedPoke.SpecialDefense);
+            damage = AddDamageModifiers(damage, move, afflictedPoke, attackingPoke.Types.Any(t => t.Name == move.Type));
+            afflictedPoke.ActingHP = afflictedPoke.ActingHP - damage;
+        }
+
+        if (afflictedPoke == OpponentPoke)
+        {
+            UpdateMessage($"{CurrentPoke.Name} used {move.Name} for {damage} damage!");
+        }
+        else
+        {
+            UpdateMessage($"{OpponentPoke.Name} used {move.Name} for {damage} damage!");
+        }
+
+        if (IsSelfDestructiveMove(move))
+        {
+            attackingPoke.ActingHP = 0;
+
+            if (attackingPoke != CurrentPoke)
+            {
+                OpponentExplosion = true;
+
+                if (!Opponent.Team.Lineup.Any(p => p.ActingHP > 0))
+                    PlayerSkipNextTurn = true;
+            }
+            else PlayerExplosion = true;
+
+        }
+
+    }
+
+    private int AddDamageModifiers(int damage, MoveModel move, PokemonModel afflictedPokemon, bool isStab)
+    {
+        double modifiedDamage = damage;
+
+        // stab
+        if (isStab)
+        {
+            modifiedDamage = modifiedDamage * 1.5;
+        }
+
+        // not effective
+        if (afflictedPokemon.NotEffectiveTypes == null)
+        {
+            afflictedPokemon.Types = afflictedPokemon.Types.Where(t => !string.IsNullOrEmpty(t.Name)).ToList();
+            afflictedPokemon.NotEffectiveTypes = new List<string>
+    ();
+
+            afflictedPokemon.Types.ForEach(t =>
+            {
+                if (NotEffectiveMap.ContainsKey(t.Name.ToLower()))
+                {
+                    NotEffectiveMap?[t.Name.ToLower()].ForEach(h =>
+                    {
+                        if (!afflictedPokemon.NotEffectiveTypes.Any(type => type == h))
+                            afflictedPokemon.NotEffectiveTypes.Add(h.ToLower());
+                    });
+                }
+            });
+        }
+        if (afflictedPokemon.NotEffectiveTypes.Contains(move.Type))
+        {
+            return 0; // no damage
+        }
+
+        // gen pokemon's hardly effective types
+        if (!afflictedPokemon.HardlyEffectiveTypes.Any())
+        {
+            afflictedPokemon.Types.ForEach(t =>
+            {
+                if (HalfEffectiveMap.ContainsKey(t.Name.ToLower()))
+                {
+                    HalfEffectiveMap?[t.Name.ToLower()].ForEach(h =>
+                    {
+                        if (!afflictedPokemon.HardlyEffectiveTypes.Any(type => type == h))
+                            afflictedPokemon.HardlyEffectiveTypes.Add(h.ToLower());
+                    });
+                }
+            });
+        }
+        // hardly effective
+        if (afflictedPokemon.HardlyEffectiveTypes.Contains(move.Type))
+            modifiedDamage = modifiedDamage * 0.5;
+
+
+        // gen pokemon's hardly effective types
+        if (!afflictedPokemon.TypeWeaknesses.Any())
+        {
+            afflictedPokemon.Types.ForEach(t =>
+            {
+                if (DoubleEffectiveMap.ContainsKey(t.Name.ToLower()))
+                {
+                    DoubleEffectiveMap?[t.Name.ToLower()].ForEach(h =>
+                    {
+                        if (!afflictedPokemon.TypeWeaknesses.Any(type => type == h))
+                            afflictedPokemon.TypeWeaknesses.Add(h.ToLower());
+                    });
+                }
+            });
+        }
+        // super effective
+        if (afflictedPokemon.TypeWeaknesses.Contains(move.Type.ToLower()))
+        {
+            modifiedDamage = modifiedDamage * 2;
+        }
+
+        // normal effective leave as is
+
+        return Convert.ToInt32(modifiedDamage);
+    }
+
+    private bool IsSelfDestructiveMove(MoveModel move)
+    {
+        return move.Name.ToLower().Equals("self-destruct") || move.Name.ToLower().Equals("explosion");
     }
 
     private void Back()
     {
-        navMan.NavigateTo("home");
+        Trainer.HighScore = Opponent.HighScore - 10;
+        Task.Run(() => Poke.UpdateScore(client, Trainer));
+        navMan.NavigateTo("scoreboard");
     }
 
     private void SelectPokemon()
@@ -160,20 +729,26 @@
 
     private void PokemonSelected(int id)
     {
-        foreach (var pokemon in Trainer.Lineups.FirstOrDefault().Lineup.Where(x => x.IsAlive))
+        foreach (var pokemon in Trainer.Team.Lineup.Where(x => x.IsAlive))
         {
-            if(pokemon.Id == id)
+            if (pokemon.Id == id)
             {
-                if(id == CurrentPoke.Id)
+                if (id == CurrentPoke.Id)
                 {
                     UpdateBattleStatus("You have decided to not switch Pokemon.");
                     selectPokemon = false;
                 }
                 else
                 {
-                    CurrentPoke = pokemon;
-                    UpdateBattleStatus("You have selected " + CurrentPoke.Name);
+                    if (CurrentPoke.ActingHP <= 0)
+                    {
+                        PlayerSkipNextTurn = false;
+                    }
+                    else PlayerSkipNextTurn = true;
 
+                    CurrentPoke = pokemon;
+
+                    UpdateBattleStatus("You have selected " + CurrentPoke.Name);
                     selectPokemon = false;
                 }
             }
@@ -182,14 +757,15 @@
 
     private void Win()
     {
+        Trainer.HighScore = Opponent.HighScore + 1000;
         Console.WriteLine("Win");
-        // let's say that all 4 elite 4 are defeated, so move onto champion
-        navMan.NavigateTo("championbattle");
+        navMan.NavigateTo("scoreboard");
     }
 
     private void Lose()
     {
-        Console.WriteLine("Lose");
+        Trainer.HighScore = Opponent.HighScore - 10;
+        Task.Run(() => Poke.UpdateScore(client, Trainer));
         navMan.NavigateTo("scoreboard");
     }
 
@@ -198,10 +774,76 @@
         UpdateBattleStatus(CurrentPoke.Name + " used " + move.Name + "!");
     }
 
+    private void SetupOpponent()
+    {
+        if (BattlePosition == -1) // champion defeated
+        {
+            Win();
+        }
+        else
+        {
+            if (BattlePosition < 4) JSRuntime.InvokeAsync<string>("PlayMusic", "victoryMusic");
+
+            Opponent = Elite4AndChampion[BattlePosition];
+            Opponent.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
+            Trainer.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
+            OpponentPoke = Opponent.Team.Lineup.FirstOrDefault();
+            OpponentSkipNextTurn = false;
+            PlayerSkipNextTurn = false;
+
+            //champion
+            if (BattlePosition == 0)
+            {
+                JSRuntime.InvokeAsync<string>
+                    ("PlayMusic", "championMusic");
+                battleStatus = new List<string>
+                    () { $"Champion {Opponent.Handle} challenges you to a battle. " +
+            $"I am the Pokemanz League Champion! Do you know what that means? I'll tell you! I am the most powerful trainer in the world!" };
+            }
+            else
+                battleStatus = new List<string>
+                    () { $"Trainer {Opponent.Handle} challenges you to a battle." };
+        }
+    }
+
+    private string TypeColor(string type)
+    {
+        switch (type.ToLower())
+        {
+            // 15 types for gen 1 pokemon
+            case "fire": return "rgb(240, 127, 47, 0.75)";
+            case "water": return "rgb(104, 144, 240, 0.75)";
+            case "grass": return "rgb(120, 200, 79, 0.75)";
+            case "rock": return "rgb(139, 133, 105, 0.75)";
+
+            case "flying": return "rgb(168, 144, 240, 0.75)";
+            case "poison": return "rgb(160, 64, 161, 0.75)";
+            case "ice": return "rgb(152, 216, 216, 0.75)";
+            case "dragon": return "rgb(112, 56, 249, 0.75)";
+
+            case "normal": return "rgb(169, 168, 120, 0.75)";
+            case "pyschic": return "rgb(246, 88, 136, 0.75)";
+            case "ground": return "rgb(184, 146, 38, 0.75)";
+            case "ghost": return "rgb(112, 87, 152, 0.75)";
+
+            case "fighting": return "rgb(192, 48, 40, 0.75)";
+            case "bug": return "rgb(168, 184, 33, 0.75)";
+            case "electric": return "rgb(197, 170, 7, 0.75)";
+
+            default: return "rgb(233, 109, 180, 0.75)";
+        }
+    }
+
     protected override void OnInitialized()
     {
+        JSRuntime.InvokeAsync<string>
+            ("PlayMusic", "elite4Music");
         Poke = new PokemonService();
         Auth = new AuthService();
+        Rand = new Random();
+        SetupHalfEffectiveMap();
+        SetupDoubleEffectiveMap();
+        SetupNotEffectiveMap();
     }
 
     protected override async Task OnInitializedAsync()
@@ -214,11 +856,15 @@
         }
         else
         {
-            var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
-            Opponent = championAndElite4.Last();
             Trainer = await Poke.GetTrainer(client, trainerHandle);
-            Trainer.Lineups[0].Lineup.Skip(1).ToList().ForEach(p => p.ActingHP = p.BaseHP);
-            battleStatus = new List<string>() { $"{Opponent.Lineups[0].Lineup.First().Name} used fissure!", "You have lost the pokemon game." };
+            Trainer.Team.Lineup.ToList().ForEach(p => p.ActingHP = p.BaseHP);
+            CurrentPoke = Trainer.Team.Lineup.FirstOrDefault();
+
+            var championAndElite4 = await Poke.GetElite4AndChampion(client); // grabs champion and elite 4, ordered: champion, 4, 3, 2, 1
+            Elite4AndChampion = championAndElite4;
+
+            SetupOpponent();
         }
+        Loading = false;
     }
 }

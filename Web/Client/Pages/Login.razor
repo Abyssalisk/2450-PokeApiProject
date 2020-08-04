@@ -3,37 +3,38 @@
 
 @inject NavigationManager navMan
 @inject HttpClient client
+@inject IJSRuntime JSRuntime
 
-    <div class="container-fluid" style="max-width: 50%;">
+<div class="container-fluid" style="max-width: 50%;">
 
-        @{
-            if (ForgotPassword)
+    @{
+        if (ForgotPassword)
+        {
+            <!-- ForgotPassword -->
+            <SendLoginComponent @bind-ForgotPassword="@ForgotPassword" @bind-CodeSent="@CodeSent" />
+        }
+        else
+        {
+            <!-- LoginForm -->
+            <LoginComponent />
+            if (CodeSent)
             {
-                <!-- ForgotPassword -->
-                <SendLoginComponent @bind-ForgotPassword="@ForgotPassword" @bind-CodeSent="@CodeSent" />
-            }
-            else
-            {
-                <!-- LoginForm -->
-                <LoginComponent />
-                if (CodeSent)
-                {
-                    <br />
-                    <p class="text-center" style="color: green;">Login credentials sent, please check your email.</p>
-                    <br />
-                }
+                <br />
+                <p class="text-center" style="color: green;">Login credentials sent, please check your email.</p>
+                <br />
             }
         }
+    }
 
-        <div class="row">
-            <div class="col text-left">
-                <a href=@NewTrainerUri target="_self">New Trainer</a>
-            </div>
-            <div class="col text-right">
-                <a href="@navMan.Uri" @onclick="() => ForgotPassword = !ForgotPassword">Forgot Password</a>
-            </div>
+    <div class="row">
+        <div class="col text-left">
+            <a href=@NewTrainerUri target="_self">New Trainer</a>
+        </div>
+        <div class="col text-right">
+            <a href="@navMan.Uri" @onclick="() => ForgotPassword = !ForgotPassword">Forgot Password</a>
         </div>
     </div>
+</div>
 
 @code {
     private string NewTrainerUri { get; set; }
@@ -42,6 +43,7 @@
 
     protected override void OnInitialized()
     {
+        JSRuntime.InvokeAsync<string>("PlayMusic", "openingMusic");
         NewTrainerUri = $"{navMan.BaseUri}newTrainer";
     }
 }

@@ -6,20 +6,28 @@
 @using Web.Shared.Models
 @using Web.Client.Components
 
-<div class="container-fluid" style="max-width: 100%; float: left;">
-    <h1 class="text-center">New Team</h1>
-    @if (PokemonNames?.Count > 0)
-    {
-        <NewLineupComponent PokemonNames="@PokemonNames" Trainer="@Trainer" />
-    }
+@if (Loading)
+{
+    <LoadingComponent />
+}
+else
+{
+    <div class="container-fluid">
+        <h1 class="text-center">New Team</h1>
 
-</div>
+        @if (PokemonNames?.Count > 0)
+        {
+            <NewLineupComponent PokemonNames="@PokemonNames" Trainer="@Trainer" />
+        }
+    </div>
+}
 
 @code {
     public TrainerModel Trainer { get; set; }
     private AuthService Auth { get; set; }
     private PokemonService Poke { get; set; }
     public string trainerHandle = string.Empty;
+    private bool Loading { get; set; }
 
     public List<CheckBox> PokemonNames { get; set; }
 
@@ -27,48 +35,18 @@
 
     protected override void OnInitialized()
     {
+        JSRuntime.InvokeAsync<string>("PlayMusic", "route2Music");
+        Loading = true;
         //Trainer = new TrainerModel();
         Auth = new AuthService();
         Poke = new PokemonService();
-        this.PokemonNames = new List<CheckBox>();
+        PokemonNames = new List<CheckBox>();
     }
 
     protected override async Task OnInitializedAsync()
     {
         var names = await Poke.GetAllPokemonNames(client);
-        Dictionary<string, Task<PokemonModel>> gets = new Dictionary<string, Task<PokemonModel>>();
-        names.ForEach(n =>
-        {
-            if (!gets.ContainsKey(n))
-            {
-                gets.Add(n, Poke.GetPokemonByName(client, n));
-            }
-        });
-        //Task.WaitAll(gets.Values.ToArray());
-        while (true)
-        {
-            uint iterates = 0;
-            const uint tryTime = 100; //in 10ths of second 100 = 10 seconds.
-            if (gets.Values.All(x => x.IsCompleted) || iterates >= tryTime)
-            {
-                break;
-            }
-            else
-            {
-                iterates++;
-                System.Threading.Thread.Sleep(100);
-            }
-        }
-        names.ForEach(n =>
-        {
-            PokemonNames.Add(new CheckBox()
-            {
-                Text = n,
-                Checked = false,
-                ImgURI = gets[n].Result.FrontImageUri,
-                Types = ((gets[n]).Result).Types.Select<PokemonType, string>(x => x.Name).ToArray()
-            });
-        });
+        names.ForEach(n => { PokemonNames.Add(new CheckBox() { Text = n, Checked = false }); });
         trainerHandle = await Auth.GetCookieAsync(JSRuntime, "Username");
 
         if (string.IsNullOrEmpty(trainerHandle))
@@ -81,14 +59,13 @@
             if (Trainer.Lineups == null)
                 Trainer.Lineups = new List<LineupModel>(); // used actually, not sure why it doesn't set where expected, look into later
         }
+        Loading = false;
     }
 
     public class CheckBox
     {
         public bool Checked { get; set; }
         public string Text { get; set; }
-        public string ImgURI { get; set; }
-        public string[] Types { get; set; }
     }
 }
 

@@ -3,65 +3,68 @@
 @inject IJSRuntime JSRuntime;
 @using Web.Shared.Models
 
-    <div class="container-fluid" style="max-width: 50%;">
-        <h1 class="text-center">Team</h1>
-        <p>Select a pokemon lineup or create a new one</p>
-        <br />
-        @{
-            if (!string.IsNullOrEmpty(Message))
-            {
-                <div class="jumbotron-fluid text-center" style="color: red;">@Message</div>
-            }
-            if (Trainer?.Lineups?.Count > 0 && !SelectedLineup)
-            {
-                <div class="multiselect">
-                    <div id="checkboxes">
-                        @{var index = 0;}
-                        @foreach (var lineup in Trainer.Lineups)
-                        {
-                            index++;
-                            <div>
-
-                                <label for="@lineup.Text">
-                                    @if (lineup.Checked)
-                                    {
-                                        <input type="checkbox" value="true" id="@lineup.Text" checked="checked" @onchange="@(() =>{ lineup.Checked = false; SelectedLineup = !SelectedLineup; })" />
-                                    }
-                                    else
-                                    {
-                                        <input type="checkbox" value="false" id="@lineup.Text" @onchange="@(() => { lineup.Checked = true; SelectedLineup = !SelectedLineup; })" />
-                                    }
-                                    <b>@index - </b>@lineup.Text
-                                    @foreach (var p in lineup.Lineup)
-                                    {
-                                        <img src=@p.FrontImageUri style="height: 50px; width: 50px;" />
-                                    }
-                                </label>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-            }
-            else if (SelectedLineup)
-            {
-                <h4>You have selected: </h4>
-                <div class="jumbotron-fluid text-center"><h1>
-                    @Trainer.Lineups.FirstOrDefault(l => l.Checked == true).Text</h1></div>
-                <h4>Press continue to start</h4>
-                <br />
-                <button class="btn btn-primary text-center" @onclick="Start">Continue</button>
-            }
-            else if (Loading)
-            {
-                <div class="jumbotron-fluid text-center">Loading...</div>
-            }
-            else
-            {
-                <div class="jumbotron-fluid text-center">NO PREVIOUS TEAMS</div>
-            }
+<div class="container-fluid" style="max-width: 50%;">
+    <h1 class="text-center">Team</h1>
+    <p>Select a pokemon lineup or create a new one</p>
+    <br />
+    @{
+        if (!string.IsNullOrEmpty(Message))
+        {
+            <div class="jumbotron-fluid text-center" style="color: red;">@Message</div>
         }
-    </div>
+        if (Trainer?.Lineups?.Count > 0 && !SelectedLineup)
+        {
+            <div class="multiselect">
+                <div id="checkboxes">
+                    @{var index = 0;}
+                    @foreach (var lineup in Trainer.Lineups)
+                    {
+                        index++;
+                        <div>
+
+                            <label for="@lineup.Text">
+                                @if (lineup.Checked)
+                                {
+                                    <input type="checkbox" value="true" id="@lineup.Text" checked="checked" @onchange="@(() =>{ lineup.Checked = false; SelectedLineup = !SelectedLineup; })" />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" value="false" id="@lineup.Text" @onchange="@(() => { lineup.Checked = true; SelectedLineup = !SelectedLineup; })" />
+                                }
+                                <b>@index - </b>@lineup.Text
+                                @foreach (var p in lineup.Lineup)
+                                {
+                                    <img src=@p.FrontImageUri style="height: 50px; width: 50px;" />
+                                }
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        }
+        else if (SelectedLineup)
+        {
+            <h4>You have selected: </h4>
+            <div class="jumbotron-fluid text-center">
+                <h1>
+                    @Trainer.Lineups.FirstOrDefault(l => l.Checked == true).Text
+                </h1>
+            </div>
+            <h4>Press continue to start</h4>
+            <br />
+            <button class="btn btn-primary text-center" @onclick="Start">Continue</button>
+        }
+        else if (Loading)
+        {
+            <LoadingComponent />
+        }
+        else
+        {
+            <div class="jumbotron-fluid text-center">NO PREVIOUS TEAMS</div>
+        }
+    }
+</div>
 
 @code {
 
@@ -97,7 +100,7 @@
                     l.Lineup.ForEach(p =>
                     {
                         p.Name = char.ToUpper(p.Name[0]) + p.Name.Substring(1); // uppercase first letter
-                        if (!string.IsNullOrEmpty(l.Text))
+                    if (!string.IsNullOrEmpty(l.Text))
                             l.Text += $", {p.Name}";
                         else
                             l.Text += $"{p.Name}";

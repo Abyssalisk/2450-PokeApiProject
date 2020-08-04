@@ -3,15 +3,19 @@
 
 @using Web.Shared.Models
 @using Web.Client.Components
-
 @if (Loading)
 {
-    <div class="fa fa-spinner fa-spin fa-2x fa-fw">Loading...</div>
+    @foreach (var m in LoadingMessage)
+    {
+        <h5 class="text-center">@m</h5>
+    }
+    <br />
+    <LoadingComponent />
 }
 else
 {
-    <h3>NewLineup</h3>
-    <p>or create a team of preferrably all fire pokemon...</p>
+    <br />
+    <h3 class="text-center">Create a New Lineup</h3>
     <br />
 
     @if (ShowMessage)
@@ -21,43 +25,38 @@ else
 
     @if (PokemonNames?.Count > 0 && !PokemonGenDone)
     {
-        <table class="table-responsive">
-            <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col"><button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var name in @PokemonNames)
-                {
-                    <tr>
-                        <td>
-                            <label for="@name.Text">
-                                @if (name.Checked)
-                                {
-                                    <input type="checkbox" id="@name.Text" checked="checked"
-                                           @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount--; })" />
-                                }
-                                else
-                                {
-                                    <input type="checkbox" id="@name.Text" @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount++; })" />
-                                }
-                                @name.Text
-                            </label>
-                        </td>
-                        <td>
-                            <img src="@name.ImgURI" />
-                        </td>
-                        <td>
-                            <p>Types: 
-                            @string.Join(", ", name.Types);
-                            </p>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <h5 class="text-center">Select up to 6 Pokemon and then click Continue to Moves</h5>
+        <div class="text-center">
+            <button class="btn btn-primary" @onclick=@GenPokemon>Continue to Moves</button> <span><b style="color: @CheckedCountColor()">Selected: @PokemonNameCheckedCount / 6</b></span>
+        </div>
+        <br />
+        <br />
+
+        <div class="row">
+            @{var index = 0;}
+            @foreach (var name in @PokemonNames)
+            {
+                index++;
+                <div class="col-lg-3 col-med-5 col-sm-7">
+                    <label for="@name.Text" style="padding: 5px; background-color: @CheckedColor(name.Checked)">
+                        @if (name.Checked)
+                        {
+                            <input type="checkbox" id="@name.Text" checked="checked"
+                                   @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount--; })" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" id="@name.Text" @onchange="@(() => { name.Checked = !name.Checked; PokemonNameCheckedCount++; })" />
+                        }
+                        @name.Text
+                        @{
+                            var imgSrc = $"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{index}.png";
+                        }
+                        <img src=@imgSrc style="height: 50px; width: 50px;" />
+                    </label>
+                </div>
+            }
+        </div>
     }
     @if (MayContinue)
     {
@@ -94,7 +93,7 @@ else
                                             @foreach (var m in p.Moves)
                                                                 {
                                                 <option value="@m.Name">
-                                                    @m.Name (Type: @m.Type - Damage: @m.Damage - @m.Category)
+                                                    @PascalCaseName(@m.Name) (Type: @PascalCaseName(@m.Type) - Damage: @m.Damage - @m.Category)
                                                 </option>
                                                                 }
                                         </InputSelect>
@@ -105,6 +104,10 @@ else
                     }
 
                 </div>
+                @if (ErrorSavingMoves)
+                {
+                    <h4 style="color: red;">You must select 4 distinct moves per pokemon</h4>
+                }
                 <br />
                 <button class="btn btn-primary" @onclick="SaveTeam">Save Team</button>
             </div>
@@ -132,6 +135,8 @@ else
     private bool ShowMessage { get; set; }
     private bool MayContinue { get; set; }
     private bool Loading { get; set; }
+    private bool ErrorSavingMoves { get; set; }
+    private List<string> LoadingMessage { get; set; } = new List<string>();
 
 
     protected override async Task OnParametersSetAsync()
@@ -146,10 +151,25 @@ else
         Poke = new PokemonService();
     }
 
+    private string CheckedColor(bool isChecked)
+    {
+        return isChecked ? "lightgreen" : "none";
+    }
+
+    private string CheckedCountColor()
+    {
+        return PokemonNameCheckedCount > 0 && PokemonNameCheckedCount <= 6 ? "green" : "red";
+    }
+
     private async Task GenPokemon()
     {
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        System.Diagnostics.Stopwatch sw2 = new System.Diagnostics.Stopwatch();
+        sw.Start();
+        sw2.Start();
+
         Loading = true;
-        if (PokemonNames.Count(n => n.Checked == true) >= 1) // == 6)
+        if (PokemonNames.Count(n => n.Checked == true) >= 1) // == 6) // six is optional
         {
             MayContinue = true;
 
@@ -160,9 +180,22 @@ else
             for (int i = 0; i < names.Length; i++)
             {
                 var pokemon = await Poke.GetPokemonByName(client, names[i]);
+
+                var message = $"Loaded {pokemon.Name} at {sw.Elapsed}";
+                Console.WriteLine(message);
+                LoadingMessage.Add($"{message}");
+                StateHasChanged();
+
                 pokemon.MoveSelections = new List<MoveModel>() { new MoveModel(), new MoveModel(), new MoveModel(), new MoveModel() };
                 PokemonSelections.Add(pokemon);
+                sw.Reset();
+                sw.Start();
             }
+
+            sw2.Stop();
+            sw.Stop();
+            Console.WriteLine("Total load time elapsed={0}", sw2.Elapsed);
+            LoadingMessage.Add($"Total load time elapsed={sw2.Elapsed}");
 
             PokemonGenDone = true;
             Loading = false;
@@ -177,30 +210,72 @@ else
 
     private void SaveMoveSelections()
     {
+        ErrorSavingMoves = false;
         PokemonSelections.ForEach(p =>
         {
             for (int i = 0; i < p.MoveSelections.Count; i++)
             {
+                var index = i;
                 var move = p.Moves.Where(s => s.Name == p.MoveSelections[i].Name).Select(s => s).FirstOrDefault();
-                p.MoveSelections[i] = move;
-                p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
-        }
-            p.Moves.Clear();
+
+                if (p.MoveSelections.Contains(move) && p.MoveSelections[i].Id <= 0 && p.Moves.Count > 3) // 3 means at least one move must be a duplicate
+            {
+                    ErrorSavingMoves = true;
+                }
+                else
+                {
+                    p.MoveSelections[i] = move;
+                    p.MoveSelections[i].ResourceUri = string.Empty; //clear this out to save space in db, don't need it anymore
+            }
+            }
         });
+
+        if (!ErrorSavingMoves)
+        {
+            PokemonSelections.ForEach(p =>
+            {
+                p.Moves.Clear(); // garbage clean up
+        });
+        }
     }
 
     private async Task SaveTeam()
     {
         SaveMoveSelections();
-        var lineup = new LineupModel() { Lineup = PokemonSelections.ToList() };
 
-        if (!Trainer.Lineups.Contains(lineup))
+        if (!ErrorSavingMoves)
         {
-            Trainer.Lineups.Add(lineup);
-            Trainer.Team = lineup;
+            var lineup = new LineupModel() { Lineup = PokemonSelections.ToList() };
 
-            var success = await Poke.UpdateLineup(client, Trainer); //add lineup
-            navMan.NavigateTo("team");
+            if (!Trainer.Lineups.Contains(lineup))
+            {
+                Trainer.Lineups.Add(lineup);
+                Trainer.Team = lineup;
+
+                var success = await Poke.UpdateLineup(client, Trainer); //add lineup
+                navMan.NavigateTo("team");
+            }
         }
     }
+
+    private static System.Text.RegularExpressions.Regex pascalReg = new System.Text.RegularExpressions.Regex("\\W\\w");
+
+    public static string PascalCaseName(string toPascal)
+    {
+        var ms = pascalReg.Matches(toPascal);
+        char[] ns = toPascal.ToCharArray();
+        if (ns.Length > 0)
+        {
+            ns[0] = char.ToUpper(ns[0]);
+        }
+        for (int i = 0; i < ms.Count; i++)
+        {
+            if (ms[i].Success && ms[i].Index != toPascal.Length - 1)
+            {
+                ns[i] = char.ToUpper(ns[i]);
+            }
+        }
+        return string.Join("", ns);
+    }
 }
+

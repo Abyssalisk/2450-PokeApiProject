@@ -38,6 +38,11 @@ namespace Web.Client.Services
             var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/trainer/update", trainer);
             return result.IsSuccessStatusCode;
         }
+        public async Task<bool> UpdateScore(HttpClient client, TrainerModel trainer)
+        {
+            var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/score/update", trainer);
+            return result.IsSuccessStatusCode;
+        }
         public async Task<bool> UpdateLineup(HttpClient client, TrainerModel trainer)
         {
             var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/lineup", trainer);
@@ -53,6 +58,12 @@ namespace Web.Client.Services
         public async Task<List<TrainerModel>> GetElite4AndChampion(HttpClient client)
         {
             var result = await client.GetFromJsonAsync<List<TrainerModel>>($"api/pokemon/trainer/elite4");
+            return result;
+        }
+
+        public async Task<List<TrainerModel>> GetTopTenTrainers(HttpClient client)
+        {
+            var result = await client.GetFromJsonAsync<List<TrainerModel>>($"api/pokemon/trainer/topten");
             return result;
         }
 

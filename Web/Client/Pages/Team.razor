@@ -11,20 +11,57 @@
     <button class="btn btn-primary float-right" @onclick="CreateNewTeam">Create New Team</button>
 
     <h2>@Title</h2>
-
-    @foreach (var lineup in Trainer.Lineups)
+    <br />
+    if (Trainer?.Lineups?.Count > 0)
     {
-        teamCounter++;
-        <br />
-        <div>
-            <h3>Lineup @teamCounter</h3>
-            <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
+        teamCounter = 0;
+        <div class="container-fluid text-center">
+            <div class="row-fluid">
+                <label for="activeLineup"><b>Active Lineup</b></label>
+                <select id="activeLineup" @onchange=@LineupChanged>
+                    @foreach (var lineup in Trainer.Lineups)
+                    {
+                        var viewVal = teamCounter + 1;
+                        <option value=@teamCounter>
+                            Lineup @viewVal&nbsp;&nbsp;
+                        </option>
+                        teamCounter++;
+                    }
+                </select>
+                <button class="btn btn-danger btn-sm" @onclick="() => DeleteLineUp(SelectedLineUp)">Delete</button>
+
+                @if (!string.IsNullOrEmpty(TeamMessage))
+                {
+                    <div>
+                        <div class="badge @TeamMessageClass">
+                            @TeamMessage
+                        </div>
+                    </div>
+                    <br />
+                }
+            </div>
         </div>
+        <br />
+
+        teamCounter = 0;
+        @foreach (var lineup in Trainer.Lineups)
+        {
+            teamCounter++;
+            <br />
+            <div>
+                <h3 >Lineup @teamCounter</h3>
+                <TeamInfoComponent Team="@lineup"></TeamInfoComponent>
+            </div>
+        }
+    }
+    else
+    {
+        <h3 class="text-center" >You have no teams, click Create New Team to begin</h3>
     }
 }
 else
 {
-    <h1>Loading...</h1>
+    <LoadingComponent />
 }
 
 @code {
@@ -34,18 +71,69 @@ else
     private string Title { get; set; }
     private int teamCounter = 0;
     private bool Loading { get; set; }
+    private string TeamMessage { get; set; }
+    private string TeamMessageClass { get; set; }
+    private int SelectedLineUp { get; set; }
 
     private void CreateNewTeam()
     {
         navMan.NavigateTo("newTeam");
     }
 
+    protected void DeleteLineUp(int lineupIndex)
+    {
+        Trainer.Lineups.RemoveAt(lineupIndex);
+        Task.Run(() => Poke.UpdateLineup(client, Trainer));
+
+        var viewVal = lineupIndex;
+        TeamMessage = string.Empty;
+        Trainer.Team.Lineup.ForEach(p =>
+        {
+            if (!string.IsNullOrEmpty(TeamMessage))
+                TeamMessage += ", " + p.Name;
+            else
+            {
+                viewVal++;
+                TeamMessage += $"Deleted Lineup {lineupIndex + 1}: " + p.Name;
+            }
+        });
+
+        TeamMessageClass = "badge-danger";
+        navMan.NavigateTo("team"); // refresh
+    }
+
+    protected void LineupChanged(ChangeEventArgs e)
+    {
+        SelectedLineUp = int.Parse(e.Value.ToString());
+        Trainer.Team = Trainer.Lineups[SelectedLineUp];
+
+        // save the team
+        Task.Run(() => Poke.UpdateLineup(client, Trainer));
+        TeamMessage = string.Empty; // clear string if team is changing
+
+        // display team saved message
+        var viewVal = SelectedLineUp;
+        Trainer.Team.Lineup.ForEach(p =>
+        {
+            if (!string.IsNullOrEmpty(TeamMessage))
+                TeamMessage += ", " + p.Name;
+            else
+            {
+                viewVal++;
+                TeamMessage += $"Saved Team (Lineup {viewVal}): " + p.Name;
+            }
+        });
+        TeamMessageClass = "badge-success";
+    }
+
     protected override void OnInitialized()
     {
         Loading = true;
+        JSRuntime.InvokeAsync<string>("PlayMusic", "routeMusic");
         Title = "My Teams";
         Poke = new PokemonService();
         Auth = new AuthService();
+        SelectedLineUp = 0;
     }
 
     protected override async Task OnInitializedAsync()
@@ -62,6 +150,13 @@ else
             trainerHandle = trainerHandle.Replace("\"", string.Empty);
             trainerHandle = char.ToUpper(trainerHandle[0]) + trainerHandle.Substring(1); // uppercase first letter //Sam G: Don't you think we should respect the username's original casing?
             Title = trainerHandle + "\'s Teams";
+
+            // set default team if only 1
+            if (Trainer.Lineups.Count == 1)
+            {
+                Trainer.Team = Trainer.Lineups.First();
+                await Poke.UpdateLineup(client, Trainer);
+            }
             Loading = false;
         }
     }
