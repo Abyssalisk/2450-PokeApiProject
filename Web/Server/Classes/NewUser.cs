@@ -12,14 +12,13 @@ namespace Web.Server.Classes
             var TrainerName = model.Username;
             var Email = model.Email;
 
-            var con = new DBConnect().MyConnection;
-            if (UserNameValidation(TrainerName, con) == false)
-                return "username already taken"; // username taken
+            if (!UserNameAlreadyTaken(TrainerName))
+                return "username already taken";
 
             try
             {
                 Password = EncryptPassword(Password);
-                InsertDBcredentials(TrainerName, Password, Email, con);
+                InsertDBcredentials(TrainerName, Password, Email);
                 return "account created";
             }
             catch (Exception ex)
@@ -35,33 +34,19 @@ namespace Web.Server.Classes
             return new Encryption(thePass).EncryptedPassword;
         }
         //checks to see if username is already taken
-        public static bool UserNameValidation(string userName, MySqlConnection con)
+        public static bool UserNameAlreadyTaken(string userName)
         {
-            con.Open();
-            //INSERT query
-            string plainTextQuery = "SELECT TrainerName FROM sql3346222.userCredentials WHERE(TrainerName = '" + userName + "');";
-            string returnedQuery = "";
-            //execute the query
-            MySqlCommand query = new MySqlCommand(plainTextQuery, con);
-            MySqlDataReader rdr = query.ExecuteReader();
+            var query = $"SELECT Count(*) FROM Trainers WHERE TrainerHandle = '{userName}'";
+            var usernameExists = DBConnect.ExecuteScalar(query) > 0;
 
-            while (rdr.Read())
-            {
-                returnedQuery = (rdr[0]).ToString();
-            }
-            rdr.Close();
-            con.Close();
-
-            return !returnedQuery.Equals(userName);
+            return usernameExists;
         }
 
         //This method inserts the user login credentials into the DB
-        public static void InsertDBcredentials(string name, string encryptedPass, string email, MySqlConnection connection)
+        public static void InsertDBcredentials(string name, string encryptedPass, string email)
         {
-            connection.Open();
-            var query = $"INSERT INTO sql3346222.userCredentials(TrainerName, Password, Email, HighScore) VALUES('{name}', '{encryptedPass}', '{email}', 0);";
-            new MySqlCommand(query, connection).ExecuteNonQuery();
-            connection.Close();
+            var query = $"INSERT INTO Users(UserName, Password, Email) VALUES('{name}', '{encryptedPass}', '{email}');";
+            DBConnect.ExecuteNonQuery(query);
         }
     }
 }

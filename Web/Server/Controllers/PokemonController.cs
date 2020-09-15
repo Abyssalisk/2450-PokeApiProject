@@ -20,6 +20,7 @@ using System.Net.Http;
 using System.Net;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
+using Microsoft.Data.SqlClient;
 
 namespace Web.Server.Controllers
 {
@@ -217,17 +218,15 @@ namespace Web.Server.Controllers
         public List<TrainerModel> GetElite4AndChampion()
         {
             var elite4PlusChampionStrings = new List<string>();
-            var con = new DBConnect().MyConnection;
-            con.Open();
-            var query = "SELECT TrainerName FROM sql3346222.userCredentials ORDER BY HighScore DESC LIMIT 5;";
-            var rdr = new MySqlCommand(query, con).ExecuteReader();
 
-            while (rdr.Read())
+            var query = "SELECT TrainerName FROM sql3346222.userCredentials ORDER BY HighScore DESC LIMIT 5;";
+            using (var reader = DBConnect.GetReader(query))
             {
-                elite4PlusChampionStrings.Add(rdr[0].ToString());
+                while (reader.Read())
+                {
+                    elite4PlusChampionStrings.Add(reader[0].ToString());
+                }
             }
-            rdr.Close();
-            con.Close();
 
             var elite4PlusChampion = new List<TrainerModel>();
             elite4PlusChampionStrings.ForEach(t =>
@@ -241,17 +240,15 @@ namespace Web.Server.Controllers
         public List<TrainerModel> GetTopTenTrainers()
         {
             var topTenNames = new List<string>();
-            var con = new DBConnect().MyConnection;
-            con.Open();
-            var query = "SELECT TrainerName FROM sql3346222.userCredentials ORDER BY HighScore DESC LIMIT 10;";
-            var rdr = new MySqlCommand(query, con).ExecuteReader();
 
-            while (rdr.Read())
+            var query = "SELECT TOP 10 t.TrainerHandle FROM Trainers t JOIN Scores s on t.TrainerId = s.TrainerId ORDER BY Score DESC;";
+            using (var reader = DBConnect.GetReader(query))
             {
-                topTenNames.Add(rdr[0].ToString());
+                while (reader.Read())
+                {
+                    topTenNames.Add(reader[0].ToString());
+                }
             }
-            rdr.Close();
-            con.Close();
 
             var topTenTrainers = new List<TrainerModel>();
             topTenNames.ForEach(t =>
@@ -267,30 +264,23 @@ namespace Web.Server.Controllers
             if (trainer.Lineups.Any(l => l.Checked == true))
                 trainer.Lineups.Where(l => l.Checked == true).Select(l => l).ToList().ForEach(l => { l.Checked = false; }); // reset the check
 
-            var con = new DBConnect().MyConnection;
-            con.Open();
-
             var json = JsonConvert.SerializeObject(trainer.Team);
-            var querystring = $"UPDATE sql3346222.userCredentials SET CurrentLineup = '{json}' WHERE TrainerName= '{trainer.Handle}';";
-            new MySqlCommand(querystring, con).ExecuteNonQuery();
+            var query = $"UPDATE Trainers SET CurrentTeamId = {0} WHERE TrainerId={trainer.Id};"; // todo teamId
+            DBConnect.ExecuteNonQuery(query);
 
-            json = JsonConvert.SerializeObject(trainer.Lineups);
-            querystring = $"UPDATE sql3346222.userCredentials SET Lineups = '{json}' WHERE TrainerName= '{trainer.Handle}';";
-            new MySqlCommand(querystring, con).ExecuteNonQuery();
-
-            con.Close();
+            trainer.Lineups.ForEach(t =>
+            {
+                query = $"UPDATE Teams SET JSON = '{json}' WHERE TeamId= '{0}';"; // todo teamId
+                DBConnect.ExecuteNonQuery(query);
+            });
         }
 
         public void UpdateHighScore(TrainerModel trainer)
         {
-            var con = new DBConnect().MyConnection;
-            con.Open();
-
-            var querystring = $"UPDATE sql3346222.userCredentials SET HighScore = {trainer.HighScore} WHERE TrainerName= '{trainer.Handle}';";
-            new MySqlCommand(querystring, con).ExecuteNonQuery();
-
-            con.Close();
+            var query = $"INSERT INTO Scores(TrainerId, Score, TeamId) VALUES ({trainer.Id}, {trainer.CurrentScore}, {trainer.Team});";
+            DBConnect.ExecuteNonQuery(query);
         }
+
         public TrainerModel GetTrainerFromDB(string name)
         {
             var trainer = new TrainerModel()
@@ -298,40 +288,45 @@ namespace Web.Server.Controllers
                 Handle = name
             };
 
-            var con = new DBConnect().MyConnection;
-            con.Open();
-            var querystring = $"SELECT * FROM sql3346222.userCredentials WHERE(TrainerName = '{name}');";
-            MySqlCommand cmd = new MySqlCommand(querystring, con);
-            MySqlDataReader rdr = cmd.ExecuteReader();
-
-            while (rdr.Read())
+            try
             {
-                trainer.Id = int.Parse(rdr[0].ToString());
-                trainer.HighScore = int.Parse(rdr[5].ToString());
-                trainer.Lineups = Lineup.DeserializeLineupList(rdr[4].ToString());
-                trainer.Team = Lineup.DeserializeLineup(rdr[6].ToString());
+                var query = $"SELECT * FROM Trainers WHERE(TrainerHandle = '{name}');";
+                using (var conn = DBConnect.BuildSqlConnection())
+                {
+                    SqlCommand command = new SqlCommand(query, conn);
+                    conn.Open();
+                    var rdr = command.ExecuteReader();
+                    while (rdr.Read())
+                    {
+                        trainer.Id = int.Parse(rdr[0].ToString());
+                        trainer.Handle = rdr[1].ToString();
+                        trainer.CurrentTeamId = !string.IsNullOrEmpty(rdr[2].ToString()) ? int.Parse(rdr[2].ToString()) : 0;
+                        trainer.HighScore = GetHighScore(trainer.Id);
+                        trainer.Lineups = Lineup.DeserializeLineupList(Lineup.GetLineups(trainer));
+                        trainer.Team = Lineup.DeserializeLineupList(Lineup.GetLineups(trainer)).FirstOrDefault();
+                    }
+                }
             }
-            rdr.Close();
-            con.Close();
+            catch (Exception ex)
+            {
+                throw new Exception($"Error executing query: {ex.Message}");
+            }
+
             return trainer;
+        }
+
+        private int GetHighScore(int id)
+        {
+            var query = $"SELECT TOP 1 Score from Scores WHERE TrainerId = {id} ORDER BY Score DESC;";
+            var score = DBConnect.ExecuteScalar(query);
+            return score;
         }
 
         public List<string> GetAllPokemonNames()
         {
-            var names = new List<string>();
-
-            var con = new DBConnect().MyConnection;
-            con.Open();
-            var querystring = $"SELECT FileContent FROM sql3346222.Files WHERE FileName='AllPokemonGen1CSV'";
-            MySqlCommand cmd = new MySqlCommand(querystring, con);
-            MySqlDataReader rdr = cmd.ExecuteReader();
-
-            while (rdr.Read())
-            {
-                names = rdr[0].ToString().Split(',').ToList();
-            }
-            rdr.Close();
-            con.Close();
+            var query = $"SELECT FileContent FROM sql3346222.Files WHERE FileName='AllPokemonGen1CSV'";
+            var result = DBConnect.GetSingleString(query);
+            var names = result.Split(',').ToList();
 
             return names;
         }
@@ -340,7 +335,7 @@ namespace Web.Server.Controllers
         {
             var client = new RestClient(uri);
             var request = new RestRequest(Method.GET);
-            var response =  client.Execute(request);
+            var response = client.Execute(request);
 
             var obj = (IDictionary<string, object>)JsonConvert.DeserializeObject<ExpandoObject>(response.Content, new ExpandoObjectConverter());
             return obj;

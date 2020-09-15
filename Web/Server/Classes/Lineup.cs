@@ -1,9 +1,11 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using PokeAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Web.Shared.Models;
 
@@ -41,6 +43,11 @@ namespace Web.Server.Classes
             AddPokemonToDB();
         }
 
+        public static List<PokemonModel> DeserializePokemonList(string json)
+        {
+            var list = JsonConvert.DeserializeObject<List<PokemonModel>>(json);
+            return list;
+        }
 
         public static LineupModel DeserializeLineup(string lineup)
         {
@@ -214,6 +221,52 @@ namespace Web.Server.Classes
             {
                 PokemonArray[5] = pokemon;
                 return;
+            }
+        }
+
+        internal static string GetLineups(TrainerModel trainer, [Optional] bool teamOnly)
+        {
+            try
+            {
+                var query = string.Empty;
+                if (teamOnly)
+                {
+                    if (trainer.CurrentTeamId > 0)
+                        query = $"SELECT TOP 1 * FROM Teams WHERE TrainerId = {trainer.Id} AND TeamId = {trainer.CurrentTeamId} AND DeleteDate IS NULL;";
+                    else
+                        query = $"SELECT TOP 1 * FROM Teams WHERE TrainerId = {trainer.Id} AND DeleteDate IS NULL;";
+                }
+                else
+                    query = $"SELECT * FROM Teams WHERE TrainerId = {trainer.Id} AND DeleteDate IS NULL;";
+
+                using (var conn = DBConnect.BuildSqlConnection())
+                {
+                    SqlCommand command = new SqlCommand(query, conn);
+                    conn.Open();
+                    var rdr = command.ExecuteReader();
+                    var lineups = new List<LineupModel>();
+
+                    while (rdr.Read())
+                    {
+                        var team = new LineupModel();
+                        team.TeamId = int.Parse(rdr[0].ToString());
+                        team.Name = rdr[1].ToString();
+
+                        var json = rdr[3].ToString();
+                        if (!string.IsNullOrEmpty(json))
+                            team.Lineup = DeserializePokemonList(json);
+
+                        team.Text = "";
+
+                        lineups.Add(team);
+                    }
+
+                    return JsonConvert.SerializeObject(lineups);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error executing query: {ex.Message}");
             }
         }
     }

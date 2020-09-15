@@ -10,7 +10,8 @@ namespace Web.Shared.Models
         public string Handle { get; set; }
         public int CurrentScore { get; set; }
         public int HighScore { get; set; }
-        public LineupModel Team { get; set; } = new LineupModel(); // current lineup
-        public List<LineupModel> Lineups { get; set; } = new List<LineupModel>(); // all lineups from previous teams
+        public int CurrentTeamId { get; set; }
+        public LineupModel Team { get; set; } = new LineupModel();
+        public List<LineupModel> Lineups { get; set; } = new List<LineupModel>();
     }
 }
