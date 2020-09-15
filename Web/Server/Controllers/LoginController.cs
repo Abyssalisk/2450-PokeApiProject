@@ -14,6 +14,8 @@ using Web.Client.Pages;
 using Web.Server.Classes;
 using Web.Shared.Models;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 
 namespace Web.Server.Controllers
 {
@@ -64,7 +66,7 @@ namespace Web.Server.Controllers
             try
             {
                 var mailMessage = new MimeMessage();
-                mailMessage.From.Add(new MailboxAddress("Pokemanz", "pokemanz2450@gmail.com"));
+                mailMessage.From.Add(new MailboxAddress("Poke", "pokemanz.project@gmail.com"));
                 mailMessage.To.Add(new MailboxAddress("Trainer", email));
 
                 var textpart = new TextPart("plain");
@@ -104,8 +106,8 @@ namespace Web.Server.Controllers
         {
             using (var client = new MailKit.Net.Smtp.SmtpClient())
             {
-                await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync("pokemanz.project@gmail.com", "GaviSpe64!");
+                await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTlsWhenAvailable);
+                await client.AuthenticateAsync("pokemanz.srosy@gmail.com", "GaviSpe64!");
                 await client.SendAsync(mailMessage);
                 await client.DisconnectAsync(true);
             }
