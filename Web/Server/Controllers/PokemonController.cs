@@ -46,6 +46,13 @@ namespace Web.Server.Controllers
             return names;
         }
 
+        [HttpPost("deletelineup")] // https://localhost:44392/api/pokemon/deletelineup
+        public HttpResponseMessage DeleteLineup([FromBody] int teamId)
+        {
+            DBConnect.ExecuteNonQuery($"DELETE FROM TEAMS WHERE TeamId = {teamId};");
+            return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
+        }
+
         [HttpPost("lineup")] // https://localhost:44392/api/pokemon/lineup
         public HttpResponseMessage UpdateLineup([FromBody] TrainerModel trainer)
         {
