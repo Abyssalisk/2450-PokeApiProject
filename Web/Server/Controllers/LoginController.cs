@@ -115,7 +115,7 @@ namespace Web.Server.Controllers
 
         public bool Validate(string username, string password)
         {
-            string query = $"SELECT [Password] FROM Users u JOIN Trainers t on u.TrainerId = t.TrainerId WHERE t.TrainerHandle = '{username}';";
+            string query = $"SELECT [Password] FROM Users WHERE UserName = '{username}';";
             var data = DBConnect.GetSingleString(query);
 
             if (string.IsNullOrEmpty(data)) return false;

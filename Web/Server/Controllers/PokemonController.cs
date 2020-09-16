@@ -53,15 +53,6 @@ namespace Web.Server.Controllers
             return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
         }
 
-        [HttpPost("trainer/update")] // https://localhost:44392/api/pokemon/lineup?trainername=srosy
-        public HttpResponseMessage UpdateTrainer([FromBody] TrainerModel trainer)
-        {
-            //CreateLineupDB(trainername, lineupJson);
-            var response = new HttpResponseMessage();
-            response.StatusCode = HttpStatusCode.OK;
-            return response;
-        }
-
         [HttpPost("score/update")] // https://localhost:44392/api/pokemon/lineup?trainername=srosy
         public HttpResponseMessage UpdateScore([FromBody] TrainerModel trainer)
         {
@@ -290,6 +281,16 @@ namespace Web.Server.Controllers
 
             try
             {
+                var trainerId = GetTrainerId(name);
+
+                if (trainerId <= 0)
+                {
+                    CreateNewTrainer(name);
+                    trainerId = GetTrainerId(name);
+                    var userId = DBConnect.ExecuteScalar($"SELECT UserId FROM Users WHERE UserName = '{name}';");
+                    DBConnect.ExecuteNonQuery($"UPDATE Users SET TrainerId = {trainerId} WHERE UserId = {userId};");
+                }
+
                 var query = $"SELECT * FROM Trainers WHERE(TrainerHandle = '{name}');";
                 using (var conn = DBConnect.BuildSqlConnection())
                 {
@@ -313,6 +314,18 @@ namespace Web.Server.Controllers
             }
 
             return trainer;
+        }
+
+        private int GetTrainerId(string name)
+        {
+            try
+            {
+                var trainerId = DBConnect.ExecuteScalar($"SELECT TrainerId WHERE UserName = '{name}';");
+                return trainerId;
+            }
+            catch { }
+
+            return 0;
         }
 
         private int GetHighScore(int id)
@@ -339,6 +352,12 @@ namespace Web.Server.Controllers
 
             var obj = (IDictionary<string, object>)JsonConvert.DeserializeObject<ExpandoObject>(response.Content, new ExpandoObjectConverter());
             return obj;
+        }
+
+        internal static void CreateNewTrainer(string username)
+        {
+            var userId = DBConnect.ExecuteScalar($"SELECT UserId FROM Users WHERE UserName = '{username}';");
+            DBConnect.ExecuteNonQuery($"INSERT INTO Trainer(TrainerHandle, CurrentTeamId) VALUES('{username}', 0);");
         }
     }
 }

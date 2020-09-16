@@ -12,13 +12,15 @@ namespace Web.Server.Classes
             var TrainerName = model.Username;
             var Email = model.Email;
 
-            if (!UserNameAlreadyTaken(TrainerName))
+            if (UserNameAlreadyTaken(TrainerName))
                 return "username already taken";
 
             try
             {
+                Controllers.PokemonController.CreateNewTrainer(model.Username);
                 Password = EncryptPassword(Password);
                 InsertDBcredentials(TrainerName, Password, Email);
+               
                 return "account created";
             }
             catch (Exception ex)
