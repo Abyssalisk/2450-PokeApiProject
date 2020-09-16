@@ -45,8 +45,10 @@ namespace Web.Server.Classes
 
         public static List<PokemonModel> DeserializePokemonList(string json)
         {
-            var list = JsonConvert.DeserializeObject<List<PokemonModel>>(json);
-            return list;
+            var lineup = JsonConvert.DeserializeObject<LineupModel>(json);
+            return lineup.Lineup;
+            //var list = JsonConvert.DeserializeObject<List<PokemonModel>>(json);
+            //return list;
         }
 
         public static LineupModel DeserializeLineup(string lineup)
@@ -254,9 +256,12 @@ namespace Web.Server.Classes
 
                         var json = rdr[3].ToString();
                         if (!string.IsNullOrEmpty(json))
+                        {
+                            
                             team.Lineup = DeserializePokemonList(json);
+                        }
 
-                        team.Text = "";
+                        team.Text = ""; // TODO
 
                         lineups.Add(team);
                     }

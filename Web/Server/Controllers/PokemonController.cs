@@ -255,14 +255,25 @@ namespace Web.Server.Controllers
             if (trainer.Lineups.Any(l => l.Checked == true))
                 trainer.Lineups.Where(l => l.Checked == true).Select(l => l).ToList().ForEach(l => { l.Checked = false; }); // reset the check
 
-            var json = JsonConvert.SerializeObject(trainer.Team);
-            var query = $"UPDATE Trainers SET CurrentTeamId = {0} WHERE TrainerId={trainer.Id};"; // todo teamId
-            DBConnect.ExecuteNonQuery(query);
+            if (trainer.Team.TeamId <= 0)
+            {
+                // new team to be saved
+                var nextTeamId = DBConnect.ExecuteScalar($"SELECT TOP 1 TeamId FROM Teams;");
+                trainer.Team.TeamId = ++nextTeamId;
+                var json = JsonConvert.SerializeObject(trainer.Team);
+                var sql = $"INSERT INTO Teams(TrainerId, JSON) VALUES({trainer.Id}, '{json}');";
+                DBConnect.ExecuteNonQuery(sql);
+            }
 
             trainer.Lineups.ForEach(t =>
             {
-                query = $"UPDATE Teams SET JSON = '{json}' WHERE TeamId= '{0}';"; // todo teamId
-                DBConnect.ExecuteNonQuery(query);
+                if (t.TeamId > 0 && t.TeamId != trainer.Team.TeamId)
+                {
+                    // new team to be saved
+                    var json = JsonConvert.SerializeObject(t);
+                    var sql = $"UPDATE Teams SET JSON = '{json}' WHERE TeamId = {t.TeamId};";
+                    DBConnect.ExecuteNonQuery(sql);
+                }
             });
         }
 
@@ -281,14 +292,14 @@ namespace Web.Server.Controllers
 
             try
             {
-                var trainerId = GetTrainerId(name);
+                trainer.Id = GetTrainerId(name);
 
-                if (trainerId <= 0)
+                if (trainer.Id <= 0)
                 {
                     CreateNewTrainer(name);
-                    trainerId = GetTrainerId(name);
+                    trainer.Id = GetTrainerId(name);
                     var userId = DBConnect.ExecuteScalar($"SELECT UserId FROM Users WHERE UserName = '{name}';");
-                    DBConnect.ExecuteNonQuery($"UPDATE Users SET TrainerId = {trainerId} WHERE UserId = {userId};");
+                    DBConnect.ExecuteNonQuery($"UPDATE Users SET TrainerId = {trainer.Id} WHERE UserId = {userId};");
                 }
 
                 var query = $"SELECT * FROM Trainers WHERE(TrainerHandle = '{name}');";
@@ -320,7 +331,7 @@ namespace Web.Server.Controllers
         {
             try
             {
-                var trainerId = DBConnect.ExecuteScalar($"SELECT TrainerId WHERE UserName = '{name}';");
+                var trainerId = DBConnect.ExecuteScalar($"SELECT TrainerId FROM Trainers WHERE TrainerHandle = '{name}';");
                 return trainerId;
             }
             catch { }
@@ -337,7 +348,7 @@ namespace Web.Server.Controllers
 
         public List<string> GetAllPokemonNames()
         {
-            var query = $"SELECT FileContent FROM sql3346222.Files WHERE FileName='AllPokemonGen1CSV'";
+            var query = $"SELECT Data FROM Files WHERE FileId = 1;";
             var result = DBConnect.GetSingleString(query);
             var names = result.Split(',').ToList();
 
@@ -356,8 +367,7 @@ namespace Web.Server.Controllers
 
         internal static void CreateNewTrainer(string username)
         {
-            var userId = DBConnect.ExecuteScalar($"SELECT UserId FROM Users WHERE UserName = '{username}';");
-            DBConnect.ExecuteNonQuery($"INSERT INTO Trainer(TrainerHandle, CurrentTeamId) VALUES('{username}', 0);");
+            DBConnect.ExecuteNonQuery($"INSERT INTO Trainers(TrainerHandle, CurrentTeamId) VALUES('{username}', 0);");
         }
     }
 }
