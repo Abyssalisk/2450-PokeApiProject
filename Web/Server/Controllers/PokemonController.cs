@@ -217,12 +217,15 @@ namespace Web.Server.Controllers
         {
             var elite4PlusChampionStrings = new List<string>();
 
-            var query = "SELECT TrainerName FROM sql3346222.userCredentials ORDER BY HighScore DESC LIMIT 5;";
-            using (var reader = DBConnect.GetReader(query))
+            var query = "SELECT TOP 5 t.TrainerHandle FROM Trainers t JOIN Scores s on t.TrainerId = s.TrainerId ORDER BY s.Score DESC;";
+            using (var conn = DBConnect.BuildSqlConnection())
             {
-                while (reader.Read())
+                SqlCommand command = new SqlCommand(query, conn);
+                conn.Open();
+                var rdr = command.ExecuteReader();
+                while (rdr.Read())
                 {
-                    elite4PlusChampionStrings.Add(reader[0].ToString());
+                    elite4PlusChampionStrings.Add(rdr[0].ToString());
                 }
             }
 
@@ -239,12 +242,15 @@ namespace Web.Server.Controllers
         {
             var topTenNames = new List<string>();
 
-            var query = "SELECT TOP 10 t.TrainerHandle FROM Trainers t JOIN Scores s on t.TrainerId = s.TrainerId ORDER BY Score DESC;";
-            using (var reader = DBConnect.GetReader(query))
+            var query = "SELECT TOP 10 t.TrainerHandle FROM Trainers t JOIN Scores s on t.TrainerId = s.TrainerId ORDER BY s.Score DESC;";
+            using (var conn = DBConnect.BuildSqlConnection())
             {
-                while (reader.Read())
+                SqlCommand command = new SqlCommand(query, conn);
+                conn.Open();
+                var rdr = command.ExecuteReader();
+                while (rdr.Read())
                 {
-                    topTenNames.Add(reader[0].ToString());
+                    topTenNames.Add(rdr[0].ToString());
                 }
             }
 
@@ -286,7 +292,7 @@ namespace Web.Server.Controllers
 
         public void UpdateHighScore(TrainerModel trainer)
         {
-            var query = $"INSERT INTO Scores(TrainerId, Score, TeamId) VALUES ({trainer.Id}, {trainer.CurrentScore}, {trainer.Team});";
+            var query = $"INSERT INTO Scores(TrainerId, Score, TeamId) VALUES ({trainer.Id}, {trainer.HighScore}, {trainer.Team.TeamId});";
             DBConnect.ExecuteNonQuery(query);
         }
 
