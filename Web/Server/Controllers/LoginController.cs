@@ -13,6 +13,9 @@ using Newtonsoft.Json;
 using Web.Client.Pages;
 using Web.Server.Classes;
 using Web.Shared.Models;
+using System.Linq;
+using System.Net;
+using System.Net.Mail;
 
 namespace Web.Server.Controllers
 {
@@ -44,7 +47,7 @@ namespace Web.Server.Controllers
         [HttpGet]
         public string Login([FromQuery] string username, [FromQuery] string password)
         {
-            var accountIsAuth = Validate(username, password, new DBConnect().MyConnection);
+            var accountIsAuth = Validate(username, password);
 
             if (accountIsAuth)
                 return "true";
@@ -63,9 +66,8 @@ namespace Web.Server.Controllers
             try
             {
                 var mailMessage = new MimeMessage();
-                mailMessage.From.Add(new MailboxAddress("Pokemanz", "pokemanz2450@gmail.com"));
+                mailMessage.From.Add(new MailboxAddress("Poke", "pokemanz.project@gmail.com"));
                 mailMessage.To.Add(new MailboxAddress("Trainer", email));
-
 
                 var textpart = new TextPart("plain");
 
@@ -78,26 +80,19 @@ namespace Web.Server.Controllers
                 {
                     var LoginModel = new LoginModel();
 
-                    var con = new DBConnect().MyConnection;
-                    string lookupEmailByName = $"SELECT TrainerName, Password FROM sql3346222.userCredentials WHERE(Email='{email}') LIMIT 1;";
+                    var query = $"SELECT TOP 1 UserName, Password FROM Users WHERE Email='{email}';";
+                    var DS = DBConnect.GetDataSet(query);
 
-                    con.Open();
-                    MySqlCommand query = new MySqlCommand(lookupEmailByName, con);
-                    MySqlDataReader rdr = query.ExecuteReader();
-
-                    //reading returned query
-                    while (rdr.Read())
+                    if (DS.Tables[0].Rows.Count > 0)
                     {
-                        LoginModel.Username = rdr[0].ToString(); // username
-                        LoginModel.Password = new Encryption().Decrypt(rdr[1].ToString()); // password hashed + secret
+                        LoginModel.Username = DS.Tables[0].Rows[0]["UserName"].ToString();
+                        LoginModel.Password = new Encryption().Decrypt(DS.Tables[0].Rows[0]["Password"].ToString());
+
+                        mailMessage.Subject = "PokeManz Credentials";
+                        textpart.Text = $"Your login credentials are\n\nUsername: {LoginModel.Username}\nPassword: {LoginModel.Password}";
+                        
                     }
-                    rdr.Close();
-                    con.Close();
-
-                    mailMessage.Subject = "PokeManz Credentials";
-                    textpart.Text = $"Your login credentials are\n\nUsername: {LoginModel.Username}\nPassword: {LoginModel.Password}";
                 }
-
                 mailMessage.Body = textpart;
                 Task.Run(() => DoSending(mailMessage)); // fire off and forget about it
             }
@@ -111,43 +106,21 @@ namespace Web.Server.Controllers
         {
             using (var client = new MailKit.Net.Smtp.SmtpClient())
             {
-                await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync("pokemanz2450@gmail.com", "13juliet");
+                await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTlsWhenAvailable);
+                await client.AuthenticateAsync("pokemanz.srosy@gmail.com", "GaviSpe64!");
                 await client.SendAsync(mailMessage);
                 await client.DisconnectAsync(true);
             }
         }
 
-        public bool Validate(string username, string password, MySqlConnection con)
+        public bool Validate(string username, string password)
         {
-            LoginModel login = new LoginModel()
-            {
-                Username = username,
-                Password = password
-            };
+            string query = $"SELECT [Password] FROM Users WHERE UserName = '{username}';";
+            var data = DBConnect.GetSingleString(query);
 
-            string lookupByName = "SELECT `UserID`,Password FROM sql3346222.userCredentials WHERE(TrainerName = '" + login.Username + "');";
-            string decryptedPass = string.Empty;
-            int userID = 0;
-
-            //opens new DB connection with MySql and pulls hashed password from userCredentials table
-            con.Open();
-            MySqlCommand query = new MySqlCommand(lookupByName, con);
-            MySqlDataReader rdr = query.ExecuteReader();
-
-            while (rdr.Read())
-            {
-                userID = Convert.ToInt32(rdr[0].ToString());
-                decryptedPass = new Encryption().Decrypt(rdr[1].ToString());
-            }
-            rdr.Close();
-            con.Close();
-            if (userID == 0)
-            {
-                return false; // account not found
-            }
-
-            return decryptedPass.Equals(password);
+            if (string.IsNullOrEmpty(data)) return false;
+            var decryptedPass = new Encryption().Decrypt(data);
+            return password.Equals(decryptedPass);
         }
     }
 }
