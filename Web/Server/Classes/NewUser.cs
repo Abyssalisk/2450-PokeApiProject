@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using Web.Shared.Models;
+using Web.Shared.Classes;
 
 namespace Web.Server.Classes
 {

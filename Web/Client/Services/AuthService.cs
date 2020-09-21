@@ -1,17 +1,10 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.JSInterop;
-using Org.BouncyCastle.Asn1.Ocsp;
+﻿using Microsoft.JSInterop;
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Dynamic;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.XPath;
 using Web.Shared.Models;
+using Web.Shared.Classes;
 
 namespace Web.Client.Services
 {
@@ -52,7 +45,7 @@ namespace Web.Client.Services
 
         public async Task<string> TryLogin(HttpClient client, LoginModel login)
         {
-            var result = await client.GetStringAsync($"api/login?username={login.Username}&password={login.Password}");
+            var result = await client.GetStringAsync($"api/login?username={login.Username}&password={new Encryption(login.Password).EncryptedPassword}");
             return result;
         }
 
@@ -63,7 +56,7 @@ namespace Web.Client.Services
 
         public void CreateAccount(HttpClient client, CreateAccountModel createAccount)
         {
-            Task.Run(() => client.GetStringAsync($"api/login/createaccount?name={createAccount.Username}&pass={createAccount.Password}&email={createAccount.Email}"));
+            Task.Run(() => client.GetStringAsync($"api/login/createaccount?name={createAccount.Username}&pass={new Encryption(createAccount.Password).EncryptedPassword}&email={createAccount.Email}"));
         }
 
         public void SendEmail(HttpClient client, string email, string code)
