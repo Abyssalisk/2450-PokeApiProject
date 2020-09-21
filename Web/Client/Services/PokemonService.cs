@@ -1,20 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.JSInterop;
-using Org.BouncyCastle.Asn1.Ocsp;
-using PokeAPI;
-using System;
+﻿using PokeAPI;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Dynamic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml.XPath;
 using Web.Shared.Models;
 
 namespace Web.Client.Services

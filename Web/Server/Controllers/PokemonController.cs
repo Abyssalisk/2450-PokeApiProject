@@ -1,26 +1,21 @@
-﻿using System.IO;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using PokeAPI;
 using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Globalization;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Web.Server.Classes;
 using Web.Shared.Models;
-using Microsoft.VisualBasic.FileIO;
-using Web.Client;
-using System;
-using System.Net.Http;
-using System.Net;
-using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
-using Microsoft.Data.SqlClient;
 
 namespace Web.Server.Controllers
 {
@@ -133,7 +128,6 @@ namespace Web.Server.Controllers
             IRestResponse response = client.Execute(request);
 
             dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(response.Content, new ExpandoObjectConverter());
-            //var obj = await DataFetcher.GetNamedApiObject<Pokemon>(name.ToLower()); // wrapper stopped working 7/29/2020
 
             // create PokemonModel from PokeApi.Pokemon
             var pokemon = new PokemonModel();

@@ -1,21 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using MailKit.Security;
+﻿using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MimeKit;
-using MySql.Data.MySqlClient;
-using Newtonsoft.Json;
-using Web.Client.Pages;
+using System;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Web.Server.Classes;
+using Web.Shared.Classes;
 using Web.Shared.Models;
-using System.Linq;
-using System.Net;
-using System.Net.Mail;
 
 namespace Web.Server.Controllers
 {
@@ -37,7 +28,7 @@ namespace Web.Server.Controllers
             var cam = new CreateAccountModel()
             {
                 Username = name,
-                Password = pass,
+                Password = new Encryption().Decrypt(pass),
                 Email = email
             };
 
@@ -47,7 +38,7 @@ namespace Web.Server.Controllers
         [HttpGet]
         public string Login([FromQuery] string username, [FromQuery] string password)
         {
-            var accountIsAuth = Validate(username, password);
+            var accountIsAuth = Validate(username, new Encryption().Decrypt(password));
 
             if (accountIsAuth)
                 return "true";
