@@ -242,7 +242,7 @@ namespace Web.Server.Controllers
         {
             var topTenNames = new List<string>();
 
-            var query = "SELECT TOP 10 t.TrainerHandle FROM Trainers t JOIN Scores s on t.TrainerId = s.TrainerId ORDER BY s.Score DESC;";
+            var query = "SELECT DISTINCT TOP 10 t.TrainerHandle, s.Score FROM Trainers t JOIN Scores s on t.TrainerId = s.TrainerId ORDER BY s.Score DESC;";
             using (var conn = DBConnect.BuildSqlConnection())
             {
                 SqlCommand command = new SqlCommand(query, conn);
