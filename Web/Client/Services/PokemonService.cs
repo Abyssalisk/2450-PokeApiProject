@@ -41,14 +41,18 @@ namespace Web.Client.Services
         public async Task<bool> UpdateScore(HttpClient client, TrainerModel trainer)
         {
             var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/score/update", trainer);
-            return result.IsSuccessStatusCode;
+            return result.IsSuccessStatusCode; 
         }
         public async Task<bool> UpdateLineup(HttpClient client, TrainerModel trainer)
         {
             var result = await client.PostAsJsonAsync<TrainerModel>($"api/pokemon/lineup", trainer);
             return result.IsSuccessStatusCode;
         }
-
+        public async Task<bool> DeleteLineup(HttpClient client, int teamId)
+        {
+            var result = await client.PostAsJsonAsync<int>($"api/pokemon/deletelineup", teamId);
+            return result.IsSuccessStatusCode;
+        }
         public async Task<List<string>> GetAllPokemonNames(HttpClient client)
         {
             var result = await client.GetFromJsonAsync<List<string>>($"api/pokemon/allnames");

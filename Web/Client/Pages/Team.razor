@@ -82,8 +82,9 @@ else
 
     protected void DeleteLineUp(int lineupIndex)
     {
+        var lineupId = Trainer.Lineups[lineupIndex].TeamId;
         Trainer.Lineups.RemoveAt(lineupIndex);
-        Task.Run(() => Poke.UpdateLineup(client, Trainer));
+        Task.Run(() => Poke.DeleteLineup(client, lineupId));
 
         var viewVal = lineupIndex;
         TeamMessage = string.Empty;
