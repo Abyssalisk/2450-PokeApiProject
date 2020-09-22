@@ -64,6 +64,15 @@ namespace Web.Server.Controllers
             return response;
         }
 
+        [HttpPost("avatar/update")]
+        public HttpResponseMessage UpdateAvatar([FromBody] TrainerModel trainer)
+        {
+            DoUpdateAvater(trainer);
+            var response = new HttpResponseMessage();
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
+        }
+
         [HttpGet("trainer/{name}")] // https://localhost:44392/api/pokemon/trainer/srosy
         public TrainerModel GetTrainer(string name)
         {
@@ -290,6 +299,12 @@ namespace Web.Server.Controllers
             DBConnect.ExecuteNonQuery(query);
         }
 
+        public void DoUpdateAvater(TrainerModel trainer)
+        {
+            var query = $"UPDATE Trainers SET AvatarUrl = '{trainer.AvatarUrl}' WHERE TrainerId = {trainer.Id};";
+            DBConnect.ExecuteNonQuery(query);
+        }
+
         public TrainerModel GetTrainerFromDB(string name)
         {
             var trainer = new TrainerModel()
@@ -323,6 +338,7 @@ namespace Web.Server.Controllers
                         trainer.HighScore = GetHighScore(trainer.Id);
                         trainer.Lineups = Lineup.DeserializeLineupList(Lineup.GetLineups(trainer));
                         trainer.Team = Lineup.DeserializeLineupList(Lineup.GetLineups(trainer)).FirstOrDefault();
+                        trainer.AvatarUrl = !string.IsNullOrEmpty(rdr[4].ToString()) ? rdr[4].ToString() : string.Empty;
                     }
                 }
             }

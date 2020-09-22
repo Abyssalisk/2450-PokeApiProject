@@ -12,7 +12,36 @@
 }
 else
 {
-    <h1>My Trainer</h1>
+    <h1> My Trainer </h1>
+    @if (UploadAvatar || string.IsNullOrEmpty(MyTrainer.AvatarUrl))
+    {
+        <br />
+        <br />
+        <h3> Upload an Avatar!</h3>
+        <br />
+        <EditForm Model="@MyTrainer">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <form>
+                <div class="form-group">
+                    <InputText id="avatar_uri" class="form-control" placeholder="uri..." @bind-Value="@saveAvatarUrl" />
+                    <button class="btn btn-primary" @onclick="SaveAvatarUrl">Save</button>
+                </div>
+            </form>
+        </EditForm>
+        <br />
+        <br />
+    }
+    else
+    {
+        <br />
+        <div style="height: 25vh; width: 25vw; display: flex; align-items: center; justify-content: center;">
+            <input type="image" src="@MyTrainer.AvatarUrl" @onclick="() => UploadAvatar = true" style="max-width: 100%; max-height: 100%;" />
+        </div>
+        <br />
+        <br />
+    }
+
     <p>Basic trainer info for @MyTrainer.Handle</p>
     <TrainerInfoComponent Trainer="@MyTrainer" ShowLineups="false"></TrainerInfoComponent>
 }
@@ -23,6 +52,8 @@ else
     public PokemonService Poke { get; set; }
     public AuthService Auth { get; set; }
     private bool Loading { get; set; }
+    private bool UploadAvatar { get; set; }
+    private string saveAvatarUrl { get; set; }
 
     protected override void OnInitialized()
     {
@@ -47,5 +78,12 @@ else
             MyTrainer.Handle = char.ToUpper(MyTrainer.Handle[0]) + MyTrainer.Handle.Substring(1); // uppercase first letter
         }
         Loading = false;
+    }
+
+    public async Task SaveAvatarUrl()
+    {
+        MyTrainer.AvatarUrl = saveAvatarUrl;
+        await Poke.UpdateAvatar(client, MyTrainer); // save the avatar
+        UploadAvatar = false;
     }
 }

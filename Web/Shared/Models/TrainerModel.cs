@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Web.Shared.Models
 {
@@ -13,5 +11,6 @@ namespace Web.Shared.Models
         public int CurrentTeamId { get; set; }
         public LineupModel Team { get; set; } = new LineupModel();
         public List<LineupModel> Lineups { get; set; } = new List<LineupModel>();
+        public string AvatarUrl { get; set; }
     }
 }
