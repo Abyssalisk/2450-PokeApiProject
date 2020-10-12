@@ -1,26 +1,21 @@
-﻿using System.IO;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using PokeAPI;
 using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Globalization;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Web.Server.Classes;
 using Web.Shared.Models;
-using Microsoft.VisualBasic.FileIO;
-using Web.Client;
-using System;
-using System.Net.Http;
-using System.Net;
-using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
-using Microsoft.Data.SqlClient;
 
 namespace Web.Server.Controllers
 {
@@ -64,6 +59,15 @@ namespace Web.Server.Controllers
         public HttpResponseMessage UpdateScore([FromBody] TrainerModel trainer)
         {
             UpdateHighScore(trainer);
+            var response = new HttpResponseMessage();
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
+        }
+
+        [HttpPost("avatar/update")]
+        public HttpResponseMessage UpdateAvatar([FromBody] TrainerModel trainer)
+        {
+            DoUpdateAvater(trainer);
             var response = new HttpResponseMessage();
             response.StatusCode = HttpStatusCode.OK;
             return response;
@@ -133,7 +137,6 @@ namespace Web.Server.Controllers
             IRestResponse response = client.Execute(request);
 
             dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(response.Content, new ExpandoObjectConverter());
-            //var obj = await DataFetcher.GetNamedApiObject<Pokemon>(name.ToLower()); // wrapper stopped working 7/29/2020
 
             // create PokemonModel from PokeApi.Pokemon
             var pokemon = new PokemonModel();
@@ -242,7 +245,7 @@ namespace Web.Server.Controllers
         {
             var topTenNames = new List<string>();
 
-            var query = "SELECT TOP 10 t.TrainerHandle FROM Trainers t JOIN Scores s on t.TrainerId = s.TrainerId ORDER BY s.Score DESC;";
+            var query = "SELECT DISTINCT TOP 10 t.TrainerHandle, s.Score FROM Trainers t JOIN Scores s on t.TrainerId = s.TrainerId ORDER BY s.Score DESC;";
             using (var conn = DBConnect.BuildSqlConnection())
             {
                 SqlCommand command = new SqlCommand(query, conn);
@@ -296,6 +299,12 @@ namespace Web.Server.Controllers
             DBConnect.ExecuteNonQuery(query);
         }
 
+        public void DoUpdateAvater(TrainerModel trainer)
+        {
+            var query = $"UPDATE Trainers SET AvatarUrl = '{trainer.AvatarUrl}' WHERE TrainerId = {trainer.Id};";
+            DBConnect.ExecuteNonQuery(query);
+        }
+
         public TrainerModel GetTrainerFromDB(string name)
         {
             var trainer = new TrainerModel()
@@ -329,6 +338,7 @@ namespace Web.Server.Controllers
                         trainer.HighScore = GetHighScore(trainer.Id);
                         trainer.Lineups = Lineup.DeserializeLineupList(Lineup.GetLineups(trainer));
                         trainer.Team = Lineup.DeserializeLineupList(Lineup.GetLineups(trainer)).FirstOrDefault();
+                        trainer.AvatarUrl = !string.IsNullOrEmpty(rdr[4].ToString()) ? rdr[4].ToString() : string.Empty;
                     }
                 }
             }
